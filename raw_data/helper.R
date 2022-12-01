@@ -1,4 +1,4 @@
-# list of colours used in teh umar palette.
+# list of colours used in the umar palette.
 
 umar_colours <- c(`rdeca` = rgb(161, 3, 5, maxColorValue = 255),
                   `roza` = rgb(212, 101, 101, maxColorValue = 255),
