@@ -3,9 +3,12 @@
 \name{ranges}
 \alias{ranges}
 \alias{in_range}
+\alias{in_range_strict}
 \title{Helper functions for testing if a value is in a range}
 \usage{
 in_range(x, r)
+
+in_range_strict(x, r)
 }
 \arguments{
 \item{x}{numeric vector of length one}

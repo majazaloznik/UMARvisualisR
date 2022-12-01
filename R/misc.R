@@ -9,6 +9,7 @@
 #'
 #' @return logical
 #'
+NULL
 #' @rdname ranges
 #' @export
 in_range <- function (x, r) {
@@ -16,7 +17,8 @@ in_range <- function (x, r) {
   return(x >= r[1] & x <= r[2])
 }
 
-
+#' @rdname ranges
+#' @export
 in_range_strict <- function (x, r) {
   if(!(length(r) == 2 && r[1] <= r[2])) stop("not a real range")
   return(x > r[1] & x < r[2])
