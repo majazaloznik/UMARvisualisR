@@ -8,5 +8,6 @@ umar_colours <- c(`rdeca` = rgb(161, 3, 5, maxColorValue = 255),
                   `zelena` = rgb(152, 197, 118, maxColorValue = 255),
                   `vijolicna` = rgb(50, 20, 67, maxColorValue = 255),
                   `sinja` = rgb(102, 138, 182, maxColorValue = 255),
-                  `gridlines` = rgb(191, 191, 191, maxColorValue = 255))
-usethis::use_data(umar_colours, internal = TRUE)
+                  `gridlines` = rgb(191, 191, 191, maxColorValue = 255),
+                  `emph` = rgb(80, 87, 94, maxColorValue = 255))
+usethis::use_data(umar_colours, internal = TRUE, overwrite = TRUE)
