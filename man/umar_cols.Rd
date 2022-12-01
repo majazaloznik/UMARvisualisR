@@ -15,5 +15,6 @@ hex value of relevant colour(s)
 \description{
 Returns colour(s) from the Umar corporate graphical identity palette.
 Colour names are rdeca, roza, siva, temno modra, turkizna, zelena, vijolicna,
-sinja, gridlines. The last one is for gridlines, axes and the like.
+sinja, gridlines and emph. The last two are grays for gridlines, axes and the like
+and for emphasising the 100/0 gridline.
 }
