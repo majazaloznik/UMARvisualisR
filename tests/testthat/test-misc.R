@@ -7,4 +7,5 @@ test_that("range finding works ", {
   expect_error(in_range_strict(1, c(2,1)))
   expect_equal(first_up("in"), "In")
   expect_equal(first_up("iN"), "IN")
+  expect_equal(find_pretty_ylim(c(1, 3, 10)), c(0, 12))
 })
