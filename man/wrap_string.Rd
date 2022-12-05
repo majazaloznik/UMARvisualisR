@@ -4,12 +4,14 @@
 \alias{wrap_string}
 \title{Wrap a character string to a specified character width}
 \usage{
-wrap_string(string, width)
+wrap_string(string, width = 100, max_rows = 3)
 }
 \arguments{
 \item{string}{a character string to be wrapped- vector of length one}
 
-\item{width}{numeric - desired width}
+\item{width}{numeric - desired width, defaults to 100}
+
+\item{max_rows}{numeric maximum number of rows allowed in the output, defaults to 3}
 }
 \value{
 a list with the first element a character string with new lines if required and the
