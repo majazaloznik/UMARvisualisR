@@ -23,3 +23,18 @@ in_range_strict <- function (x, r) {
   if(!(length(r) == 2 && r[1] <= r[2])) stop("not a real range")
   return(x > r[1] & x < r[2])
 }
+
+
+#' Helper function to capitalise firs letter of string
+#'
+#' Capitalise the first letter of a string, but keep capitalization as is
+#' on other letters.
+#'
+#' @param x character string
+#'
+#' @return
+#' @export
+first_up <- function(x) {
+  stringr::str_replace(x, "^\\w{1}", toupper)
+}
+
