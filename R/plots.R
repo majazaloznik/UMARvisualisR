@@ -9,7 +9,8 @@
 #' Todo: add arguments such as x-value range, add flexibility of labels for different
 #' time ranges..
 #'
-#' @param prep_l
+#' @param prep_l list of length four with data.frame with data, the unit used and the
+#' main and sub titles. see \link[UMARaccessR]{prep_single_line}.
 #'
 #' @return nothing, plots to open device
 #' @export

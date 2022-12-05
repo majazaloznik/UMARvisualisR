@@ -32,7 +32,7 @@ in_range_strict <- function (x, r) {
 #'
 #' @param x character string
 #'
-#' @return
+#' @return a character string with first letter capitalized.
 #' @export
 first_up <- function(x) {
   stringr::str_replace(x, "^\\w{1}", toupper)

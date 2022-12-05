@@ -9,6 +9,9 @@ first_up(x)
 \arguments{
 \item{x}{character string}
 }
+\value{
+a character string with first letter capitalized.
+}
 \description{
 Capitalise the first letter of a string, but keep capitalization as is
 on other letters.
