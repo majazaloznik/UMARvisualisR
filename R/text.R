@@ -8,11 +8,16 @@
 #' @param string a character string to be wrapped- vector of length one
 #' @param width numeric - desired width
 #'
-#' @return a character sting with new lines if required.
+#' @return a list with the first element a character string with new lines if required and the
+#' second one a numeric value for how many rows are in the returned string.
+#'
 #' @export
 #'
 wrap_string <- function(string, width){
-  paste(strwrap(string,
-                width = width),
+  split_text <- strwrap(string,
+                        width = width)
+  n <- length(split_text)
+  wrapped_text <- paste(split_text,
         collapse="\n")
+  return(list(wrapped_text, n))
 }

@@ -12,7 +12,8 @@ wrap_string(string, width)
 \item{width}{numeric - desired width}
 }
 \value{
-a character sting with new lines if required.
+a list with the first element a character string with new lines if required and the
+second one a numeric value for how many rows are in the returned string.
 }
 \description{
 Uses strwrap to split a string into subsets that are shorter than the
