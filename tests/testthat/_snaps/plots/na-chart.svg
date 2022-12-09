@@ -53,9 +53,10 @@
 <text transform='translate(617.23,516.96) rotate(-90)' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='26.70px' lengthAdjust='spacingAndGlyphs'>2007</text>
 <text transform='translate(688.17,516.96) rotate(-90)' text-anchor='end' style='font-size: 12.00px; font-family: sans;' textLength='26.70px' lengthAdjust='spacingAndGlyphs'>2008</text>
 <polygon points='59.04,502.56 689.76,502.56 689.76,59.04 59.04,59.04 ' style='stroke-width: 1.50; stroke: #BFBFBF; fill: none;' />
-<text x='374.40' y='20.16' text-anchor='middle' style='font-size: 12.00px; font-weight: bold; font-family: sans;' textLength='426.26px' lengthAdjust='spacingAndGlyphs'>Indeksi cen življenjskih potrebščin po klasifikaciji ECOICOP, Slovenija, mesečno</text>
-<text x='374.40' y='34.56' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='515.04px' lengthAdjust='spacingAndGlyphs'>07.3.6.1 Prevoz z vzpenjačo, kabinsko žičnico in sedežnico - Povprečje mesecev leta / povprečje</text>
-<text x='374.40' y='48.96' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='154.10px' lengthAdjust='spacingAndGlyphs'>istih mesecev prejšnjega leta</text>
+<text x='374.40' y='5.76' text-anchor='middle' style='font-size: 12.00px; font-weight: bold; font-family: sans;' textLength='515.67px' lengthAdjust='spacingAndGlyphs'>Indeksi nominalnega in realnega prihodka v trgovini na drobno, na debelo in z motornimi vozili ter</text>
+<text x='374.40' y='20.16' text-anchor='middle' style='font-size: 12.00px; font-weight: bold; font-family: sans;' textLength='509.67px' lengthAdjust='spacingAndGlyphs'>od popravil le-teh (mesec / povprečje leta 2015) po dejavnostih (SKD 2008), originalni podatki in</text>
+<text x='374.40' y='34.56' text-anchor='middle' style='font-size: 12.00px; font-weight: bold; font-family: sans;' textLength='412.12px' lengthAdjust='spacingAndGlyphs'>podatki, iz katerih so izločeni vplivi sezone " "in koledarja, Slovenija, mesečno</text>
+<text x='374.40' y='48.96' text-anchor='middle' style='font-size: 12.00px; font-family: sans;' textLength='245.46px' lengthAdjust='spacingAndGlyphs'>Realni indeks - Originalni podatki - G Trgovina</text>
 <text x='374.40' y='135.36' text-anchor='middle' style='font-size: 24.00px; font-style: italic; fill: #A10305; font-family: sans;' textLength='216.17px' lengthAdjust='spacingAndGlyphs'>Podatki ne obstajajo</text>
 <text x='374.40' y='149.76' text-anchor='middle' style='font-size: 12.00px; font-style: italic; fill: #A10305; font-family: sans;' textLength='219.48px' lengthAdjust='spacingAndGlyphs'>(cela serija je za izbrano obdobje prazna)</text>
 </g>

@@ -21,12 +21,14 @@ univariate_line_chart <- function(prep_l){
   unit <- prep_l[[2]]
   main_title <- prep_l[[3]]
   sub_title <- prep_l[[4]]
+  update_time <- prep_l[[5]]
+  last_period <- prep_l[[6]]
   title_lines <-main_title[[2]] + sub_title[[2]]
 
   if(all(is.na(single$value))) {
     na_chart(prep_l) } else {
       # prepare plot area and limits
-      par(mar = c(3, 3.5, title_lines + 1, 1))
+      par(mar = c(3, 3.5, title_lines + 1, 3))
       ylim <- find_pretty_ylim(single$value)
 
       #plot
@@ -70,7 +72,10 @@ univariate_line_chart <- function(prep_l){
             line = 0.5, family ="Myriad Pro")
       mtext(unit, side = 2,
             line = 2.5, family ="Myriad Pro")
-
+      mtext(paste("Posodobljeno:", as.character.POSIXt(update_time)), side = 4,
+            line = 0.5, family ="Myriad Pro")
+      mtext(paste("Zadnje odbobje:",last_period), side = 4,
+            line = 1.5, family ="Myriad Pro")
       # emphasised gridline
       if(unit %in% c("Indeks", "Index", "indeks", "index", "%")) {
         abline(h = 100, col = umar_cols("emph"), lwd = 1.5)}

@@ -17,6 +17,6 @@ nothing, plots to open device
 Plots error chart with message when all the data values in the chart are
 missing. To be used as a temporary placeholder in reports where the selection
 accidentally doens't include any data. Input data must be prepared by
-\link[UMARaccessR]{prep_single_line}. Called from  \link[UMARaccessR]{univariate_line_chart}
+\link[UMARaccessR]{prep_single_line}. Called from  \link[UMARvisualisR]{univariate_line_chart}
 if all values are NA.
 }
