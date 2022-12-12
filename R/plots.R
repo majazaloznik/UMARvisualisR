@@ -154,3 +154,24 @@ na_chart <- function(prep_l){
 }
 
 
+#' Full pipeline for univariate chart
+#'
+#' From the series id and the connection, gets the appropriate vintage id,
+#' then the data prepared for the chart and finally plots the chart.
+#'
+#' @param series numeric id of series
+#' @param con PostgreSQL connection object created by the RPostgres package.
+#' @param date_valid date when the vintage was valid if none is given most recent
+#' i.e. currently valid vintage is returned.
+#'
+#' @return
+#' @export
+univariate_full <- function(series, con, date_valid = NULL) {
+ vintage_id <- UMARaccessR::get_vintage_from_series(series, con, date_valid = date_valid)
+ prep_l <- UMARaccessR::prep_single_line(vintage_id, con)
+ univariate_line_chart(prep_l)
+}
+
+
+
+
