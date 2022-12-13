@@ -72,7 +72,8 @@ univariate_line_chart <- function(prep_l){
             line = 0.5, family ="Myriad Pro")
       mtext(unit, side = 2,
             line = 2.5, family ="Myriad Pro")
-      mtext(paste("Posodobljeno:", as.character.POSIXt(update_time)), side = 4,
+      mtext(paste("Posodobljeno:",
+                  strftime(update_time[1,1], format ="%m.%d.%y %H:%M:%S" )), side = 4,
             line = 0.5, family ="Myriad Pro")
       mtext(paste("Zadnje odbobje:",last_period), side = 4,
             line = 1.5, family ="Myriad Pro")
@@ -152,26 +153,5 @@ na_chart <- function(prep_l){
   mtext("(cela serija je za izbrano obdobje prazna)", side = 3, cex=1, font = 3,
         line = -6.5, family ="Myriad Pro", col = umar_cols("rdeca"))
 }
-
-
-#' Full pipeline for univariate chart
-#'
-#' From the series id and the connection, gets the appropriate vintage id,
-#' then the data prepared for the chart and finally plots the chart.
-#'
-#' @param series numeric id of series
-#' @param con PostgreSQL connection object created by the RPostgres package.
-#' @param date_valid date when the vintage was valid if none is given most recent
-#' i.e. currently valid vintage is returned.
-#'
-#' @return
-#' @export
-univariate_full <- function(series, con, date_valid = NULL) {
- vintage_id <- UMARaccessR::get_vintage_from_series(series, con, date_valid = date_valid)
- prep_l <- UMARaccessR::prep_single_line(vintage_id, con)
- univariate_line_chart(prep_l)
-}
-
-
 
 
