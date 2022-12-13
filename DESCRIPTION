@@ -19,7 +19,4 @@ Depends:
     R (>= 2.10)
 Imports: 
     magrittr (>= 2.0.3),
-    stringr (>= 1.4.0),
-    UMARaccessR (>= 0.1.0)
-Remotes:
-  majazaloznik/UMARaccessR 
+    stringr (>= 1.4.0)
