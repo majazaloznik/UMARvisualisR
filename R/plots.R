@@ -11,7 +11,7 @@
 #'
 #' @param prep_l list of length four with data.frame with data, the unit used and the
 #' main and sub titles. see \link[UMARaccessR]{prep_single_line}.
-#' @param xmin minimum of x-axis date range
+#' @param ... xmin or xmax to be passed to \link[UMARvisualisR]{apply_xlims}
 #'
 #' @return nothing, plots to open device
 #' @export

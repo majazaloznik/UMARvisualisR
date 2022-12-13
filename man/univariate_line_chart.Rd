@@ -10,7 +10,7 @@ univariate_line_chart(prep_l, ...)
 \item{prep_l}{list of length four with data.frame with data, the unit used and the
 main and sub titles. see \link[UMARaccessR]{prep_single_line}.}
 
-\item{xmin}{minimum of x-axis date range}
+\item{...}{xmin or xmax to be passed to \link[UMARvisualisR]{apply_xlims}}
 }
 \value{
 nothing, plots to open device
