@@ -8,4 +8,6 @@ test_that("range finding works ", {
   expect_equal(first_up("in"), "In")
   expect_equal(first_up("iN"), "IN")
   expect_equal(find_pretty_ylim(c(1, 3, 10)), c(0, 12))
+  expect_equal(0, nrow(apply_xlims(data.frame(period = as.Date("2010/01/01")))))
+  expect_equal(1, nrow(apply_xlims(data.frame(period = as.Date("2011/02/01")))))
 })

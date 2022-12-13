@@ -4,11 +4,13 @@
 \alias{univariate_line_chart}
 \title{Plotting function for univariate line chart}
 \usage{
-univariate_line_chart(prep_l)
+univariate_line_chart(prep_l, ...)
 }
 \arguments{
 \item{prep_l}{list of length four with data.frame with data, the unit used and the
 main and sub titles. see \link[UMARaccessR]{prep_single_line}.}
+
+\item{xmin}{minimum of x-axis date range}
 }
 \value{
 nothing, plots to open device

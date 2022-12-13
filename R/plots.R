@@ -11,13 +11,15 @@
 #'
 #' @param prep_l list of length four with data.frame with data, the unit used and the
 #' main and sub titles. see \link[UMARaccessR]{prep_single_line}.
+#' @param xmin minimum of x-axis date range
 #'
 #' @return nothing, plots to open device
 #' @export
 #'
-univariate_line_chart <- function(prep_l){
+univariate_line_chart <- function(prep_l, ...){
   # prepare inputs
   single <- prep_l[[1]]
+  single <- apply_xlims(single, ...)
   unit <- prep_l[[2]]
   main_title <- prep_l[[3]]
   sub_title <- prep_l[[4]]
@@ -25,10 +27,11 @@ univariate_line_chart <- function(prep_l){
   last_period <- prep_l[[6]]
   title_lines <-main_title[[2]] + sub_title[[2]]
 
+  par(mar = c(3, 3.5, title_lines + 1, 3))
   if(all(is.na(single$value))) {
     na_chart(prep_l) } else {
       # prepare plot area and limits
-      par(mar = c(3, 3.5, title_lines + 1, 3))
+      #par(mar = c(3, 3.5, title_lines + 1, 3))
       ylim <- find_pretty_ylim(single$value)
 
       #plot

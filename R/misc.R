@@ -56,3 +56,23 @@ find_pretty_ylim <- function(values){
     values <- c(values, max(values, na.rm = TRUE)*1.01)}
   range(pretty(c(values)), na.rm = TRUE)
 }
+
+
+#' Apply limits to x-axis range of data
+#'
+#' Takes adataframe with the datapoints and periods and removes the periods before xmin
+#' (default is 1.1.2011) and after xmax (defaults to max in the data).
+#'
+#' @param df dataframe with period column in Date format
+#' @param xmin Date, default "2011-01-01"
+#' @param xmax Date, default maximum available in data.
+#'
+#' @return df as input with possibly fewer rows
+#' @export
+apply_xlims <- function(df, xmin = "2011-01-01", xmax =NULL){
+  xmin <- as.Date(xmin)
+ if(is.null(xmax)) xmax <- max(df$period)
+ df %>%
+   dplyr::filter(period >= xmin & period <= xmax) -> df
+ df
+}
