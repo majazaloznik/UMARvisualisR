@@ -14,7 +14,8 @@ add_rolling_average(prep_l, periods = 3, align = "center")
 \item{align}{defaults to "center", "right" and "left" also options}
 }
 \value{
-same list with the df with one more column named `rolling`
+same list with the df with one more column named `rolling` and text for
+describing the transformation
 }
 \description{
 Add a column with a rolling average for a given number of periods. By default

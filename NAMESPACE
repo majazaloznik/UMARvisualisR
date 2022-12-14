@@ -2,6 +2,7 @@
 
 export("%>%")
 export(add_rolling_average)
+export(add_yoy_change)
 export(apply_xlims)
 export(find_pretty_ylim)
 export(first_up)

@@ -6,7 +6,7 @@ rolling_average <- function(df, periods = 3, align = "center"){
 yoy_change <- function(df, lag = 12){
  df %>%
     dplyr::arrange(period) %>%
-    dplyr::mutate(yoy_change = value/dplyr::lag(value,n = lag)*100)
+    dplyr::mutate(value = value/dplyr::lag(value,n = lag)*100)
 }
 
 #' Add rolling average column to prepared data
@@ -19,7 +19,8 @@ yoy_change <- function(df, lag = 12){
 #' @param periods number of periods to average
 #' @param align defaults to "center", "right" and "left" also options
 #'
-#' @return same list with the df with one more column named `rolling`
+#' @return same list with the df with one more column named `rolling` and text for
+#' describing the transformation
 #' @export
 add_rolling_average <- function(prep_l, periods = 3, align = "center") {
   prep_l[[1]] <- rolling_average(prep_l[[1]], periods = periods, align = align)
@@ -32,6 +33,18 @@ add_rolling_average <- function(prep_l, periods = 3, align = "center") {
 }
 
 
+#' Add year on year change column to prepared data
+#'
+#' Year-on-year change is calculated based on the type of interval and overwrites the
+#' values of the original data. The unit is also changed to "%", adn the
+#' transformation text is added.
+#'
+#' @param prep_l prepared list with first element a dataframe with the `value` column
+#'
+#' @return same list with the df with one the value column overwrittan and new element
+#' with  text for describing the transformation and the unit overwritten as well.
+#' @export
+#'
 add_yoy_change <- function(prep_l) {
   lag <- ifelse(prep_l[["interval"]] == "M", 12,
                 ifelse(prep_l[["interval"]] == "Q", 4,
@@ -39,6 +52,7 @@ add_yoy_change <- function(prep_l) {
                               ifelse(prep_l[["interval"]] == "A", 1, NA))))
   if(is.na(lag)) stop("The data interval is not appropriate for y-o-y calculations")
   prep_l[["single"]] <- yoy_change(prep_l[["single"]], lag)
+  prep_l$unit <- "%"
   prep_l <- c(prep_l, transf_txt = paste0("Transf.: medletna rast"))
   prep_l
 }

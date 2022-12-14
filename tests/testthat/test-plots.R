@@ -6,6 +6,9 @@ test_that("multiplication works", {
   roll_prep_l <- add_rolling_average(prep_l)
   p <- function() univariate_line_chart(roll_prep_l)
   vdiffr::expect_doppelganger("univariate rolling", p)
+  yoy_prep_l <- add_yoy_change(prep_l)
+  p <- function() univariate_line_chart(yoy_prep_l)
+  vdiffr::expect_doppelganger("univariate yoy", p)
   prep_l[[1]] <- prep_l[[1]][1:100,]
   p <- function() univariate_line_chart(prep_l)
   vdiffr::expect_doppelganger("na chart", p)
