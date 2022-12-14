@@ -35,9 +35,7 @@ univariate_line_chart <- function(prep_l, ...){
       ylim <- find_pretty_ylim(single$value)
 
       #plot
-      plot(single$period, single$value, type = "l",
-           col = umar_cols("rdeca"),
-           lwd = 2,
+      plot(single$period, single$value, type = "n",
            xlab = "", ylab = "",
            bty = "n",
            axes = FALSE,
@@ -47,6 +45,15 @@ univariate_line_chart <- function(prep_l, ...){
            panel.first={grid(nx = NA, ny = NULL, col = umar_cols("gridlines"), lty = 1)},
            yaxs="i",
            ylim = ylim)
+
+      if(any(names(prep_l[[1]]) %in% "rolling")) {
+        lines(single$period, single$value,
+              col = umar_cols("siva"), lwd = 2)
+        lines(single$period, single$rolling,
+              col = umar_cols("rdeca"), lwd = 2)} else {
+      lines(single$period, single$value,
+            col = umar_cols("rdeca"), lwd = 2)}
+
 
       # axis tickmarks
       axis.Date(1,at=seq(min(single$period), max(single$period), by="1 year"),
