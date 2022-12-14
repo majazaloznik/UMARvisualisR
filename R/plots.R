@@ -27,7 +27,11 @@ univariate_line_chart <- function(prep_l, ...){
   last_period <- prep_l[[6]]
   title_lines <-main_title[[2]] + sub_title[[2]]
 
-  par(mar = c(3, 3.5, title_lines + 1, 3))
+  if("transf_txt" %in% names(prep_l)) {
+    par(mar = c(3, 3.5, title_lines + 1, 4))} else {
+  par(mar = c(3, 3.5, title_lines + 1, 3))}
+
+
   if(all(is.na(single$value))) {
     na_chart(prep_l) } else {
       # prepare plot area and limits
@@ -89,7 +93,10 @@ univariate_line_chart <- function(prep_l, ...){
             line = 0.5, family ="Myriad Pro")
       mtext(paste("Zadnje odbobje:",last_period), side = 4,
             line = 1.5, family ="Myriad Pro")
-      # emphasised gridline
+      if("transf_txt" %in% names(prep_l)) {
+        mtext(prep_l[["transf_txt"]], side = 4,
+              line = 2.5, family ="Myriad Pro")}
+              # emphasised gridline
       if(unit %in% c("Indeks", "Index", "indeks", "index", "%")) {
         abline(h = 100, col = umar_cols("emph"), lwd = 1.5)}
       if(in_range_strict(0, ylim))  {

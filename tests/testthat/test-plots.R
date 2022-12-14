@@ -12,5 +12,4 @@ test_that("multiplication works", {
   p <- function() na_chart(prep_l)
   vdiffr::expect_doppelganger("na chart2", p)
 
-
 })
