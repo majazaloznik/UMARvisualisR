@@ -33,7 +33,10 @@ univariate_line_chart <- function(prep_l, ...){
     na_chart(prep_l) } else {
       # prepare plot area and limits
       #par(mar = c(3, 3.5, title_lines + 1, 3))
-      ylim <- find_pretty_ylim(single$value)
+      if(any(names(prep_l[[1]]) %in% "raw")) {
+        ylim <- find_pretty_ylim(single$raw)
+      } else {
+      ylim <- find_pretty_ylim(single$value)}
 
       #plot
       plot(single$period, single$value, type = "n",
@@ -47,13 +50,12 @@ univariate_line_chart <- function(prep_l, ...){
            yaxs="i",
            ylim = ylim)
 
-      if(any(names(prep_l[[1]]) %in% "rolling")) {
-        lines(single$period, single$value,
-              col = umar_cols("siva"), lwd = 2)
-        lines(single$period, single$rolling,
-              col = umar_cols("rdeca"), lwd = 2)} else {
+      if(any(names(prep_l[[1]]) %in% "raw")) {
+        lines(single$period, single$raw,
+              col = umar_cols("siva"), lwd = 2)}
       lines(single$period, single$value,
-            col = umar_cols("rdeca"), lwd = 2)}
+            col = umar_cols("rdeca"), lwd = 2)
+
 
 
       # axis tickmarks
