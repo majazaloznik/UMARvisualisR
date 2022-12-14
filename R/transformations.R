@@ -3,6 +3,11 @@ rolling_average <- function(df, periods = 3, align = "center"){
     dplyr::mutate(rolling = zoo::rollmean(value, k = periods,fill= NA,align = align))
 }
 
+yoy_change <- function(df, lag = 12){
+ df %>%
+    dplyr::arrange(period) %>%
+    dplyr::mutate(yoy_change = value/dplyr::lag(value,n = lag)*100)
+}
 
 #' Add rolling average column to prepared data
 #'
@@ -23,5 +28,17 @@ add_rolling_average <- function(prep_l, periods = 3, align = "center") {
                              ifelse(align == "left", " (leva)", "")))
   prep_l <- c(prep_l, transf_txt = paste0("Transf.: ", periods,"-",prep_l[["interval"]],
                                           " drse\u010da sredina", align_txt))
+  prep_l
+}
+
+
+add_yoy_change <- function(prep_l) {
+  lag <- ifelse(prep_l[["interval"]] == "M", 12,
+                ifelse(prep_l[["interval"]] == "Q", 4,
+                       ifelse(prep_l[["interval"]] == "S", 2,
+                              ifelse(prep_l[["interval"]] == "A", 1, NA))))
+  if(is.na(lag)) stop("The data interval is not appropriate for y-o-y calculations")
+  prep_l[["single"]] <- yoy_change(prep_l[["single"]], lag)
+  prep_l <- c(prep_l, transf_txt = paste0("Transf.: medletna rast"))
   prep_l
 }
