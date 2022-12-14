@@ -17,7 +17,7 @@ rolling_average <- function(df, periods = 3, align = "center"){
 #' @return same list with the df with one more column named `rolling`
 #' @export
 add_rolling_average <- function(prep_l, periods = 3, align = "center") {
-  prep_l[[1]] <- rolling_average(prep_l[[1]], periods = periods, align = "center")
+  prep_l[[1]] <- rolling_average(prep_l[[1]], periods = periods, align = align)
   prep_l <- c(prep_l, transf_txt = paste("Transf.:", periods, prep_l$interval, "drse\\u010da sredina"))
   prep_l
 }
