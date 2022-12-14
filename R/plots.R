@@ -27,10 +27,7 @@ univariate_line_chart <- function(prep_l, ...){
   last_period <- prep_l[[6]]
   title_lines <-main_title[[2]] + sub_title[[2]]
 
-  if("transf_txt" %in% names(prep_l)) {
-    par(mar = c(3, 3.5, title_lines + 1, 4))} else {
-  par(mar = c(3, 3.5, title_lines + 1, 3))}
-
+  par(mar = c(3, 3.5, title_lines + 1, 4))
 
   if(all(is.na(single$value))) {
     na_chart(prep_l) } else {
