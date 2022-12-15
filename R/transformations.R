@@ -77,10 +77,10 @@ add_yoy_of_rolling <- function(prep_l, periods = 3, align = "center"){
   prep_l <- add_rolling_average(prep_l, periods = periods, align = align)
   prep_l$single <- subset(prep_l$single, select = -c(raw))
   prep_l <- add_yoy_change(prep_l)
-  align_txt <- ifelse(align == "center", " (centrirane)",
+  align_txt <- ifelse(align == "center", " (centr.)",
                       ifelse(align == "right", " (desne)",
                              ifelse(align == "left", " (leve)", "")))
-  prep_l$transf_txt <- paste0("Transf.: medletna rast", periods,"-",prep_l[["interval"]],
+  prep_l$transf_txt <- paste0("Transf.: medletna rast ", periods,"-",prep_l[["interval"]],
                         " drse\u010de sredine", align_txt)
   prep_l
 }
