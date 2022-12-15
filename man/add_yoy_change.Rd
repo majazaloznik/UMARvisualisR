@@ -10,7 +10,7 @@ add_yoy_change(prep_l)
 \item{prep_l}{prepared list with first element a dataframe with the `value` column}
 }
 \value{
-same list with the df with one the value column overwrittan and new element
+same list with the df with one the value column overwritten and new element
 with  text for describing the transformation and the unit overwritten as well.
 }
 \description{
