@@ -17,6 +17,6 @@ apply_xlims(df, xmin = "2011-01-01", xmax = NULL)
 df as input with possibly fewer rows
 }
 \description{
-Takes adataframe with the datapoints and periods and removes the periods before xmin
+Takes a dataframe with the datapoints and periods and removes the periods before xmin
 (default is 1.1.2011) and after xmax (defaults to max in the data).
 }

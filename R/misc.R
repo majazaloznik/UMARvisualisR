@@ -58,9 +58,35 @@ find_pretty_ylim <- function(values){
 }
 
 
+#' Remove NA rows at start and end
+#'
+#' Removes rows containing NAs in a certain column (by default `value`), but
+#' only at the beginning and end of the table.
+#'
+#' @param df data frame with at least period and value columns
+#' @param var quoted name of the variable
+#'
+#' @return dataframe with possibly fewer rows than going in.
+#' @export
+#'
+remove_head_tail_NAs <- function(df, var = dplyr::quo(value)){
+  n <- nrow(df)
+  n_new <- n-1
+  while(n_new < n) {
+    n <- nrow(df)
+    df %>%
+      dplyr::arrange(period) %>%
+      dplyr::filter(!(is.na(!!var) & dplyr::row_number() == 1)) %>%
+      dplyr::filter(!(is.na(!!var) & dplyr::row_number() == n))-> df
+    n_new <- nrow(df)
+  }
+  df
+}
+
+
 #' Apply limits to x-axis range of data
 #'
-#' Takes adataframe with the datapoints and periods and removes the periods before xmin
+#' Takes a dataframe with the datapoints and periods and removes the periods before xmin
 #' (default is 1.1.2011) and after xmax (defaults to max in the data).
 #'
 #' @param df dataframe with period column in Date format
@@ -72,7 +98,10 @@ find_pretty_ylim <- function(values){
 apply_xlims <- function(df, xmin = "2011-01-01", xmax =NULL){
   xmin <- as.Date(xmin)
  if(is.null(xmax)) xmax <- max(df$period)
+ df <- remove_head_tail_NAs(df)
  df %>%
    dplyr::filter(period >= xmin & period <= xmax) -> df
  df
 }
+
+
