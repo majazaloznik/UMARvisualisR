@@ -55,7 +55,7 @@ add_yoy_change <- function(prep_l) {
                               ifelse(prep_l[["interval"]] == "A", 1, NA))))
   if(is.na(lag)) stop("The data interval is not appropriate for y-o-y calculations")
   prep_l[["single"]] <- yoy_change(prep_l[["single"]], lag)
-  prep_l$unit <- "%"
+  prep_l$unit <- "Medletna rast, v %"
   prep_l$transf_txt <- "Transf.: medletna rast"
   prep_l
 }

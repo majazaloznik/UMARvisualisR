@@ -96,7 +96,7 @@ univariate_line_chart <- function(prep_l, ...){
         mtext(prep_l[["transf_txt"]], side = 4,
               line = 2.5, family ="Myriad Pro", font = 3)}
               # emphasised gridline
-      if(unit %in% c("Indeks", "Index", "indeks", "index", "%")) {
+      if(unit %in% c("Indeks", "Index", "indeks", "index", "%", "Medletna rast, v %")) {
         abline(h = 100, col = umar_cols("emph"), lwd = 1.5)}
       if(in_range_strict(0, ylim))  {
         abline(h = 0, col = umar_cols("emph"), lwd = 1.5)}
