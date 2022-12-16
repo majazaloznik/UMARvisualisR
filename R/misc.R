@@ -50,7 +50,7 @@ first_up <- function(x) {
 #'
 find_pretty_ylim <- function(values){
   ylim <- range(pretty(c(values)), na.rm = TRUE)
-  diff <- max(values) - min(values)
+  diff <- max(values, na.rm = TRUE) - min(values, na.rm = TRUE)
   if(ylim[1] == min(values, na.rm = TRUE)) {
     values <- c(values, min(values, na.rm = TRUE)-diff*0.05)}
   if(ylim[2] == max(values, na.rm = TRUE)) {

@@ -71,7 +71,9 @@ add_yoy_change <- function(prep_l) {
 #' @param periods number of periods to average
 #' @param align defaults to "center", "right" and "left" also options
 #'
-#' @return
+#' @return same list with the df with one the value column overwritten and new element
+#' with  text for describing the transformation and the unit overwritten as well.
+#'
 #' @export
 add_yoy_of_rolling <- function(prep_l, periods = 3, align = "center"){
   prep_l <- add_rolling_average(prep_l, periods = periods, align = align)
