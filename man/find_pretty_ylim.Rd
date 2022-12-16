@@ -13,6 +13,6 @@ find_pretty_ylim(values)
 numeric vector of length 2 to be used as y-axis limit
 }
 \description{
-Finds ylimits that lead to a pretty y-axis. If the range of the values is
+Finds y/limits that lead to a pretty y-axis. If the range of the values is
 on the line, it artificially extends it by one more break.
 }

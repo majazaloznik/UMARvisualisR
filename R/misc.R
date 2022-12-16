@@ -40,7 +40,7 @@ first_up <- function(x) {
 
 #' Find pretty y-axis limits
 #'
-#' Finds ylimits that lead to a pretty y-axis. If the range of the values is
+#' Finds y/limits that lead to a pretty y-axis. If the range of the values is
 #' on the line, it artificially extends it by one more break.
 #'
 #' @param values vector of numeric values
@@ -50,10 +50,11 @@ first_up <- function(x) {
 #'
 find_pretty_ylim <- function(values){
   ylim <- range(pretty(c(values)), na.rm = TRUE)
+  diff <- max(values) - min(values)
   if(ylim[1] == min(values, na.rm = TRUE)) {
-    values <- c(values, min(values, na.rm = TRUE)*0.99)}
+    values <- c(values, min(values, na.rm = TRUE)-diff*0.05)}
   if(ylim[2] == max(values, na.rm = TRUE)) {
-    values <- c(values, max(values, na.rm = TRUE)*1.01)}
+    values <- c(values, max(values, na.rm = TRUE)+diff*0.05)}
   range(pretty(c(values)), na.rm = TRUE)
 }
 
