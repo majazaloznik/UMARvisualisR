@@ -1,6 +1,6 @@
 prep_l <- readRDS(test_path("testdata", "prep_l.rds"))
 
-test_that("multiplication works", {
+test_that("plots look right", {
   p <- function() univariate_line_chart(prep_l)
   vdiffr::expect_doppelganger("univariate line", p)
   roll_prep_l <- add_rolling_average(prep_l)

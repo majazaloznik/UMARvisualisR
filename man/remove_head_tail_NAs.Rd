@@ -4,17 +4,15 @@
 \alias{remove_head_tail_NAs}
 \title{Remove NA rows at start and end}
 \usage{
-remove_head_tail_NAs(df, var = dplyr::quo(value))
+remove_head_tail_NAs(df)
 }
 \arguments{
 \item{df}{data frame with at least period and value columns}
-
-\item{var}{quoted name of the variable}
 }
 \value{
 dataframe with possibly fewer rows than going in.
 }
 \description{
-Removes rows containing NAs in a certain column (by default `value`), but
+Removes rows containing NAs in the column `value`), but
 only at the beginning and end of the table.
 }
