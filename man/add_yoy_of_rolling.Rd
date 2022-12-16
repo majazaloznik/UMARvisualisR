@@ -13,6 +13,10 @@ add_yoy_of_rolling(prep_l, periods = 3, align = "center")
 
 \item{align}{defaults to "center", "right" and "left" also options}
 }
+\value{
+same list with the df with one the value column overwritten and new element
+with  text for describing the transformation and the unit overwritten as well.
+}
 \description{
 Uses both transformations: first a rolling average over a set number of periods
 (defaults to 3) and then calculates the year on year  change of that average.
