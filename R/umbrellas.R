@@ -20,7 +20,7 @@ univariate_line_pipeline <- function(series,
                              yoy = FALSE,
                              con) {
   vintage_id <- UMARaccessR::get_vintage_from_series(series, con, date_valid = date_valid)
-  prep_l <- UMARaccessR::prep_single_line(vintage_id, con)
+  prep_l <- prep_single_line(vintage_id, con)
   if(rolling & yoy){
     prep_l <- add_yoy_of_rolling(prep_l, periods = roll_periods, align = roll_align)} else {
       if(rolling) prep_l <- add_rolling_average(prep_l, periods = roll_periods, align = roll_align)

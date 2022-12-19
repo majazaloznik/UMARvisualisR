@@ -24,7 +24,7 @@ con <- dbConnect(RPostgres::Postgres(),
                  password = Sys.getenv("PG_local_MAJA_PSW"))
 dbExecute(con, "set search_path to test_platform")
 on.exit(dbDisconnect)
-out <- single_line_plot(1625, con=con)
+out <- univariate_line_pipeline(1625, con=con)
 stop_db_capturing()
 
 
