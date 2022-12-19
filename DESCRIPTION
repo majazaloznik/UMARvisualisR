@@ -23,4 +23,5 @@ Imports:
     stringr (>= 1.4.0),
     UMARaccessR,
     zoo (>= 1.8.10)
-Remotes:majazaloznik/UMARaccessR
+Remotes:
+    majazaloznik/UMARaccessR
