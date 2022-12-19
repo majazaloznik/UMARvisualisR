@@ -1,5 +1,3 @@
-
-
 #' Plotting function for univariate line chart
 #'
 #' Plots univariate line chart in line with the UMAR corporate graphical identity.
