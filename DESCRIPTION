@@ -12,14 +12,19 @@ LazyData: true
 RoxygenNote: 7.2.0
 Suggests: 
     covr,
+    dittodb,
     testthat (>= 3.0.0),
     vdiffr (>= 1.0.4)
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
 Imports: 
+    DBI (>= 1.1.3),
     dplyr (>= 1.0.9),
     magrittr (>= 2.0.3),
+    RPostgres (>= 1.4.4),
     stringr (>= 1.4.0),
+    UMARaccessR,
     zoo (>= 1.8.10)
-
+Remotes:
+  majazaloznik/UMARaccessR
