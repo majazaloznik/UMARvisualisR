@@ -3,14 +3,14 @@
 #' Plotting function for univariate line chart
 #'
 #' Plots univariate line chart in line with the UMAR corporate graphical identity.
-#' Data input must be prepared with the \link[UMARaccessR]{prep_single_line}. At the
+#' Data input must be prepared with the \link[UMARvisualisR]{prep_single_line}. At the
 #' moment only plots years as labels.
 #'
 #' Todo: add arguments such as x-value range, add flexibility of labels for different
 #' time ranges..
 #'
 #' @param prep_l list of length four with data.frame with data, the unit used and the
-#' main and sub titles. see \link[UMARaccessR]{prep_single_line}.
+#' main and sub titles. see \link[UMARvisualisR]{prep_single_line}.
 #' @param ... xmin or xmax to be passed to \link[UMARvisualisR]{apply_xlims}
 #'
 #' @return nothing, plots to open device
@@ -110,11 +110,11 @@ univariate_line_chart <- function(prep_l, ...){
 #' Plots error chart with message when all the data values in the chart are
 #' missing. To be used as a temporary placeholder in reports where the selection
 #' accidentally doens't include any data. Input data must be prepared by
-#' \link[UMARaccessR]{prep_single_line}. Called from  \link[UMARvisualisR]{univariate_line_chart}
+#' \link[UMARvisualisR]{prep_single_line}. Called from  \link[UMARvisualisR]{univariate_line_chart}
 #' if all values are NA.
 #'
 #' @param prep_l list of length four with data.frame with data, the unit used and the
-#' main and sub titles. see \link[UMARaccessR]{prep_single_line}.
+#' main and sub titles. see \link[UMARvisualisR]{prep_single_line}.
 #'
 #' @return nothing, plots to open device
 #' @export
