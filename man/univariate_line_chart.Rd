@@ -8,7 +8,7 @@ univariate_line_chart(prep_l, ...)
 }
 \arguments{
 \item{prep_l}{list of length four with data.frame with data, the unit used and the
-main and sub titles. see \link[UMARaccessR]{prep_single_line}.}
+main and sub titles. see \link[UMARvisualisR]{prep_single_line}.}
 
 \item{...}{xmin or xmax to be passed to \link[UMARvisualisR]{apply_xlims}}
 }
@@ -17,7 +17,7 @@ nothing, plots to open device
 }
 \description{
 Plots univariate line chart in line with the UMAR corporate graphical identity.
-Data input must be prepared with the \link[UMARaccessR]{prep_single_line}. At the
+Data input must be prepared with the \link[UMARvisualisR]{prep_single_line}. At the
 moment only plots years as labels.
 }
 \details{

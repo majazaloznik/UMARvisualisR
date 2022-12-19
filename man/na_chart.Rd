@@ -8,7 +8,7 @@ na_chart(prep_l)
 }
 \arguments{
 \item{prep_l}{list of length four with data.frame with data, the unit used and the
-main and sub titles. see \link[UMARaccessR]{prep_single_line}.}
+main and sub titles. see \link[UMARvisualisR]{prep_single_line}.}
 }
 \value{
 nothing, plots to open device
@@ -17,6 +17,6 @@ nothing, plots to open device
 Plots error chart with message when all the data values in the chart are
 missing. To be used as a temporary placeholder in reports where the selection
 accidentally doens't include any data. Input data must be prepared by
-\link[UMARaccessR]{prep_single_line}. Called from  \link[UMARvisualisR]{univariate_line_chart}
+\link[UMARvisualisR]{prep_single_line}. Called from  \link[UMARvisualisR]{univariate_line_chart}
 if all values are NA.
 }

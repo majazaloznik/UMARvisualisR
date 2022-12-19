@@ -86,3 +86,34 @@ add_yoy_of_rolling <- function(prep_l, periods = 3, align = "center"){
                         " drse\u010de sredine", align_txt)
   prep_l
 }
+
+
+
+
+#' Prepare data needed for a univariate line chart
+#'
+#' Given the vintage id and a connection to the database, this function
+#' gets the datapoints, and the unit, prepares the titles. The returned list
+#' is the input for the plotting function \link[UMARvisualisR]{univariate_line_chart}.
+#'
+#' @param con PostgreSQL connection object created by the RPostgres package.
+#' @param vintage numeric id of vintage
+#'
+#' @return a list with the data frame with values, period_ids and periods as the
+#' first element, a character unit name as second, and the row wrapped main and
+#' subtitles (default 100 chars max 3 lines), the date and time of the last update,
+#' the last period and the interval.
+#' @export
+#'
+prep_single_line <- function(vintage, con){
+  single <- UMARaccessR::add_date_from_period_id(
+    UMARaccessR::get_data_points_from_vintage(vintage, con),
+    UMARaccessR::get_interval_from_vintage(vintage, con))
+  unit <-first_up(UMARaccessR::get_unit_from_vintage(vintage, con))
+  main_title <- wrap_string(UMARaccessR::get_table_name_from_vintage(vintage, con))
+  sub_title <- wrap_string(UMARaccessR::get_series_name_from_vintage(vintage, con))
+  updated <- UMARaccessR::get_date_published_from_vintage(vintage, con)
+  last_period <- UMARaccessR::get_last_period_from_vintage(vintage, con)
+  interval <- UMARaccessR::get_interval_from_vintage(vintage, con)
+  mget(c("single", "unit", "main_title", "sub_title", "updated", "last_period", "interval"))
+}
