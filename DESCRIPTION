@@ -21,7 +21,7 @@ Imports:
     dplyr (>= 1.0.9),
     magrittr (>= 2.0.3),
     stringr (>= 1.4.0),
-    UMARaccessR,
+    UMARaccessR (>= 0.1.0),
     zoo (>= 1.8.10)
 Remotes:
     majazaloznik/UMARaccessR
