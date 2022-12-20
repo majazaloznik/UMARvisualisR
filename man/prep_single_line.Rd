@@ -4,12 +4,15 @@
 \alias{prep_single_line}
 \title{Prepare data needed for a univariate line chart}
 \usage{
-prep_single_line(vintage, con)
+prep_single_line(vintage, con, interval = NULL)
 }
 \arguments{
 \item{vintage}{numeric id of vintage}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
+
+\item{interval}{character value of interval type, defaults to NULL in which case the
+function will get it from the database.}
 }
 \value{
 a list with the data frame with values, period_ids and periods as the

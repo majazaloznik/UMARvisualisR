@@ -2,7 +2,7 @@
 % Please edit documentation in R/umbrellas.R
 \name{univariate_line_pipeline}
 \alias{univariate_line_pipeline}
-\title{Umbrella function for plotting a single line plot}
+\title{FUll pipeline function for plotting a univariate line chart}
 \usage{
 univariate_line_pipeline(
   series,
@@ -40,5 +40,6 @@ i.e. currently valid vintage is returned.}
 plots a univariate line chart
 }
 \description{
-Umbrella function for plotting a single line plot
+From the series id and the connection, gets the appropriate vintage id,
+then the data prepared for the chart and finally plots the chart.
 }

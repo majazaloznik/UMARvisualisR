@@ -32,6 +32,8 @@ dittodb::with_mock_db({
     expect_equal(length(out), 7)
     expect_true("interval" %in% names(out))
     expect_equal(dim(out[[1]]), c(273, 3))
+    out <- prep_single_line(1625, con, interval = "Q")
+    expect_equal(length(out), 7)
   })
 })
 

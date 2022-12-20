@@ -98,6 +98,8 @@ add_yoy_of_rolling <- function(prep_l, periods = 3, align = "center"){
 #'
 #' @param con PostgreSQL connection object created by the RPostgres package.
 #' @param vintage numeric id of vintage
+#' @param interval character value of interval type, defaults to NULL in which case the
+#' function will get it from the database.
 #'
 #' @return a list with the data frame with values, period_ids and periods as the
 #' first element, a character unit name as second, and the row wrapped main and
@@ -105,10 +107,10 @@ add_yoy_of_rolling <- function(prep_l, periods = 3, align = "center"){
 #' the last period and the interval.
 #' @export
 #'
-prep_single_line <- function(vintage, con){
+prep_single_line <- function(vintage, con, interval=NULL){
+  if(is.null(interval)) {interval <- UMARaccessR::get_interval_from_vintage(vintage, con)}
   single <- UMARaccessR::add_date_from_period_id(
-    UMARaccessR::get_data_points_from_vintage(vintage, con),
-    UMARaccessR::get_interval_from_vintage(vintage, con))
+    UMARaccessR::get_data_points_from_vintage(vintage, con), interval)
   unit <-first_up(UMARaccessR::get_unit_from_vintage(vintage, con))
   main_title <- wrap_string(UMARaccessR::get_table_name_from_vintage(vintage, con))
   sub_title <- wrap_string(UMARaccessR::get_series_name_from_vintage(vintage, con))

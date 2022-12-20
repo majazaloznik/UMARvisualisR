@@ -1,4 +1,7 @@
-#' Umbrella function for plotting a single line plot
+#' FUll pipeline function for plotting a univariate line chart
+#'
+#' From the series id and the connection, gets the appropriate vintage id,
+#' then the data prepared for the chart and finally plots the chart.
 #'
 #' @param date_valid date when the vintage was valid if none is given most recent
 #' i.e. currently valid vintage is returned.
