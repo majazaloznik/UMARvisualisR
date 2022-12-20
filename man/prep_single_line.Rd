@@ -4,7 +4,14 @@
 \alias{prep_single_line}
 \title{Prepare data needed for a univariate line chart}
 \usage{
-prep_single_line(vintage, con, interval = NULL)
+prep_single_line(
+  vintage,
+  con,
+  interval = NULL,
+  unit = NULL,
+  main_title = NULL,
+  sub_title = NULL
+)
 }
 \arguments{
 \item{vintage}{numeric id of vintage}
@@ -12,6 +19,15 @@ prep_single_line(vintage, con, interval = NULL)
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 
 \item{interval}{character value of interval type, defaults to NULL in which case the
+function will get it from the database.}
+
+\item{unit}{character describing unit to be written as y label. defaults to NULL in which case the
+function will get it from the database.}
+
+\item{main_title}{character..defaults to NULL in which case the
+function will get it from the database.}
+
+\item{sub_title}{character...defaults to NULL in which case the
 function will get it from the database.}
 }
 \value{

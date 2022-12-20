@@ -13,6 +13,10 @@ univariate_line_pipeline(
   roll_periods = 3,
   roll_align = "center",
   yoy = FALSE,
+  interval = NULL,
+  unit = NULL,
+  main_title = NULL,
+  sub_title = NULL,
   con
 )
 }
@@ -33,6 +37,14 @@ i.e. currently valid vintage is returned.}
 \item{roll_align}{alignment of rolling average (default = "center")}
 
 \item{yoy}{logical - should the year on year change be calculated and displayed}
+
+\item{interval}{character describing interval type}
+
+\item{unit}{character describing unit to be written as y label}
+
+\item{main_title}{character..}
+
+\item{sub_title}{character...}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 }
