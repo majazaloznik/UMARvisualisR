@@ -61,7 +61,8 @@ find_pretty_ylim <- function(values){
 
 #' Remove NA rows at start and end
 #'
-#' Removes rows containing NAs in the column `value`), but
+#' Removes rows containing NAs in the column `value`(or all the columns
+#' except for `period` to be more precise), but
 #' only at the beginning and end of the table.
 #'
 #' @param df data frame with at least period and value columns
@@ -71,7 +72,7 @@ find_pretty_ylim <- function(values){
 #'
 remove_head_tail_NAs <- function(df){
   df %>% dplyr::arrange(period) -> df
-  nisna <- !is.na(df$value)
+  nisna <- apply(!is.na(dplyr::select(df, -period)), 1, any)
   df[min(which(nisna)):max(which(nisna)),]
 }
 
