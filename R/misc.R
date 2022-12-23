@@ -97,4 +97,18 @@ apply_xlims <- function(df, xmin = "2011-01-01", xmax =NULL){
  df
 }
 
-
+#' Helper function to guess encoding of a csv file and read slovenian csv
+#'
+#' guesses encoding and reads csv with slovenian delimiters
+#'
+#' @param file path to csv file
+#'
+#' @return content of the csv file
+#' @export
+#'
+read_csv_guess_encoding <- function(file){
+  enc <- readr::guess_encoding(file)[["encoding"]][1]
+  readr::read_csv2(file,
+                   locale = readr::locale(encoding = enc),
+                   show_col_types = FALSE)
+}

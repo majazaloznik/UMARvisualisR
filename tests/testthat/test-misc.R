@@ -20,6 +20,8 @@ test_that("range finding works ", {
                    raw = c(NA, NA, 1, NA, NA, 3:7, 8, NA))
   expect_equal(nrow(remove_head_tail_NAs(df)), 9)
   expect_equal(nrow(apply_xlims(df, xmax = as.Date("2015/08/01"))), 6)
+  x <- read_csv_guess_encoding(test_path("testdata", "test_report_input.csv"))
+  expect_equal(dim(x), c(27,13))
 })
 
 
