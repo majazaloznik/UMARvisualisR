@@ -72,7 +72,7 @@ find_pretty_ylim <- function(values){
 #'
 remove_head_tail_NAs <- function(df){
   df %>% dplyr::arrange(period) -> df
-  nisna <- apply(!is.na(dplyr::select(df, -period)), 1, any)
+  nisna <- apply(!is.na(dplyr::select(df, -period, -period_id)), 1, any)
   df[min(which(nisna)):max(which(nisna)),]
 }
 
