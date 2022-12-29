@@ -68,16 +68,16 @@ multi_checks <- function(df){
           "\n Vse izbrane serije morajo imeti enako enoto!"))
   if(!all_equal(df$interval_id))  stop(
     paste(paste(df$code, collapse = "; "),
-          "\n Trenutno večlinijski grafi niso možni za serije z različnimi intervali."))
+          "\n Trenutno ve\u010dlinijski grafi niso mo\u017eni za serije z razli\u010dnimi intervali."))
   if(!all_equal(df$rolling_average_alignment)) stop(
     paste(paste(df$code, collapse = "; "),
-          "\n Vse serije na večlinisjkem grafu morajo uporabljati enako drsečo sredino."))
+          "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$rolling_average_periods)) stop(
     paste(paste(df$code, collapse = "; "),
-          "\n Vse serije na večlinisjkem grafu morajo uporabljati enako drsečo sredino."))
+          "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$year_on_year)) stop(
     paste(paste(df$code, collapse = "; "),
-          "\n Medletno spremembo na večlinijskem grafu je mogoče uporabiti za vse serije ali za nobeno."))
+          "\n Medletno spremembo na ve\u010dlinijskem grafu je mogo\u010d uporabiti za vse serije ali za nobeno."))
   df <- multi_titles(df)
 }
 
