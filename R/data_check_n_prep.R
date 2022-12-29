@@ -38,3 +38,65 @@ prep_single_line <- function(vintage, con, interval=NULL,
   last_period <- UMARaccessR::get_last_period_from_vintage(vintage, con)
   mget(c("single", "unit", "main_title" , "sub_title", "updated", "last_period", "interval"))
 }
+
+
+#' Check input data for multi-line chart
+#'
+#' Helper function to check that the input data dataframe for multi line charts is
+#' correct. This means that series used in a single chart have to be:
+#' - multiple
+#' - have the same unit
+#' - have the same interval (this may be changed in the future)
+#' - are either all rolling averages or not and if they are, they have the same
+#' alignment and number of periods (might also change in the future)
+#' - are either all y-o-y changes or not (might also change in the future).
+#' If any of these is true, the function stops
+#'
+#' Also checks if
+#' - main_titles are the same, otherwise it deletes them, but only issues a warning.
+#'
+#' @param df input dataframe with at least the following columns: code, unit_name
+#' interval_id, rolling_average_alignment, rolling_average_periods, year_on_year
+#'
+#' @return input df, possibly with updated main titles.
+#' @export
+#'
+multi_checks <- function(df){
+  if(nrow(df)<=1) stop("The data is for a single line only")
+  if(!all_equal(df$unit_name))  stop(
+    paste(paste(df$code, collapse = "; "),
+          "\n Vse izbrane serije morajo imeti enako enoto!"))
+  if(!all_equal(df$interval_id))  stop(
+    paste(paste(df$code, collapse = "; "),
+          "\n Trenutno večlinijski grafi niso možni za serije z različnimi intervali."))
+  if(!all_equal(df$rolling_average_alignment)) stop(
+    paste(paste(df$code, collapse = "; "),
+          "\n Vse serije na večlinisjkem grafu morajo uporabljati enako drsečo sredino."))
+  if(!all_equal(df$rolling_average_periods)) stop(
+    paste(paste(df$code, collapse = "; "),
+          "\n Vse serije na večlinisjkem grafu morajo uporabljati enako drsečo sredino."))
+  if(!all_equal(df$year_on_year)) stop(
+    paste(paste(df$code, collapse = "; "),
+          "\n Medletno spremembo na večlinijskem grafu je mogoče uporabiti za vse serije ali za nobeno."))
+  df <- multi_titles(df)
+}
+
+
+#' Check titles in input for multi-line chart
+#'
+#' Check if the main_title is the same for all series, and if not issue a warning and
+#' remove all the titles
+#' @param df
+#'
+#' @return
+#' @export
+#'
+#' @examples
+multi_titles <- function(df){
+  if(!all_equal(df$main_title))  {
+    warning(paste(df$code, collapse = "; "),
+            "\n Vse izbrane serije morajo imeti enak naslov, zato je zdaj graf brez naslova.")
+    df$main_title <- NA
+  }
+  df
+}

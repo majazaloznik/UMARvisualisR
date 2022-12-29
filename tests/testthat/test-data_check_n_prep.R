@@ -16,3 +16,20 @@ dittodb::with_mock_db({
     expect_equal(length(out), 7)
   })
 })
+
+
+
+test_that("multliline chart inputs are legit", {
+  df <- read_csv_guess_encoding(test_path("testdata", "test_report_input.csv"))
+  spl <- split(df, df$chart_no)
+  expect_error(multi_checks(spl[[1]]))
+  expect_error(multi_checks(spl$`17`))
+  expect_error(multi_checks(spl$`16`))
+  expect_error(multi_checks(spl$`13`))
+  expect_error(multi_checks(spl$`14`))
+  expect_error(multi_checks(spl$`15`))
+  expect_error(multi_checks(spl$`19`))
+  expect_warning(multi_titles(spl$`18`))
+  expect_warning(multi_checks(spl$`18`))
+  expect_s3_class(multi_checks(spl$`18`), "data.frame")
+})
