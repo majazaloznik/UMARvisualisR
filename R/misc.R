@@ -112,3 +112,18 @@ read_csv_guess_encoding <- function(file){
                    locale = readr::locale(encoding = enc),
                    show_col_types = FALSE)
 }
+
+
+
+#' Test that all values in a vector are the same
+#'
+#' Testing that all values in a vector (or column) are the same.
+#'
+#' @param x vector
+#'
+#' @return logical
+#' @export
+#'
+all_equal <- function(x) {
+  length(unique(x)) == 1
+}
