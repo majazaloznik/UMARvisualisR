@@ -64,19 +64,19 @@ prep_single_line <- function(vintage, con, interval=NULL,
 multi_checks <- function(df){
   if(nrow(df)<=1) stop("The data is for a single line only")
   if(!all_equal(df$unit_name))  stop(
-    paste(paste(df$code, collapse = "; "),
+    paste("Graf števika", df$cart_no,
           "\n Vse izbrane serije morajo imeti enako enoto!"))
   if(!all_equal(df$interval_id))  stop(
-    paste(paste(df$code, collapse = "; "),
+    paste("Graf števika", df$cart_no,
           "\n Trenutno ve\u010dlinijski grafi niso mo\u017eni za serije z razli\u010dnimi intervali."))
   if(!all_equal(df$rolling_average_alignment)) stop(
-    paste(paste(df$code, collapse = "; "),
+    paste("Graf števika", df$cart_no,
           "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$rolling_average_periods)) stop(
-    paste(paste(df$code, collapse = "; "),
+    paste("Graf števika", df$cart_no,
           "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$year_on_year)) stop(
-    paste(paste(df$code, collapse = "; "),
+    paste("Graf števika", df$cart_no,
           "\n Medletno spremembo na ve\u010dlinijskem grafu je mogo\u010d uporabiti za vse serije ali za nobeno."))
   df <- multi_titles(df)
 }
@@ -95,8 +95,8 @@ multi_checks <- function(df){
 #'
 multi_titles <- function(df){
   if(!all_equal(df$main_title))  {
-    warning(paste(df$code, collapse = "; "),
-            "\n Vse izbrane serije morajo imeti enak naslov, zato je zdaj graf brez naslova.")
+    warning(paste("Graf števika", df$cart_no,
+            "\n Vse izbrane serije morajo imeti enak naslov, zato je zdaj graf brez naslova."))
     df$main_title <- NA
   }
   df
@@ -113,6 +113,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
     dplyr::rowwise() %>%
     dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series(id, con, date_valid)$id,
                   updated = UMARaccessR::get_date_published_from_vintage(vintage_id, con)$published)
+  data_points <- purrr::map(df$vintage_id, UMARaccessR::get_data_points_from_vintage, con)
   data_points <- purrr::map(data_points, UMARaccessR::add_date_from_period_id, interval)
   updated <- max(df$updated)
   max_period <- do.call("max", purrr::map(data_points, function(x) max(x$period)))

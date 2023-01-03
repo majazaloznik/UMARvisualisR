@@ -1,2 +1,2 @@
-structure(list(name_long = "Podatki z izloÄenimi vplivi koledarja - 82 PisarniÅ¡ke in spremljajoÄe poslovne storitvene dejavnosti"), class = "data.frame", row.names = c(NA,
+structure(list(name_long = "Podatki z izloèenimi vplivi koledarja - 82 Pisarniške in spremljajoèe poslovne storitvene dejavnosti"), class = "data.frame", row.names = c(NA, 
 -1L))
