@@ -86,12 +86,13 @@ multi_checks <- function(df){
 #'
 #' Check if the main_title is the same for all series, and if not issue a warning and
 #' remove all the titles
-#' @param df
 #'
-#' @return
+#' @param df input dataframe with at least the following columns: code, unit_name
+#' interval_id, rolling_average_alignment, rolling_average_periods, year_on_year
+#'
+#' @return input df, possibly with updated main titles.
 #' @export
 #'
-#' @examples
 multi_titles <- function(df){
   if(!all_equal(df$main_title))  {
     warning(paste(df$code, collapse = "; "),
@@ -99,4 +100,22 @@ multi_titles <- function(df){
     df$main_title <- NA
   }
   df
+}
+
+
+prep_multi_line <- function(df, con, date_valid = NULL){
+  interval <- unique(df$interval_id)
+  unit <- first_up(unique(df$unit_name))
+  main_title <- wrap_string(unique(df$main_title))
+  if (nrow(df) > 1) sub_title <- NA else
+    sub_title <- wrap_string(df$name_long)
+  df <- df %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series(id, con, date_valid)$id,
+                  updated = UMARaccessR::get_date_published_from_vintage(vintage_id, con)$published)
+  data_points <- purrr::map(data_points, UMARaccessR::add_date_from_period_id, interval)
+  updated <- max(df$updated)
+  max_period <- do.call("max", purrr::map(data_points, function(x) max(x$period)))
+  last_period <- data_points[[1]]$period_id[data_points[[1]]$period == max_period]
+  mget(c("data_points", "unit", "main_title" , "sub_title", "updated", "last_period", "interval"))
 }

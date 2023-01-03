@@ -7,7 +7,11 @@
 multi_titles(df)
 }
 \arguments{
-\item{df}{}
+\item{df}{input dataframe with at least the following columns: code, unit_name
+interval_id, rolling_average_alignment, rolling_average_periods, year_on_year}
+}
+\value{
+input df, possibly with updated main titles.
 }
 \description{
 Check if the main_title is the same for all series, and if not issue a warning and
