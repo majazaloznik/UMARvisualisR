@@ -43,8 +43,7 @@ prep_single_line <- function(vintage, con, interval=NULL,
 #' Check input data for multi-line chart
 #'
 #' Helper function to check that the input data dataframe for multi line charts is
-#' correct. This means that series used in a single chart have to be:
-#' - multiple
+#' correct. This means that series used in a single chart have to:
 #' - have the same unit
 #' - have the same interval (this may be changed in the future)
 #' - are either all rolling averages or not and if they are, they have the same
@@ -62,21 +61,20 @@ prep_single_line <- function(vintage, con, interval=NULL,
 #' @export
 #'
 multi_checks <- function(df){
-  if(nrow(df)<=1) stop("The data is for a single line only")
   if(!all_equal(df$unit_name))  stop(
-    paste("Graf števika", df$cart_no,
+    paste("Graf \u0161tevika", unique(df$cart_no),
           "\n Vse izbrane serije morajo imeti enako enoto!"))
   if(!all_equal(df$interval_id))  stop(
-    paste("Graf števika", df$cart_no,
+    paste("Graf \u0161tevika", unique(df$cart_no),
           "\n Trenutno ve\u010dlinijski grafi niso mo\u017eni za serije z razli\u010dnimi intervali."))
   if(!all_equal(df$rolling_average_alignment)) stop(
-    paste("Graf števika", df$cart_no,
+    paste("Graf \u0161tevika", unique(df$cart_no),
           "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$rolling_average_periods)) stop(
-    paste("Graf števika", df$cart_no,
+    paste("Graf \u0161tevika", unique(df$cart_no),
           "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$year_on_year)) stop(
-    paste("Graf števika", df$cart_no,
+    paste("Graf \u0161tevika", unique(df$cart_no),
           "\n Medletno spremembo na ve\u010dlinijskem grafu je mogo\u010d uporabiti za vse serije ali za nobeno."))
   df <- multi_titles(df)
 }
@@ -95,15 +93,37 @@ multi_checks <- function(df){
 #'
 multi_titles <- function(df){
   if(!all_equal(df$main_title))  {
-    warning(paste("Graf števika", df$cart_no,
+    warning(paste("Graf \u0161tevika", unique(df$cart_no),
             "\n Vse izbrane serije morajo imeti enak naslov, zato je zdaj graf brez naslova."))
-    df$main_title <- NA
+    df$main_title <-  paste("Graf \u0161tevika", unique(df$cart_no))
   }
   df
 }
 
 
+#' Prepare data needed for multi (or single) line chart
+#'
+#' Uses an input table which must have the following columns: `itnerval_id`,
+#' `unit_name`, `main_title`, `name_long` for the subtitle, `id` for the series id
+#' (same as gets input into \link[UMARvisualisR]{multi_checks}, which is
+#' run on the dataframe as the first step in this funciton, to check everything is cool with
+#' the inputs.
+#'
+#' Prepares the list of data, structured to get plotted properly. Currently seven
+#' elements are prepared: `data_points` a list of dataframes with the actual data,
+#' `unit`, `main_title` , `sub_title`, `updated`, `last_period`, `interval`.
+#'
+#' Needs a valid connection to get the data as well as the last published date.
+#'
+#' @param df dataframe described above
+#' @param con PostgreSQL connection object created by the RPostgres package.
+#' @param date_valid validity of vintages, NULL gives most recent.
+#'
+#' @return A list of lentgh seven described above.
+#' @export
+#'
 prep_multi_line <- function(df, con, date_valid = NULL){
+  df <- multi_checks(df)
   interval <- unique(df$interval_id)
   unit <- first_up(unique(df$unit_name))
   main_title <- wrap_string(unique(df$main_title))

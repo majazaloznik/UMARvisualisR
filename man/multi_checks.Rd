@@ -15,8 +15,7 @@ input df, possibly with updated main titles.
 }
 \description{
 Helper function to check that the input data dataframe for multi line charts is
-correct. This means that series used in a single chart have to be:
-- multiple
+correct. This means that series used in a single chart have to:
 - have the same unit
 - have the same interval (this may be changed in the future)
 - are either all rolling averages or not and if they are, they have the same

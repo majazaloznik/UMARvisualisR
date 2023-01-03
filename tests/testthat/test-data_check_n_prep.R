@@ -18,7 +18,6 @@ dittodb::with_mock_db({
   test_that("multliline chart inputs are legit", {
     df <- read_csv_guess_encoding(test_path("testdata", "test_report_input.csv"))
     spl <- split(df, df$chart_no)
-    expect_error(multi_checks(spl[[1]]))
     expect_error(multi_checks(spl$`17`))
     expect_error(multi_checks(spl$`16`))
     expect_error(multi_checks(spl$`13`))
