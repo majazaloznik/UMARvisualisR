@@ -171,3 +171,123 @@ na_chart <- function(prep_l){
 }
 
 
+#' Framework for plotting a multivariate line chart
+#'
+#' Plots univariate and multivariate line chart in line with the UMAR corporate
+#' graphical identity.
+#' Data input must be prepared with the \link[UMARvisualisR]{prep_multi_line} function.
+#' At the moment only plots years as labels.
+#'
+#' Todo: add arguments such as x-value range, add flexibility of axis labels for different
+#' time ranges..
+#'
+#' @param prep_l list of length 8+ with data.frame with data, the unit used and the
+#' main and sub titles etc.. see \link[UMARvisualisR]{prep_multi_line}.
+#' @param xmin to be passed to \link[UMARvisualisR]{apply_xlims}
+#' @param xmax to be passed to \link[UMARvisualisR]{apply_xlims}
+#'
+#' @return nothing, plots to open device
+#' @export
+multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
+  # prepare inputs
+  data_points <- prep_l[[1]]
+  unit <- prep_l[[2]]
+  main_title <- prep_l[[3]]
+  sub_title <- prep_l[[4]]
+  update_time <- prep_l[[5]]
+  last_period <- prep_l[[6]]
+  legend_labels <- prep_l[[8]]
+  half_legend <- length(legend_labels)/2
+  title_lines <- main_title[[2]] + sub_title[[2]] + half_legend*0.8
+
+  par(mar = c(3, 3.5, title_lines + 1, 4))
+
+  if(all(is.na(unlist(lapply(data_points, function(x) c(x$value)))))) {
+    na_chart(prep_l) } else {
+      data_points <- lapply(data_points, function(x) apply_xlims(x, xmin, xmax))
+      xlim <- c(sapply(data_points, function(x) min(x$period, na.rm = TRUE), simplify = FALSE)[[1]],
+                sapply(data_points, function(x) max(x$period, na.rm = TRUE), simplify = FALSE)[[1]])
+
+      if(any(sapply(data_points, names) %in% "raw")) {
+        ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$raw))))
+      } else {
+        ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))}
+
+      #plot
+      plot(xlim[1], ylim[1],type = "n",
+           xlab = "", ylab = "",
+           bty = "n",
+           axes = FALSE,
+           main = "",
+           cex.main = 1,
+           family ="Myriad Pro",
+           panel.first={grid(nx = NA, ny = NULL, col = umar_cols("gridlines"), lty = 1)},
+           yaxs="i",
+           ylim = ylim,
+           xlim = xlim)
+      # emphasised gridline
+      if(unit %in% c("Indeks", "Index", "indeks", "index", "%", "Medletna rast, v %")) {
+        abline(h = 100, col = umar_cols("emph"), lwd = 1.5)}
+      if(in_range_strict(0, ylim))  {
+        abline(h = 0, col = umar_cols("emph"), lwd = 1.5)}
+
+      # plot main line (and raw background if exists - but only for univariate)
+      if(any(sapply(data_points, names) %in% "raw") & length(data_points) ==1) {
+        lines(data_points[[1]]$period, data_points[[1]]$raw,
+              col = umar_cols("siva"), lwd = 2)}
+      mapply(function(x, y) lines(x$period, x$value,
+                                  col = y, lwd = 2), data_points, umar_cols()[1:length(data_points)])
+
+      # axis tickmarks
+      axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
+                col = umar_cols("gridlines"),
+                lwd = 0, lwd.ticks =2, tck=-0.01, labels = FALSE)
+
+      # shifting year labels by six months
+      ss <- as.POSIXlt(min(xlim))
+      ss$mon <- as.POSIXlt(min(xlim))$mon+6
+      ee <- as.POSIXlt(max(xlim))
+      ee$mon <- as.POSIXlt(max(xlim))$mon+6
+
+      axis.Date(1,at=seq(ss, ee, by="1 year"),
+                col = umar_cols("gridlines"),
+                lwd = 0, tck = 0,  family ="Myriad Pro",
+                las = 2, padj = 0.5)
+
+      axis(2, col = umar_cols("gridlines"),lwd = 0,  tck=0.0,
+           las = 2,  family ="Myriad Pro")
+      box(col = umar_cols("gridlines"), lwd = 2)
+
+      # titles and labels
+      mtext(main_title[[1]], side = 3, line = 0.5 + sub_title[[2]] + half_legend *0.8,
+            family ="Myriad Pro", font = 2)
+      mtext(sub_title[[1]], side = 3,
+            line = 0.5, family ="Myriad Pro")
+      mtext(unit, side = 2,
+            line = 2.5, family ="Myriad Pro")
+      mtext(paste("Posodobljeno:",
+                  strftime(update_time,
+                           format ="%m.%d.%y %H:%M:%S", tz = "CET")),
+            side = 4,
+            line = 0.5, family ="Myriad Pro", cex = 0.9)
+      mtext(paste("Zadnje odbobje:",last_period), side = 4,
+            line = 1.5, family ="Myriad Pro", cex = 0.9)
+      if("transf_txt" %in% names(prep_l)) {
+        mtext(prep_l[["transf_txt"]], side = 4,
+              line = 2.5, family ="Myriad Pro", font = 3, cex = 0.9)}
+      coord <- par("usr")
+      if(length(data_points)> 1) {
+        legend(coord[[1]] + (coord[[2]]-coord[[1]]) *0.0, coord[[4]] * 1.0,
+               legend_labels,
+               lty = 1,
+               lwd = 2,
+               col = umar_cols()[1:length(data_points)],
+               ncol = 2,
+               cex = .75,
+               bty = "n",
+               inset=c(0, -0.1 * half_legend), xpd = TRUE,
+               xjust = 0,
+               yjust = 0)}
+    }
+}
+

@@ -62,20 +62,23 @@ prep_single_line <- function(vintage, con, interval=NULL,
 #' @export
 #'
 multi_checks <- function(df, con){
+  if(nrow(df) > 8)  stop(
+    paste("Graf \u0161tevilka", unique(df$chart_no),
+          "\n Maksimalno \u0161tevilo serij na enem grafu je 8."))
   if(!all_equal(df$unit_name))  stop(
-    paste("Graf \u0161tevika", unique(df$chart_no),
+    paste("Graf \u0161tevilka", unique(df$chart_no),
           "\n Vse izbrane serije morajo imeti enako enoto!"))
   if(!all_equal(df$interval_id))  stop(
-    paste("Graf \u0161tevika", unique(df$chart_no),
+    paste("Graf \u0161tevilka", unique(df$chart_no),
           "\n Trenutno ve\u010dlinijski grafi niso mo\u017eni za serije z razli\u010dnimi intervali."))
   if(!all_equal(df$rolling_average_alignment)) stop(
-    paste("Graf \u0161tevika", unique(df$chart_no),
+    paste("Graf \u0161tevilka", unique(df$chart_no),
           "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$rolling_average_periods)) stop(
-    paste("Graf \u0161tevika", unique(df$chart_no),
+    paste("Graf \u0161tevilka", unique(df$chart_no),
           "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$year_on_year)) stop(
-    paste("Graf \u0161tevika", unique(df$chart_no),
+    paste("Graf \u0161tevilka", unique(df$chart_no),
           "\n Medletno spremembo na ve\u010dlinijskem grafu je mogo\u010d uporabiti za vse serije ali za nobeno."))
   df <- multi_titles(df, con)
 }
