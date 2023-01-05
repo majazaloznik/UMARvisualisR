@@ -56,27 +56,28 @@ prep_single_line <- function(vintage, con, interval=NULL,
 #'
 #' @param df input dataframe with at least the following columns: code, unit_name
 #' interval_id, rolling_average_alignment, rolling_average_periods, year_on_year
+#' @param con PostgreSQL connection object created by the RPostgres package.
 #'
 #' @return input df, possibly with updated main titles.
 #' @export
 #'
-multi_checks <- function(df){
+multi_checks <- function(df, con){
   if(!all_equal(df$unit_name))  stop(
-    paste("Graf \u0161tevika", unique(df$cart_no),
+    paste("Graf \u0161tevika", unique(df$chart_no),
           "\n Vse izbrane serije morajo imeti enako enoto!"))
   if(!all_equal(df$interval_id))  stop(
-    paste("Graf \u0161tevika", unique(df$cart_no),
+    paste("Graf \u0161tevika", unique(df$chart_no),
           "\n Trenutno ve\u010dlinijski grafi niso mo\u017eni za serije z razli\u010dnimi intervali."))
   if(!all_equal(df$rolling_average_alignment)) stop(
-    paste("Graf \u0161tevika", unique(df$cart_no),
+    paste("Graf \u0161tevika", unique(df$chart_no),
           "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$rolling_average_periods)) stop(
-    paste("Graf \u0161tevika", unique(df$cart_no),
+    paste("Graf \u0161tevika", unique(df$chart_no),
           "\n Vse serije na ve\u010dlinisjkem grafu morajo uporabljati enako drse\u010do sredino."))
   if(!all_equal(df$year_on_year)) stop(
-    paste("Graf \u0161tevika", unique(df$cart_no),
+    paste("Graf \u0161tevika", unique(df$chart_no),
           "\n Medletno spremembo na ve\u010dlinijskem grafu je mogo\u010d uporabiti za vse serije ali za nobeno."))
-  df <- multi_titles(df)
+  df <- multi_titles(df, con)
 }
 
 
@@ -87,16 +88,19 @@ multi_checks <- function(df){
 #'
 #' @param df input dataframe with at least the following columns: code, unit_name
 #' interval_id, rolling_average_alignment, rolling_average_periods, year_on_year
-#'
+#' @param con PostgreSQL connection object created by the RPostgres package.
+
 #' @return input df, possibly with updated main titles.
 #' @export
 #'
-multi_titles <- function(df){
+multi_titles <- function(df, con){
   if(!all_equal(df$main_title))  {
-    warning(paste("Graf \u0161tevika", unique(df$cart_no),
-            "\n Vse izbrane serije morajo imeti enak naslov, zato je zdaj graf brez naslova."))
-    df$main_title <-  paste("Graf \u0161tevika", unique(df$cart_no))
+    warning(paste("Graf \u0161tevika", unique(df$chart_no),
+                  "\n Vse izbrane serije morajo imeti enak naslov, zato je zdaj graf brez naslova."))
+    df$main_title <-  paste("Graf \u0161tevika", unique(df$chart_no))
   }
+  if(all_equal(df$px_code) & is.na(unique(df$main_title))) df$main_title <- UMARaccessR::get_table_name_from_series(df$id[1], con)
+  if(is.na(unique(df$main_title))) df$main_title <-  paste("Graf \u0161tevika", unique(df$chart_no))
   df
 }
 
@@ -123,7 +127,7 @@ multi_titles <- function(df){
 #' @export
 #'
 prep_multi_line <- function(df, con, date_valid = NULL){
-  df <- multi_checks(df)
+  df <- multi_checks(df, con)
   interval <- unique(df$interval_id)
   unit <- first_up(unique(df$unit_name))
   main_title <- wrap_string(unique(df$main_title))

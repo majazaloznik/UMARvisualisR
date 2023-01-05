@@ -4,11 +4,13 @@
 \alias{multi_checks}
 \title{Check input data for multi-line chart}
 \usage{
-multi_checks(df)
+multi_checks(df, con)
 }
 \arguments{
 \item{df}{input dataframe with at least the following columns: code, unit_name
 interval_id, rolling_average_alignment, rolling_average_periods, year_on_year}
+
+\item{con}{PostgreSQL connection object created by the RPostgres package.}
 }
 \value{
 input df, possibly with updated main titles.
