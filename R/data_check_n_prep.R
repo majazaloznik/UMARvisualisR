@@ -104,6 +104,38 @@ multi_titles <- function(df, con){
   df
 }
 
+#' Get legend labels from input dataframe
+#'
+#' One of the columns is the `name_long` one, which is from the `series` table and contains
+#' the dimension values separated by `--`. If these names have the same number of dimension
+#' values and differ by just one of them, then that one is returned as the legend labels.
+#' Warnings are issued for different numbers of dimensions or differences in more than
+#' one dim, in which case NAs are returned.
+#' If the labels have been entered manually, they are used instead - but must of course
+#' be unique and not contain the `  -- ` character sequence.
+#' At the moment no limits are placed on the length of the labels, that's coming next.
+#'
+#' @param df input dataframe with at least the following columns: `name_long`, `chart_no`
+#'
+#' @return character vector of length nrow(df) with legend labels
+#' @export
+#'
+get_legend_labels_from_df <- function(df) {
+  splt <- sapply(list(df$name_long)[[1]], function(x) strsplit(x, " -- "))
+  if(!UMARvisualisR::all_equal(sapply(splt, length))) {
+    warning(paste("Graf", unique(df$chart_no),
+                  ": Oznak legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so serije iz razli\u010dnih tabel."))
+    diff <- rep(NA, nrow(df))} else {
+      intersection <- Reduce(intersect, splt)
+      if(!unique(sapply(splt, length)) == length(intersection)+1) {
+        warning(paste("Graf", unique(df$chart_no),
+                      ": Oznak legende ni mogo\u010e dolo\u010diti avtomati\u010dno, ker se razlikujejo po ve\u010d kot eni dimenziji"))
+        diff <- rep(NA, nrow(df))} else {
+          diff <- sapply(splt, function(x) setdiff(x, intersection))
+          unname(diff)}
+    }
+}
+
 
 #' Prepare data needed for multi (or single) line chart
 #'
@@ -131,6 +163,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
   interval <- unique(df$interval_id)
   unit <- first_up(unique(df$unit_name))
   main_title <- wrap_string(unique(df$main_title))
+  legend_labels <- get_legend_labels_from_df(df)
   if (nrow(df) > 1) sub_title <- NA else
     sub_title <- wrap_string(df$name_long)
   df <- df %>%
@@ -142,5 +175,6 @@ prep_multi_line <- function(df, con, date_valid = NULL){
   updated <- max(df$updated)
   max_period <- do.call("max", purrr::map(data_points, function(x) max(x$period)))
   last_period <- data_points[[1]]$period_id[data_points[[1]]$period == max_period]
-  mget(c("data_points", "unit", "main_title" , "sub_title", "updated", "last_period", "interval"))
+  mget(c("data_points", "unit", "main_title" , "sub_title", "updated", "last_period",
+         "interval", "legend_labels"))
 }
