@@ -10,7 +10,9 @@ multivariate_line_chart(prep_l, xmin = "2011-01-01", xmax = NULL)
 \item{prep_l}{list of length 8+ with data.frame with data, the unit used and the
 main and sub titles etc.. see \link[UMARvisualisR]{prep_multi_line}.}
 
-\item{...}{xmin or xmax to be passed to \link[UMARvisualisR]{apply_xlims}}
+\item{xmin}{to be passed to \link[UMARvisualisR]{apply_xlims}}
+
+\item{xmax}{to be passed to \link[UMARvisualisR]{apply_xlims}}
 }
 \value{
 nothing, plots to open device
