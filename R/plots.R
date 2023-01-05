@@ -119,7 +119,7 @@ univariate_line_chart <- function(prep_l, ...){
 #'
 
 na_chart <- function(prep_l){
-  single <- prep_l[[1]]
+  single <- if(is.data.frame(prep_l[[1]]))  prep_l[[1]] else prep_l[[1]][[1]]
   unit <- prep_l[[2]]
   main_title <- prep_l[[3]]
   sub_title <- prep_l[[4]]

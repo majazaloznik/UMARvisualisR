@@ -163,9 +163,11 @@ prep_multi_line <- function(df, con, date_valid = NULL){
   interval <- unique(df$interval_id)
   unit <- first_up(unique(df$unit_name))
   main_title <- wrap_string(unique(df$main_title))
-  legend_labels <- get_legend_labels_from_df(df)
-  if (nrow(df) > 1) sub_title <- NA else
+  if (nrow(df) > 1) {
+    sub_title <- list(NA, 0)
+    legend_labels <- get_legend_labels_from_df(df)}else {
     sub_title <- wrap_string(df$name_long)
+    legend_labels <- NA}
   df <- df %>%
     dplyr::rowwise() %>%
     dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series(id, con, date_valid)$id,
