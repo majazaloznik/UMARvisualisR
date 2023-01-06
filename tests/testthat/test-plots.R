@@ -1,4 +1,5 @@
 prep_l <- readRDS(test_path("testdata", "prep_l.rds"))
+prep_lm <- readRDS(test_path("testdata", "prep_lm.rds"))
 
 test_that("plots look right", {
   p <- function() univariate_line_chart(prep_l)
@@ -17,5 +18,6 @@ test_that("plots look right", {
   vdiffr::expect_doppelganger("na chart", p)
   p <- function() na_chart(prep_l)
   vdiffr::expect_doppelganger("na chart2", p)
-
+  p <- function() multivariate_line_chart(prep_lm)
+  vdiffr::expect_doppelganger("multi 8", p)
 })
