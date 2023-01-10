@@ -8,7 +8,7 @@
 #' lets you set a threshold for the number of rows after which the text gets truncated.
 #'
 #' @param string a character string to be wrapped- vector of length one
-#' @param width numeric - desired width, defaults to 100
+#' @param width numeric - desired character width, defaults to 100
 #' @param max_rows numeric maximum number of rows allowed in the output, defaults to 3
 #'
 #' @return a list with the first element a character string with new lines if required, and the
@@ -16,7 +16,7 @@
 #'
 #' @export
 #'
-wrap_string <- function(string, width = 100, max_rows = 3){
+wrap_string <- function(string, width = 120, max_rows = 3){
   split_text <- strwrap(string,
                         width = width)
   split_text <- split_text[1:min(length(split_text), max_rows)]
