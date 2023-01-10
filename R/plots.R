@@ -63,7 +63,7 @@ univariate_line_chart <- function(prep_l, ...){
       # axis tickmarks
       axis.Date(1,at=seq(min(single$period), max(single$period), by="1 year"),
                 col = umar_cols("gridlines"),
-                lwd = 0, lwd.ticks =2, tck=-0.01, labels = FALSE)
+                lwd = 0, lwd.ticks =1.5, tck=-0.01, labels = FALSE)
 
       # shifting year labels by six months
       ss <- as.POSIXlt(min(single$period))
@@ -245,7 +245,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       # axis tickmarks
       axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
                 col = umar_cols("gridlines"),
-                lwd = 0, lwd.ticks =2, tck=-0.02, labels = FALSE)
+                lwd = 0, lwd.ticks =1.5, tck=-0.02, labels = FALSE)
 
       # shifting year labels by six months
       ss <- as.POSIXlt(min(xlim))
