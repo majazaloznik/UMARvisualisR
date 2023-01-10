@@ -262,9 +262,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       box(col = umar_cols("gridlines"), lwd = 2)
 
       # titles and labels
-      # par(ps=10.5)
-      # mtext(main_title[[1]], side = 3, line = 0.3 + sub_title[[2]] + net_legend_height/lh,
-      #       family ="Myriad Pro", font = 2, adj = 0)
+
       par(ps=10)
       mtext(sub_title[[1]], side = 3,
             line = 0.5, family ="Myriad Pro", adj = 0)
@@ -303,9 +301,13 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
                inset=c(0, 0), xpd = TRUE,
                xjust = 0,
                yjust = 0)
+        par(ps=10.5)
+        mtext(main_title[[1]], side = 3, line = 0.3 + sub_title[[2]] + net_legend_height/lh,
+              family ="Myriad Pro", font = 2, adj = 0)
+      } else {
+        par(ps=10.5)
+        mtext(main_title[[1]], side = 3, line = 0.3 + sub_title[[2]],
+              family ="Myriad Pro", font = 2, adj = 0)
       }
-      par(ps=10.5)
-      mtext(main_title[[1]], side = 3, line = 0.3 + sub_title[[2]] + net_legend_height/lh,
-            family ="Myriad Pro", font = 2, adj = 0)
     }
 }
