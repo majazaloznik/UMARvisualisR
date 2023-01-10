@@ -57,27 +57,27 @@
 <line x1='510.20' y1='532.80' x2='510.20' y2='537.08' style='stroke-width: 1.50; stroke: #BFBFBF;' />
 <line x1='558.88' y1='532.80' x2='558.88' y2='537.08' style='stroke-width: 1.50; stroke: #BFBFBF;' />
 <line x1='607.42' y1='532.80' x2='607.42' y2='537.08' style='stroke-width: 1.50; stroke: #BFBFBF;' />
-<text transform='translate(100.58,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2011</text>
-<text transform='translate(149.25,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2012</text>
-<text transform='translate(197.79,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2013</text>
-<text transform='translate(246.33,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2014</text>
-<text transform='translate(294.88,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2015</text>
-<text transform='translate(343.55,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2016</text>
-<text transform='translate(392.09,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2017</text>
-<text transform='translate(440.63,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2018</text>
-<text transform='translate(489.17,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2019</text>
-<text transform='translate(537.85,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2020</text>
-<text transform='translate(586.39,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2021</text>
-<text transform='translate(634.93,547.20) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2022</text>
-<text x='36.00' y='536.24' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='5.56px' lengthAdjust='spacingAndGlyphs'>0</text>
-<text x='36.00' y='429.32' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>50</text>
-<text x='36.00' y='322.40' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='16.69px' lengthAdjust='spacingAndGlyphs'>100</text>
-<text x='36.00' y='215.48' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='16.69px' lengthAdjust='spacingAndGlyphs'>150</text>
-<text x='36.00' y='108.56' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='16.69px' lengthAdjust='spacingAndGlyphs'>200</text>
-<polygon points='50.40,532.80 662.40,532.80 662.40,105.12 50.40,105.12 ' style='stroke-width: 1.50; stroke: #BFBFBF; fill: none;' />
+<text transform='translate(100.58,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2011</text>
+<text transform='translate(149.25,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2012</text>
+<text transform='translate(197.79,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2013</text>
+<text transform='translate(246.33,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2014</text>
+<text transform='translate(294.88,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2015</text>
+<text transform='translate(343.55,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2016</text>
+<text transform='translate(392.09,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2017</text>
+<text transform='translate(440.63,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2018</text>
+<text transform='translate(489.17,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2019</text>
+<text transform='translate(537.85,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2020</text>
+<text transform='translate(586.39,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2021</text>
+<text transform='translate(634.93,540.00) rotate(-90)' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2022</text>
+<text x='43.20' y='536.24' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='5.56px' lengthAdjust='spacingAndGlyphs'>0</text>
+<text x='43.20' y='429.32' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>50</text>
+<text x='43.20' y='322.40' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='16.69px' lengthAdjust='spacingAndGlyphs'>100</text>
+<text x='43.20' y='215.48' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='16.69px' lengthAdjust='spacingAndGlyphs'>150</text>
+<text x='43.20' y='108.56' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='16.69px' lengthAdjust='spacingAndGlyphs'>200</text>
+<polygon points='50.40,532.80 662.40,532.80 662.40,105.12 50.40,105.12 ' style='stroke-width: 0.75; stroke: #BFBFBF; fill: none;' />
 <text transform='translate(11.52,318.96) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='29.47px' lengthAdjust='spacingAndGlyphs'>Indeks</text>
-<text transform='translate(681.12,318.96) rotate(-90)' text-anchor='middle' style='font-size: 9.00px; font-family: sans;' textLength='132.12px' lengthAdjust='spacingAndGlyphs'>Posodobljeno: 12.06.22 14:00:00</text>
-<text transform='translate(695.52,318.96) rotate(-90)' text-anchor='middle' style='font-size: 9.00px; font-family: sans;' textLength='104.59px' lengthAdjust='spacingAndGlyphs'>Zadnje odbobje: 2022M09</text>
+<text transform='translate(681.12,318.96) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='146.80px' lengthAdjust='spacingAndGlyphs'>Posodobljeno: 12.06.22 14:00:00</text>
+<text transform='translate(695.52,318.96) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='116.21px' lengthAdjust='spacingAndGlyphs'>Zadnje odbobje: 2022M09</text>
 <line x1='61.20' y1='53.28' x2='82.80' y2='53.28' style='stroke-width: 1.50; stroke: #A10305;' />
 <line x1='61.20' y1='67.68' x2='82.80' y2='67.68' style='stroke-width: 1.50; stroke: #D46565;' />
 <line x1='61.20' y1='82.08' x2='82.80' y2='82.08' style='stroke-width: 1.50; stroke: #A7AEB4;' />
