@@ -245,7 +245,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       # axis tickmarks
       axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
                 col = umar_cols("gridlines"),
-                lwd = 0, lwd.ticks =1.5, tck=-0.02, labels = FALSE)
+                lwd = 0, lwd.ticks =2, tck=-0.02, labels = FALSE)
 
       # shifting year labels by six months
       ss <- as.POSIXlt(min(xlim))
@@ -256,7 +256,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       axis.Date(1,at=seq(ss, ee, by="1 year"),
                 col = umar_cols("gridlines"),
                 lwd = 0, tck = 0,  family ="Myriad Pro",
-                las = 2, padj = 0.5, format = "%Y")
+                las = 2, padj = 0.5)
 
       axis(2, col = umar_cols("gridlines"),lwd = 0,  tck=0.0,
            las = 2,  family ="Myriad Pro")
@@ -286,12 +286,15 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
         legend_row_height <- xyinch(par("cin"))[[2]]
         net_legend_height <- half_legend * legend_row_height
         lh <- diff(grconvertY(0:1, 'inches', 'user')) * par('cin')[2] * par('cex') * par('lheight')
-
+        short_legend_labels <- substr(legend_labels, 1, 50)
+        shortened <- nchar(legend_labels)!= nchar(short_legend_labels)
+        short_legend_labels <- paste(short_legend_labels,
+                                     ifelse(shortened, "...", ""))
 
         coord <- par("usr")
 
         legend(coord[[1]] + (coord[[2]]-coord[[1]]) *0, coord[[4]] - legend_row_height/2.5,
-               legend_labels,
+               short_legend_labels,
                lty = 1,
                lwd = 2,
                bg=NA,
