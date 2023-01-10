@@ -245,7 +245,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       # axis tickmarks
       axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
                 col = umar_cols("gridlines"),
-                lwd = 0, lwd.ticks =2, tck=-0.01, labels = FALSE)
+                lwd = 0, lwd.ticks =2, tck=-0.02, labels = FALSE)
 
       # shifting year labels by six months
       ss <- as.POSIXlt(min(xlim))
@@ -256,7 +256,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       axis.Date(1,at=seq(ss, ee, by="1 year"),
                 col = umar_cols("gridlines"),
                 lwd = 0, tck = 0,  family ="Myriad Pro",
-                las = 2, padj = 0.5)
+                las = 2, padj = 0.5, format = "%Y")
 
       axis(2, col = umar_cols("gridlines"),lwd = 0,  tck=0.0,
            las = 2,  family ="Myriad Pro")
