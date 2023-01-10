@@ -197,10 +197,13 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
   update_time <- prep_l[[5]]
   last_period <- prep_l[[6]]
   legend_labels <- prep_l[[8]]
-  half_legend <- length(legend_labels)/2
-  title_lines <- main_title[[2]] + sub_title[[2]] + half_legend*0.8
 
-  par(mar = c(3, 3.5, title_lines + 1, 4))
+  # dims for top margin
+  par(ps=10)
+  half_legend <- round(length(legend_labels)/2)
+  title_lines <- main_title[[2]] + sub_title[[2]] + half_legend
+
+  par(mar = c(3, 3.5, title_lines + 0.3, 4))
 
   if(all(is.na(unlist(lapply(data_points, function(x) c(x$value)))))) {
     na_chart(prep_l) } else {
@@ -259,8 +262,10 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       box(col = umar_cols("gridlines"), lwd = 2)
 
       # titles and labels
-      mtext(main_title[[1]], side = 3, line = 0.5 + sub_title[[2]] + half_legend *0.8,
-            family ="Myriad Pro", font = 2, adj = 0)
+      # par(ps=10.5)
+      # mtext(main_title[[1]], side = 3, line = 0.3 + sub_title[[2]] + net_legend_height/lh,
+      #       family ="Myriad Pro", font = 2, adj = 0)
+      par(ps=10)
       mtext(sub_title[[1]], side = 3,
             line = 0.5, family ="Myriad Pro", adj = 0)
       mtext(unit, side = 2,
@@ -275,19 +280,32 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       if("transf_txt" %in% names(prep_l)) {
         mtext(prep_l[["transf_txt"]], side = 4,
               line = 2.5, family ="Myriad Pro", font = 3, cex = 0.9)}
-      coord <- par("usr")
+      op <- par(family = "Myriad Pro")
       if(length(data_points)> 1) {
-        legend(coord[[1]] + (coord[[2]]-coord[[1]]) *0.0, coord[[4]] * 1.0,
+        par(ps=10)
+
+        legend_row_height <- xyinch(par("cin"))[[2]]
+        net_legend_height <- half_legend * legend_row_height
+        lh <- diff(grconvertY(0:1, 'inches', 'user')) * par('cin')[2] * par('cex') * par('lheight')
+
+
+        coord <- par("usr")
+
+        legend(coord[[1]] + (coord[[2]]-coord[[1]]) *0, coord[[4]] - legend_row_height/2.5,
                legend_labels,
                lty = 1,
                lwd = 2,
-               col = umar_cols()[1:length(data_points)],
+               bg=NA,
+               col = umar_cols()[1:length(legend_labels)],
                ncol = 2,
-               cex = .75,
+               cex = 1,
                bty = "n",
-               inset=c(0, -0.1 * half_legend), xpd = TRUE,
+               inset=c(0, 0), xpd = TRUE,
                xjust = 0,
-               yjust = 0)}
+               yjust = 0)
+      }
+      par(ps=10.5)
+      mtext(main_title[[1]], side = 3, line = 0.3 + sub_title[[2]] + net_legend_height/lh,
+            family ="Myriad Pro", font = 2, adj = 0)
     }
 }
-
