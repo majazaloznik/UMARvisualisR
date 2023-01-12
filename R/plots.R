@@ -63,7 +63,7 @@ univariate_line_chart <- function(prep_l, ...){
       # axis tickmarks
       axis.Date(1,at=seq(min(single$period), max(single$period), by="1 year"),
                 col = umar_cols("gridlines"),
-                lwd = 0, lwd.ticks =1.5, tck=-0.01, labels = FALSE)
+                lwd = 0, lwd.ticks =1, tck=-0.01, labels = FALSE)
 
       # shifting year labels by six months
       ss <- as.POSIXlt(min(single$period))
@@ -144,7 +144,7 @@ na_chart <- function(prep_l){
   # axis tickmarks
   axis.Date(1,at=seq(min(single$period), max(single$period), by="1 year"),
             col = umar_cols("gridlines"),
-            lwd = 0, lwd.ticks =2, tck=-0.01, labels = FALSE)
+            lwd = 0, lwd.ticks =1, tck=-0.01, labels = FALSE)
 
   # shifting year labels by six months
   ss <- as.POSIXlt(min(single$period))
@@ -207,7 +207,8 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       mgp=c(3,0.5,0))
 
   if(all(is.na(unlist(lapply(data_points, function(x) c(x$value)))))) {
-    na_chart(prep_l) } else {
+    na_chart(prep_l)
+    } else {
       data_points <- lapply(data_points, function(x) apply_xlims(x, xmin, xmax))
       xlim <- c(sapply(data_points, function(x) min(x$period, na.rm = TRUE), simplify = FALSE)[[1]],
                 sapply(data_points, function(x) max(x$period, na.rm = TRUE), simplify = FALSE)[[1]])
@@ -231,9 +232,9 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
            xlim = xlim)
       # emphasised gridline
       if(unit %in% c("Indeks", "Index", "indeks", "index", "%", "Medletna rast, v %")) {
-        abline(h = 100, col = umar_cols("emph"), lwd = 1.5)}
+        abline(h = 100, col = umar_cols("emph"), lwd = 1)}
       if(in_range_strict(0, ylim))  {
-        abline(h = 0, col = umar_cols("emph"), lwd = 1.5)}
+        abline(h = 0, col = umar_cols("emph"), lwd = 1)}
 
       # plot main line (and raw background if exists - but only for univariate)
       if(any(sapply(data_points, names) %in% "raw") & length(data_points) ==1) {
@@ -245,7 +246,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       # axis tickmarks
       axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
                 col = umar_cols("gridlines"),
-                lwd = 0, lwd.ticks =2, tck=-0.02, labels = FALSE)
+                lwd = 0, lwd.ticks =1, tck=-0.02, labels = FALSE)
 
       # shifting year labels by six months
       ss <- as.POSIXlt(min(xlim))
