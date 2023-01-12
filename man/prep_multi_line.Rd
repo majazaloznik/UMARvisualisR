@@ -18,7 +18,7 @@ A list of lentgh seven described above.
 }
 \description{
 Uses an input table which must have the following columns: `itnerval_id`,
-`unit_name`, `main_title`, `name_long` for the subtitle, `id` for the series id
+`unit_name`, `table_name`, `series_name` for the subtitle, `id` for the series id
 (same as gets input into \link[UMARvisualisR]{multi_checks}, which is
 run on the dataframe as the first step in this funciton, to check everything is cool with
 the inputs.
@@ -26,7 +26,7 @@ the inputs.
 \details{
 Prepares the list of data, structured to get plotted properly. Currently seven
 elements are prepared: `data_points` a list of dataframes with the actual data,
-`unit`, `main_title` , `sub_title`, `updated`, `last_period`, `interval`.
+`unit_name`, `table_name` , `sub_title`, `updated`, `last_period`, `interval`.
 
 Needs a valid connection to get the data as well as the last published date.
 }

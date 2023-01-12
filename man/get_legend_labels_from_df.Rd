@@ -7,13 +7,13 @@
 get_legend_labels_from_df(df)
 }
 \arguments{
-\item{df}{input dataframe with at least the following columns: `name_long`, `chart_no`}
+\item{df}{input dataframe with at least the following columns: `series_name`, `chart_no`}
 }
 \value{
 character vector of length nrow(df) with legend labels
 }
 \description{
-One of the columns is the `name_long` one, which is from the `series` table and contains
+One of the columns is the `series_name` one, which is from the `series` table and contains
 the dimension values separated by `--`. If these names have the same number of dimension
 values and differ by just one of them, then that one is returned as the legend labels.
 Warnings are issued for different numbers of dimensions or differences in more than

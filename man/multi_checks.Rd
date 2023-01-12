@@ -7,8 +7,8 @@
 multi_checks(df, con)
 }
 \arguments{
-\item{df}{input dataframe with at least the following columns: code, unit_name
-interval_id, rolling_average_alignment, rolling_average_periods, year_on_year}
+\item{df}{input dataframe with at least the following columns: series_code, unit
+interval_id, rolling_average_alignment, rolling_average_periods, year-on-year}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 }

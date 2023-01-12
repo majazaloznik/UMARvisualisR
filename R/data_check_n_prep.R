@@ -54,8 +54,8 @@ prep_single_line <- function(vintage, con, interval=NULL,
 #' Also checks if
 #' - main_titles are the same, otherwise it deletes them, but only issues a warning.
 #'
-#' @param df input dataframe with at least the following columns: code, unit_name
-#' interval_id, rolling_average_alignment, rolling_average_periods, year_on_year
+#' @param df input dataframe with at least the following columns: series_code, unit
+#' interval_id, rolling_average_alignment, rolling_average_periods, year-on-year
 #' @param con PostgreSQL connection object created by the RPostgres package.
 #'
 #' @return input df, possibly with updated main titles.
@@ -89,7 +89,7 @@ multi_checks <- function(df, con){
 #' Check if the main_title is the same for all series, and if not issue a warning and
 #' remove all the titles
 #'
-#' @param df input dataframe with at least the following columns: code, unit_name
+#' @param df input dataframe with at least the following columns: series_code, unit_name
 #' interval_id, rolling_average_alignment, rolling_average_periods, year_on_year
 #' @param con PostgreSQL connection object created by the RPostgres package.
 
@@ -97,19 +97,19 @@ multi_checks <- function(df, con){
 #' @export
 #'
 multi_titles <- function(df, con){
-  if(!all_equal(df$main_title))  {
+  if(!all_equal(df$table_name))  {
     warning(paste("Graf \u0161tevika", unique(df$chart_no),
                   "\n Vse izbrane serije morajo imeti enak naslov, zato je zdaj graf brez naslova."))
-    df$main_title <-  paste("Graf \u0161tevika", unique(df$chart_no))
+    df$table_name <-  paste("Graf \u0161tevika", unique(df$chart_no))
   }
-  if(all_equal(df$px_code) & is.na(unique(df$main_title))) df$main_title <- UMARaccessR::get_table_name_from_series(df$id[1], con)
-  if(is.na(unique(df$main_title))) df$main_title <-  paste("Graf \u0161tevika", unique(df$chart_no))
+  if(all_equal(df$series_code) & is.na(unique(df$table_name))) df$table_name <- UMARaccessR::get_table_name_from_series(df$id[1], con)
+  if(is.na(unique(df$table_name))) df$table_name <-  paste("Graf \u0161tevika", unique(df$chart_no))
   df
 }
 
 #' Get legend labels from input dataframe
 #'
-#' One of the columns is the `name_long` one, which is from the `series` table and contains
+#' One of the columns is the `series_name` one, which is from the `series` table and contains
 #' the dimension values separated by `--`. If these names have the same number of dimension
 #' values and differ by just one of them, then that one is returned as the legend labels.
 #' Warnings are issued for different numbers of dimensions or differences in more than
@@ -118,20 +118,20 @@ multi_titles <- function(df, con){
 #' be unique and not contain the `  -- ` character sequence.
 #' At the moment no limits are placed on the length of the labels, that's coming next.
 #'
-#' @param df input dataframe with at least the following columns: `name_long`, `chart_no`
+#' @param df input dataframe with at least the following columns: `series_name`, `chart_no`
 #'
 #' @return character vector of length nrow(df) with legend labels
 #' @export
 #'
 get_legend_labels_from_df <- function(df) {
-  splt <- sapply(list(df$name_long)[[1]], function(x) strsplit(x, " -- "))
+  splt <- sapply(list(df$series_name)[[1]], function(x) strsplit(x, " -- "))
   if(!UMARvisualisR::all_equal(sapply(splt, length))) {
-    warning(paste("Graf", unique(df$chart_no),
+    warning(paste("Graf \u0161t.", unique(df$chart_no),
                   ": Oznak legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so serije iz razli\u010dnih tabel."))
     diff <- rep(NA, nrow(df))} else {
       intersection <- Reduce(intersect, splt)
       if(!unique(sapply(splt, length)) == length(intersection)+1) {
-        warning(paste("Graf", unique(df$chart_no),
+        warning(paste("Graf \u0161t.", unique(df$chart_no),
                       ": Oznak legende ni mogo\u010e dolo\u010diti avtomati\u010dno, ker se razlikujejo po ve\u010d kot eni dimenziji"))
         diff <- rep(NA, nrow(df))} else {
           diff <- sapply(splt, function(x) setdiff(x, intersection))
@@ -143,14 +143,14 @@ get_legend_labels_from_df <- function(df) {
 #' Prepare data needed for multi (or single) line chart
 #'
 #' Uses an input table which must have the following columns: `itnerval_id`,
-#' `unit_name`, `main_title`, `name_long` for the subtitle, `id` for the series id
+#' `unit_name`, `table_name`, `series_name` for the subtitle, `id` for the series id
 #' (same as gets input into \link[UMARvisualisR]{multi_checks}, which is
 #' run on the dataframe as the first step in this funciton, to check everything is cool with
 #' the inputs.
 #'
 #' Prepares the list of data, structured to get plotted properly. Currently seven
 #' elements are prepared: `data_points` a list of dataframes with the actual data,
-#' `unit`, `main_title` , `sub_title`, `updated`, `last_period`, `interval`.
+#' `unit_name`, `table_name` , `sub_title`, `updated`, `last_period`, `interval`.
 #'
 #' Needs a valid connection to get the data as well as the last published date.
 #'
@@ -162,18 +162,19 @@ get_legend_labels_from_df <- function(df) {
 #' @export
 #'
 prep_multi_line <- function(df, con, date_valid = NULL){
+  if (exists("chart_no")) print(paste("Pripravljam podatke za graf \u0161t.", chart_no))
   df <- multi_checks(df, con)
   interval <- unique(df$interval_id)
   unit <- first_up(unique(df$unit_name))
-  main_title <- wrap_string(unique(df$main_title))
+  main_title <- wrap_string(unique(df$table_name))
   if (nrow(df) > 1) {
     sub_title <- list(NA, 0)
     legend_labels <- get_legend_labels_from_df(df)}else {
-    sub_title <- wrap_string(df$name_long)
+    sub_title <- wrap_string(df$series_name)
     legend_labels <- NA}
   df <- df %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series(id, con, date_valid)$id,
+    dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series_code(series_code, con, date_valid)$id,
                   updated = UMARaccessR::get_date_published_from_vintage(vintage_id, con)$published)
   data_points <- purrr::map(df$vintage_id, UMARaccessR::get_data_points_from_vintage, con)
   data_points <- purrr::map(data_points, UMARaccessR::add_date_from_period_id, interval)
