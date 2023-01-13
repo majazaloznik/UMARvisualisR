@@ -13,7 +13,7 @@ test_that("transformations work", {
   df <- data.frame(value = c(1:24), period = c(24:1))
   input_data <- list(data_points = list(df), rolling_average_periods = 3, rolling_average_alignment = "c",
                 year_on_year = FALSE, interval = "M")
-  expect_equal(length(do_transformations(input_data)), 6)
+  expect_equal(length(do_transformations(input_data)), 7)
   expect_equal(dim(do_transformations(input_data)$data_points[[1]]), c(24,3))
 })
 
