@@ -43,6 +43,20 @@ univariate_line_pipeline <- function(series,
 
 
 
+#' Multiline pipeline from input dataframe
+#'
+#' Pipeline that takes an appropriate dataframe with instrucitons for the charts and
+#' prepares the data and outputs the the charts. SHould work on single and multiline
+#' and on transformed data as well as long as all the series in a multiline have the
+#' same transformation.
+#'
+#' @param df dataframe with the following fields: `tabel_name`, `series_name`, `series_code`,
+#' `unit_name`,	`interval_id`,	`chart_no`,	`rolling_average_periods`,
+#' `rolling_average_alignment`,	`year_on_year`.
+#' @inheritParams common_parameters
+#'
+#' @return plots chart
+#' @export
 multiline_pipeline  <- function(df, con){
   prep_l <- prep_multi_line(df, con)
   multivariate_line_chart(prep_l, xmin = "2011-01-01", xmax =NULL)

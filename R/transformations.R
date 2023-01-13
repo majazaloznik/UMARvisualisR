@@ -132,7 +132,7 @@ do_transformations <- function(input_data){
         data_points <- purrr::map(rolld, 1)
         transf_txt <- paste0("Transf.: ", periods,"-",interval,
                              " drse\u010da sredina", purrr::map(rolld, 2)[[1]])
-        unit <- unit
+        unit <- ifelse(is.null(unit), NA, unit)
       }
       if(yoy) {yoyd <- purrr::map(data_points, add_yoy_change, interval)
       data_points <- purrr::map(yoyd, 1)
