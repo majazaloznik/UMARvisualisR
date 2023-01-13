@@ -89,7 +89,7 @@ univariate_line_chart <- function(prep_l, ...){
             line = 2.5, family ="Myriad Pro")
       mtext(paste("Posodobljeno:",
                   strftime(update_time[1,1],
-                           format ="%m.%d.%y %H:%M:%S", tz = "CET")),
+                           format ="%d.%m.%y %H:%M:%S", tz = "CET")),
             side = 4,
             line = 0.5, family ="Myriad Pro")
       mtext(paste("Zadnje odbobje:",last_period), side = 4,
