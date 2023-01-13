@@ -16,12 +16,12 @@
 #'
 univariate_line_chart <- function(prep_l, ...){
   # prepare inputs
-  single <- prep_l[[1]]
-  unit <- prep_l[[2]]
-  main_title <- prep_l[[3]]
-  sub_title <- prep_l[[4]]
-  update_time <- prep_l[[5]]
-  last_period <- prep_l[[6]]
+  single <- if(is.data.frame(prep_l$data_points))  prep_l$data_points else prep_l$data_points[[1]]
+  unit <- prep_l$unit
+  main_title <- prep_l$main_title
+  sub_title <- prep_l$sub_title
+  update_time <- prep_l$updated
+  last_period <- prep_l$last_period
   title_lines <-main_title[[2]] + sub_title[[2]]
 
   par(mar = c(3, 3.5, title_lines + 1, 4))
@@ -119,10 +119,10 @@ univariate_line_chart <- function(prep_l, ...){
 #'
 
 na_chart <- function(prep_l){
-  single <- if(is.data.frame(prep_l[[1]]))  prep_l[[1]] else prep_l[[1]][[1]]
-  unit <- prep_l[[2]]
-  main_title <- prep_l[[3]]
-  sub_title <- prep_l[[4]]
+  single <- if(is.data.frame(prep_l$data_points))  prep_l$data_points else prep_l$data_points[[1]]
+  unit <- prep_l$unit
+  main_title <- prep_l$main_title
+  sub_title <- prep_l$sub_title
   title_lines <-main_title[[2]] + sub_title[[2]]
 
   ylim <- c(0,1)
@@ -190,13 +190,13 @@ na_chart <- function(prep_l){
 #' @export
 multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
   # prepare inputs
-  data_points <- prep_l[[1]]
-  unit <- prep_l[[2]]
-  main_title <- prep_l[[3]]
-  sub_title <- prep_l[[4]]
-  update_time <- prep_l[[5]]
-  last_period <- prep_l[[6]]
-  legend_labels <- prep_l[[8]]
+  data_points <- prep_l$data_points
+  unit <- prep_l$unit
+  main_title <- prep_l$main_title
+  sub_title <- prep_l$sub_title
+  update_time <- prep_l$updated
+  last_period <- prep_l$last_period
+  legend_labels <- prep_l$legend_labels
 
   # dims for top margin
   par(ps=10)

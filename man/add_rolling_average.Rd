@@ -4,10 +4,10 @@
 \alias{add_rolling_average}
 \title{Add rolling average column to prepared data}
 \usage{
-add_rolling_average(prep_l, periods = 3, align = "center")
+add_rolling_average(data_points, periods = 3, align = "center")
 }
 \arguments{
-\item{prep_l}{prepared list with first element a dataframe with the `value` column}
+\item{data_points}{prepared list of dataframes with the `value` column}
 
 \item{periods}{number of periods to average}
 

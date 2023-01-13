@@ -4,14 +4,16 @@
 \alias{add_yoy_of_rolling}
 \title{Add Year on year change to a rolling average}
 \usage{
-add_yoy_of_rolling(prep_l, periods = 3, align = "center")
+add_yoy_of_rolling(data_points, periods = 3, align = "center", interval)
 }
 \arguments{
-\item{prep_l}{prepared list with first element a dataframe with the `value` column}
+\item{data_points}{prepared list of dataframes with the `value` column}
 
 \item{periods}{number of periods to average}
 
 \item{align}{defaults to "center", "right" and "left" also options}
+
+\item{interval}{char id of interval e.g. "M"}
 }
 \value{
 same list with the df with one the value column overwritten and new element

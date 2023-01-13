@@ -4,10 +4,12 @@
 \alias{add_yoy_change}
 \title{Add year on year change column to prepared data}
 \usage{
-add_yoy_change(prep_l)
+add_yoy_change(data_points, interval)
 }
 \arguments{
-\item{prep_l}{prepared list with first element a dataframe with the `value` column}
+\item{data_points}{prepared list of dataframes with the `value` column}
+
+\item{interval}{char id of interval e.g. "M"}
 }
 \value{
 same list with the df with one the value column overwritten and new element

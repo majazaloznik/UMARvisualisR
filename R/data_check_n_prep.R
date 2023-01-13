@@ -161,26 +161,39 @@ get_legend_labels_from_df <- function(df) {
 #' @return A list of lentgh seven described above.
 #' @export
 #'
+
 prep_multi_line <- function(df, con, date_valid = NULL){
-  if (exists("chart_no")) print(paste("Pripravljam podatke za graf \u0161t.", chart_no))
+  if ("chart_no" %in% names(df)) print(paste0("Pripravljam podatke za graf \u0161t. ",
+                                              unique(df$chart_no), "."))
   df <- multi_checks(df, con)
   interval <- unique(df$interval_id)
   unit <- first_up(unique(df$unit_name))
   main_title <- wrap_string(unique(df$table_name))
   if (nrow(df) > 1) {
     sub_title <- list(NA, 0)
-    legend_labels <- get_legend_labels_from_df(df)}else {
-    sub_title <- wrap_string(df$series_name)
-    legend_labels <- NA}
+    legend_labels <- get_legend_labels_from_df(df)} else {
+      sub_title <- wrap_string(df$series_name)
+      legend_labels <- NA}
   df <- df %>%
     dplyr::rowwise() %>%
     dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series_code(series_code, con, date_valid)$id,
                   updated = UMARaccessR::get_date_published_from_vintage(vintage_id, con)$published)
   data_points <- purrr::map(df$vintage_id, UMARaccessR::get_data_points_from_vintage, con)
   data_points <- purrr::map(data_points, UMARaccessR::add_date_from_period_id, interval)
+  # transformations:
+  input_data <- list(data_points = data_points,
+                     rolling_average_periods = df$rolling_average_periods,
+                     rolling_average_alignment = df$rolling_average_alignment,
+                     year_on_year = df$year_on_year,
+                     interval = interval)
+  transformed <- do_transformations(input_data)
+  data_points <- transformed$data_points
+  transf_txt <- transformed$transf_txt
+
   updated <- max(df$updated)
   max_period <- do.call("max", purrr::map(data_points, function(x) max(x$period)))
   last_period <- data_points[[1]]$period_id[data_points[[1]]$period == max_period]
+  print(paste0("Podatki za graf \u0161t. ", unique(df$chart_no), " so pripravljeni."))
   mget(c("data_points", "unit", "main_title" , "sub_title", "updated", "last_period",
-         "interval", "legend_labels"))
+         "interval", "legend_labels", "transf_txt"))
 }

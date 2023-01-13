@@ -5,16 +5,21 @@ prep_slm <- readRDS(test_path("testdata", "prep_slm.rds"))
 test_that("plots look right", {
   p <- function() univariate_line_chart(prep_l)
   vdiffr::expect_doppelganger("univariate line", p)
-  roll_prep_l <- add_rolling_average(prep_l)
+  roll_prep_l <- do_transformations(c(prep_l, rolling_average_periods = 3,
+                       rolling_average_alignment = "c", year_on_year = FALSE,interval = "M"))
   p <- function() univariate_line_chart(roll_prep_l)
   vdiffr::expect_doppelganger("univariate rolling", p)
-  yoy_prep_l <- add_yoy_change(prep_l)
+  yoy_prep_l <- do_transformations(c(prep_l, rolling_average_periods = NA,
+                                                    rolling_average_alignment = NA,
+                                                    year_on_year = TRUE,interval = "M"))
   p <- function() univariate_line_chart(yoy_prep_l)
   vdiffr::expect_doppelganger("univariate yoy", p)
-  roll_yoy_prep_l <- add_yoy_of_rolling(prep_l)
+  roll_yoy_prep_l <- do_transformations(c(prep_l, rolling_average_periods = 3,
+                                          rolling_average_alignment = "c",
+                                          year_on_year = TRUE,interval = "M"))
   p <- function() univariate_line_chart(roll_yoy_prep_l)
   vdiffr::expect_doppelganger("univariate yoy rolling", p)
-  prep_l[[1]] <- prep_l[[1]][1:100,]
+  prep_l$data_points[[1]] <- prep_l$data_points[[1]][1:100,]
   p <- function() univariate_line_chart(prep_l)
   vdiffr::expect_doppelganger("na chart", p)
   p <- function() na_chart(prep_l)

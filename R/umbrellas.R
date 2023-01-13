@@ -33,10 +33,10 @@ univariate_line_pipeline <- function(series,
   vintage_id <- UMARaccessR::get_vintage_from_series(series, con, date_valid = date_valid)
   prep_l <- prep_single_line(vintage_id, con, interval = interval, unit = unit,
                              main_title = main_title, sub_title = sub_title)
+  names(prep_l)[names(prep_l)== "single"] <- "data_points"
   if(rolling & yoy){
     prep_l <- add_yoy_of_rolling(prep_l, periods = roll_periods, align = roll_align)} else {
       if(rolling) prep_l <- add_rolling_average(prep_l, periods = roll_periods, align = roll_align)
       if(yoy) prep_l <- add_yoy_change(prep_l)}
   univariate_line_chart(prep_l, xmin, xmax)
 }
-
