@@ -272,7 +272,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
             line = 2.5, family ="Myriad Pro")
       mtext(paste("Posodobljeno:",
                   strftime(update_time,
-                           format ="%m.%d.%y %H:%M:%S", tz = "CET")),
+                           format ="%d.%m.%y %H:%M:%S", tz = "CET")),
             side = 4,
             line = 0.5, family ="Myriad Pro", cex = 1)
       mtext(paste("Zadnje odbobje:",last_period), side = 4,
