@@ -40,3 +40,11 @@ univariate_line_pipeline <- function(series,
       if(yoy) prep_l <- add_yoy_change(prep_l)}
   univariate_line_chart(prep_l, xmin, xmax)
 }
+
+
+
+multiline_pipeline  <- function(df, con){
+  prep_l <- prep_multi_line(df, con)
+  multivariate_line_chart(prep_l, xmin = "2011-01-01", xmax =NULL)
+
+}

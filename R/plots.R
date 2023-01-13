@@ -200,7 +200,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
 
   # dims for top margin
   par(ps=10)
-  half_legend <- round(length(legend_labels)/2)
+  half_legend <- rounding(length(legend_labels)/2)
   title_lines <- main_title[[2]] + sub_title[[2]] + half_legend
 
   par(mar = c(3, 3.5, title_lines + 0.3, 4),

@@ -189,6 +189,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
   transformed <- do_transformations(input_data)
   data_points <- transformed$data_points
   transf_txt <- transformed$transf_txt
+  unit <- ifelse(is.na(transformed$unit), unit, transformed$unit)
 
   updated <- max(df$updated)
   max_period <- do.call("max", purrr::map(data_points, function(x) max(x$period)))

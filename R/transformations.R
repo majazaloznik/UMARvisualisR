@@ -106,6 +106,7 @@ do_transformations <- function(input_data){
   rolling_average_alignment <- input_data$rolling_average_alignment
   year_on_year <- input_data$year_on_year
   interval <- input_data$interval
+  unit <- input_data$unit
 
   # transformations:
   periods = unique(rolling_average_periods)
@@ -121,7 +122,8 @@ do_transformations <- function(input_data){
       data_points <- purrr::map(yoyd_rolld, 1)
 
       transf_txt <- paste0("Transf.: medletna rast ", periods,"-", interval,
-                           " drse\u010de sredine", purrr::map(yoyd_rolld, 2)[[1]])
+                           " drse\u010de sredine")
+      unit <- purrr::map(yoyd_rolld, 2)[[1]]
     } else {
       if(rolling){
         rolld  <- purrr::map(data_points, add_rolling_average,
@@ -130,13 +132,19 @@ do_transformations <- function(input_data){
         data_points <- purrr::map(rolld, 1)
         transf_txt <- paste0("Transf.: ", periods,"-",interval,
                              " drse\u010da sredina", purrr::map(rolld, 2)[[1]])
+        unit <- unit
       }
       if(yoy) {yoyd <- purrr::map(data_points, add_yoy_change, interval)
       data_points <- purrr::map(yoyd, 1)
-      transf_txt <- purrr::map(yoyd, 2)[[1]]}
+      transf_txt <- purrr::map(yoyd, 3)[[1]]
+      unit <- purrr::map(yoyd, 2)[[1]]
+      }
     }
-  } else {transf_txt <- NULL}
-  input_data$data_points <- data_points
-  input_data$transf_txt <- transf_txt
-  return(input_data)
+  } else {transf_txt <- NULL
+  unit <- NA}
+  output_data <- input_data
+  output_data$data_points <- data_points
+  output_data$transf_txt <- transf_txt
+  output_data$unit <- unit
+  return(output_data)
 }
