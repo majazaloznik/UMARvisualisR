@@ -200,10 +200,9 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
 
   # dims for top margin
   par(ps=10)
-  half_legend <- rounding(length(legend_labels)/2)
+  half_legend <- ifelse(length(legend_labels)==1, 0, rounding(length(legend_labels)/2))
   title_lines <- main_title[[2]] + sub_title[[2]] + half_legend
-
-  par(mar = c(3, 3.5, title_lines + 0.3, 4),
+  par(mar = c(3, 3.5, title_lines + 0.5, 4),
       mgp=c(3,0.5,0))
 
   if(all(is.na(unlist(lapply(data_points, function(x) c(x$value)))))) {
@@ -294,7 +293,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
 
         coord <- par("usr")
 
-        legend(coord[[1]] + (coord[[2]]-coord[[1]]) *0, coord[[4]] - legend_row_height/2.5,
+        legend(coord[[1]] + (coord[[2]]-coord[[1]]) *0, coord[[4]] ,
                short_legend_labels,
                lty = 1,
                lwd = 2,
@@ -306,13 +305,11 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
                inset=c(0, 0), xpd = TRUE,
                xjust = 0,
                yjust = 0)
-        par(ps=10.5)
-        mtext(main_title[[1]], side = 3, line = 0.3 + sub_title[[2]] + net_legend_height/lh,
-              family ="Myriad Pro", font = 2, adj = 0)
+        mtext(main_title[[1]], side = 3, line = 0.5 + half_legend,
+              family ="Myriad Pro", font = 2, adj = 0, cex = 1.05)
       } else {
-        par(ps=10.5)
-        mtext(main_title[[1]], side = 3, line = 0.3 + sub_title[[2]],
-              family ="Myriad Pro", font = 2, adj = 0)
+        mtext(main_title[[1]], side = 3, line = 0.5 + sub_title[[2]],
+              family ="Myriad Pro", font = 2, adj = 0, cex = 1.05)
       }
     }
 }
