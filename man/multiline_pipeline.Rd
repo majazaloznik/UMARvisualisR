@@ -12,6 +12,10 @@ multiline_pipeline(df, con, xmin = "2011-01-01", xmax = NULL)
 `rolling_average_alignment`,    `year_on_year`.}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
+
+\item{xmin}{to be passed to \link[UMARvisualisR]{apply_xlims}}
+
+\item{xmax}{to be passed to \link[UMARvisualisR]{apply_xlims}}
 }
 \value{
 plots chart

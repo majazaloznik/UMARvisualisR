@@ -54,6 +54,9 @@ univariate_line_pipeline <- function(series,
 #' `unit_name`,	`interval_id`,	`chart_no`,	`rolling_average_periods`,
 #' `rolling_average_alignment`,	`year_on_year`.
 #' @inheritParams common_parameters
+#' @param xmin to be passed to \link[UMARvisualisR]{apply_xlims}
+#' @param xmax to be passed to \link[UMARvisualisR]{apply_xlims}
+#'
 #'
 #' @return plots chart
 #' @export
