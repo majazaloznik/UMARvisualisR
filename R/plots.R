@@ -252,11 +252,20 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       ss$mon <- as.POSIXlt(min(xlim))$mon+6
       ee <- as.POSIXlt(max(xlim))
       ee$mon <- as.POSIXlt(max(xlim))$mon+6
-      par(mgp=c(3,0.2,0))
+
+      # rotate labels if you can
+      x <- seq(ss, ee, by="1 year")
+      x_labels_size <- max(strwidth(format(x, format = "%Y"), units = "user"))
+      coord <- par("usr")
+      x_tick_dist <- (coord[2]-coord[1]) /length(x)
+      x_las <- ifelse(x_labels_size * 1.40 < x_tick_dist, 1, 2)
+      if(x_las == 1) {mgp_2 <- -0.2}
+      if(x_las == 2) {mgp_2 <- 0.3}
+      suppressWarnings(par(mgp=c(3,mgp_2,0)))
       axis.Date(1,at=seq(ss, ee, by="1 year"),
                 col = umar_cols("gridlines"),
                 lwd = 0, tck = 0,  family ="Myriad Pro",
-                las = 2, padj = 0.5, format = "%Y")
+                las = x_las, padj = 0.5, format = "%Y")
       par(mgp=c(3,0.5,0))
 
       axis(2, col = umar_cols("gridlines"),lwd = 0,  tck=0.0,
@@ -291,8 +300,6 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
         shortened <- nchar(legend_labels)!= nchar(short_legend_labels)
         short_legend_labels <- paste(short_legend_labels,
                                      ifelse(shortened, "...", ""))
-
-        coord <- par("usr")
 
         legend(coord[[1]] + (coord[[2]]-coord[[1]]) *0 - left_legend_space, coord[[4]] ,
                short_legend_labels,

@@ -4,7 +4,7 @@
 \alias{multiline_pipeline}
 \title{Multiline pipeline from input dataframe}
 \usage{
-multiline_pipeline(df, con)
+multiline_pipeline(df, con, xmin = "2011-01-01", xmax = NULL)
 }
 \arguments{
 \item{df}{dataframe with the following fields: `tabel_name`, `series_name`, `series_code`,
