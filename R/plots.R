@@ -203,7 +203,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
   half_legend <- ifelse(length(legend_labels)==1, 0, rounding(length(legend_labels)/2))
   title_lines <- main_title[[2]] + sub_title[[2]] + half_legend
   par(mar = c(3, 3.5, title_lines + 0.5, 4),
-      mgp=c(3,0.5,0))
+      mgp=c(3,0.5,0), xpd = FALSE)
 
   if(all(is.na(unlist(lapply(data_points, function(x) c(x$value)))))) {
     na_chart(prep_l)
@@ -252,11 +252,12 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       ss$mon <- as.POSIXlt(min(xlim))$mon+6
       ee <- as.POSIXlt(max(xlim))
       ee$mon <- as.POSIXlt(max(xlim))$mon+6
-
+      par(mgp=c(3,0.2,0))
       axis.Date(1,at=seq(ss, ee, by="1 year"),
                 col = umar_cols("gridlines"),
                 lwd = 0, tck = 0,  family ="Myriad Pro",
                 las = 2, padj = 0.5, format = "%Y")
+      par(mgp=c(3,0.5,0))
 
       axis(2, col = umar_cols("gridlines"),lwd = 0,  tck=0.0,
            las = 2,  family ="Myriad Pro")
@@ -282,7 +283,6 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       op <- par(family = "Myriad Pro")
       if(length(data_points)> 1) {
         par(ps=10)
-        mgp=c(3,1,0)
         legend_row_height <- xyinch(par("cin"))[[2]]
         left_legend_space <- xyinch(par("cin"), warn.log = FALSE)[[1]]
         net_legend_height <- half_legend * legend_row_height
