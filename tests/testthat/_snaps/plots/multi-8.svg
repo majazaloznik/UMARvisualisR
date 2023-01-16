@@ -78,22 +78,22 @@
 <text transform='translate(11.52,320.40) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='29.47px' lengthAdjust='spacingAndGlyphs'>Indeks</text>
 <text transform='translate(681.12,320.40) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='146.80px' lengthAdjust='spacingAndGlyphs'>Posodobljeno: 06.12.22 14:00:00</text>
 <text transform='translate(695.52,320.40) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='116.21px' lengthAdjust='spacingAndGlyphs'>Zadnje odbobje: 2022M09</text>
-<line x1='61.20' y1='50.40' x2='82.80' y2='50.40' style='stroke-width: 1.50; stroke: #A10305;' />
-<line x1='61.20' y1='64.80' x2='82.80' y2='64.80' style='stroke-width: 1.50; stroke: #D46565;' />
-<line x1='61.20' y1='79.20' x2='82.80' y2='79.20' style='stroke-width: 1.50; stroke: #A7AEB4;' />
-<line x1='61.20' y1='93.60' x2='82.80' y2='93.60' style='stroke-width: 1.50; stroke: #343D58;' />
-<line x1='411.74' y1='50.40' x2='433.34' y2='50.40' style='stroke-width: 1.50; stroke: #176F8B;' />
-<line x1='411.74' y1='64.80' x2='433.34' y2='64.80' style='stroke-width: 1.50; stroke: #98C576;' />
-<line x1='411.74' y1='79.20' x2='433.34' y2='79.20' style='stroke-width: 1.50; stroke: #321443;' />
-<line x1='411.74' y1='93.60' x2='433.34' y2='93.60' style='stroke-width: 1.50; stroke: #668AB6;' />
-<text x='93.60' y='53.84' style='font-size: 10.00px; font-family: sans;' textLength='245.17px' lengthAdjust='spacingAndGlyphs'>G+H+I+J+L+M+N Trgovina in storitvene dejavnosti -  ...</text>
-<text x='93.60' y='68.24' style='font-size: 10.00px; font-family: sans;' textLength='307.34px' lengthAdjust='spacingAndGlyphs'>G TRGOVINA, VZDRŽEVANJE IN POPRAVILA MOTORNIH VOZI ...</text>
-<text x='93.60' y='82.64' style='font-size: 10.00px; font-family: sans;' textLength='233.44px' lengthAdjust='spacingAndGlyphs'>G45 Trgovina z motornimi vozili in popravila motor ...</text>
-<text x='93.60' y='97.04' style='font-size: 10.00px; font-family: sans;' textLength='241.28px' lengthAdjust='spacingAndGlyphs'>G46 Posredništvo in trgovina na debelo, razen z mo ...</text>
-<text x='444.14' y='53.84' style='font-size: 10.00px; font-family: sans;' textLength='221.24px' lengthAdjust='spacingAndGlyphs'>G47 Trgovina na drobno, razen z motornimi vozili </text>
-<text x='444.14' y='68.24' style='font-size: 10.00px; font-family: sans;' textLength='163.75px' lengthAdjust='spacingAndGlyphs'>H+I+J+L+M+N Storitvene dejavnosti </text>
-<text x='444.14' y='82.64' style='font-size: 10.00px; font-family: sans;' textLength='146.18px' lengthAdjust='spacingAndGlyphs'>H PROMET IN SKLADIŠČENJE </text>
-<text x='444.14' y='97.04' style='font-size: 10.00px; font-family: sans;' textLength='73.91px' lengthAdjust='spacingAndGlyphs'>I GOSTINSTVO </text>
+<line x1='50.40' y1='50.40' x2='72.00' y2='50.40' style='stroke-width: 1.50; stroke: #A10305;' />
+<line x1='50.40' y1='64.80' x2='72.00' y2='64.80' style='stroke-width: 1.50; stroke: #D46565;' />
+<line x1='50.40' y1='79.20' x2='72.00' y2='79.20' style='stroke-width: 1.50; stroke: #A7AEB4;' />
+<line x1='50.40' y1='93.60' x2='72.00' y2='93.60' style='stroke-width: 1.50; stroke: #343D58;' />
+<line x1='400.94' y1='50.40' x2='422.54' y2='50.40' style='stroke-width: 1.50; stroke: #176F8B;' />
+<line x1='400.94' y1='64.80' x2='422.54' y2='64.80' style='stroke-width: 1.50; stroke: #98C576;' />
+<line x1='400.94' y1='79.20' x2='422.54' y2='79.20' style='stroke-width: 1.50; stroke: #321443;' />
+<line x1='400.94' y1='93.60' x2='422.54' y2='93.60' style='stroke-width: 1.50; stroke: #668AB6;' />
+<text x='82.80' y='53.84' style='font-size: 10.00px; font-family: sans;' textLength='245.17px' lengthAdjust='spacingAndGlyphs'>G+H+I+J+L+M+N Trgovina in storitvene dejavnosti -  ...</text>
+<text x='82.80' y='68.24' style='font-size: 10.00px; font-family: sans;' textLength='307.34px' lengthAdjust='spacingAndGlyphs'>G TRGOVINA, VZDRŽEVANJE IN POPRAVILA MOTORNIH VOZI ...</text>
+<text x='82.80' y='82.64' style='font-size: 10.00px; font-family: sans;' textLength='233.44px' lengthAdjust='spacingAndGlyphs'>G45 Trgovina z motornimi vozili in popravila motor ...</text>
+<text x='82.80' y='97.04' style='font-size: 10.00px; font-family: sans;' textLength='241.28px' lengthAdjust='spacingAndGlyphs'>G46 Posredništvo in trgovina na debelo, razen z mo ...</text>
+<text x='433.34' y='53.84' style='font-size: 10.00px; font-family: sans;' textLength='221.24px' lengthAdjust='spacingAndGlyphs'>G47 Trgovina na drobno, razen z motornimi vozili </text>
+<text x='433.34' y='68.24' style='font-size: 10.00px; font-family: sans;' textLength='163.75px' lengthAdjust='spacingAndGlyphs'>H+I+J+L+M+N Storitvene dejavnosti </text>
+<text x='433.34' y='82.64' style='font-size: 10.00px; font-family: sans;' textLength='146.18px' lengthAdjust='spacingAndGlyphs'>H PROMET IN SKLADIŠČENJE </text>
+<text x='433.34' y='97.04' style='font-size: 10.00px; font-family: sans;' textLength='73.91px' lengthAdjust='spacingAndGlyphs'>I GOSTINSTVO </text>
 <text x='50.40' y='15.12' style='font-size: 10.50px; font-weight: bold; font-family: sans;' textLength='434.31px' lengthAdjust='spacingAndGlyphs'>Indeksi obsega v storitvenih dejavnostih in trgovini (mesec / povprečje leta 2015) po skupinah</text>
 <text x='50.40' y='27.72' style='font-size: 10.50px; font-weight: bold; font-family: sans;' textLength='411.51px' lengthAdjust='spacingAndGlyphs'>dejavnosti (SKD 2008), originalni podatki in podatki, iz katerih so izločeni vplivi sezone in</text>
 <text x='50.40' y='40.32' style='font-size: 10.50px; font-weight: bold; font-family: sans;' textLength='139.51px' lengthAdjust='spacingAndGlyphs'>koledarja, Slovenija, mesečno</text>
