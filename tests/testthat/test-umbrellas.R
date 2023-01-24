@@ -9,7 +9,7 @@ dittodb::with_mock_db({
   DBI::dbExecute(con, "set search_path to test_platform")
 
 
-  test_that("umbrellas work", {
+  test_that("UNI umbrellas work", {
     p <- function() univariate_line_pipeline(1234,
                                              date_valid = NULL,
                                              xmin = "2011-01-01", xmax =NULL,
@@ -21,6 +21,23 @@ dittodb::with_mock_db({
                                              sub_title = NULL,
                                              con = con)
     vdiffr::expect_doppelganger("full uni pipeline", p)
+  })
+
+
+  test_that("multi umbrellas work", {
+    df <- read.csv2(test_path("testdata", "test_report_input2.csv"))
+    spl <- split(df, df$chart_no)
+    p <- function() multiline_pipeline(spl[[1]],con = con)
+    vdiffr::expect_doppelganger("no title", p)
+    p <- function() multiline_pipeline(spl[[2]],con = con)
+    vdiffr::expect_doppelganger("no chart", p)
+    p <- function() multiline_pipeline(spl[[3]],con = con)
+    vdiffr::expect_doppelganger("no chart", p)
+    p <- function() multiline_pipeline(spl[[4]],con = con)
+    vdiffr::expect_doppelganger("no chart", p)
+    p <- function() multiline_pipeline(spl[[5]],con = con)
+    vdiffr::expect_doppelganger("no chart", p)
+
   })
 })
 

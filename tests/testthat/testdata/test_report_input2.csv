@@ -1,0 +1,12 @@
+﻿id;table_id;px_code;series_name;series_code;unit_name;interval_id;selection;chart_no;rolling_average_periods;rolling_average_alignment;year_on_year
+93;1;0300230S;sdf;SURS--0300230S--P31_S14_D--G4--N--Q;%;Q;1;4;;;
+102;1;0300230S;cds;SURS--0300230S--P51G--G4--N--Q;%;Q;1;4;;;
+529;3;1701102S;Originalni podatki - B+C+D Industrija;SURS--1701102S--orig--B+C+D[skd]--M;indeks;M;1;6;3;c;TRUE
+535;3;1701102S;Originalni podatki - C PREDELOVALNE DEJAVNOSTI;SURS--1701102S--orig--C[skd]--M;indeks;M;1;6;3;c;TRUE
+592;5;1701106S;Originalni podatki - VTZ Visoko tehnoloĹˇko zahtevni proizvodi;SURS--1701106S--orig--VTZ--M;indeks;M;1;6;6;c;TRUE
+1530;10;2013901S;Originalni podatki - 49+50+51+52+53+55+56+58+59+60+61+62+63+68+69+70.2+71+73+74+77+78+79+80+81+82 Storitve skupaj;SURS--2013901S--1--49+50+51+52+53+55+56+58+59+60+61+62+63+68+69+70.2+71+73+74+77+78+79+80+81+82--M;indeks;M;1;13;3;c;TRUE
+1531;10;2013901S;Podatki z izloÄŤenimi vplivi sezone in koledarja - 49+50+51+52+53+55+56+58+59+60+61+62+63+68+69+70.2+71+73+74+77+78+79+80+81+82 Storitve skupaj;SURS--2013901S--2--49+50+51+52+53+55+56+58+59+60+61+62+63+68+69+70.2+71+73+74+77+78+79+80+81+82--M;indeks;M;1;13;3;c;
+1533;10;2013901S;Originalni podatki - 49+50+51+52+53 Promet in skladiĹˇÄŤenje;SURS--2013901S--1--49+50+51+52+53--M;indeks;M;1;14;3;d;
+1534;10;2013901S;Podatki z izloÄŤenimi vplivi sezone in koledarja - 49+50+51+52+53 Promet in skladiĹˇÄŤenje;SURS--2013901S--2--49+50+51+52+53--M;indeks;M;1;14;3;c;
+1551;10;2013901S;Originalni podatki - 55+56 Gostinstvo;SURS--2013901S--1--55+56--M;indeks;M;1;15;3;c;
+1552;10;2013901S;Podatki z izloÄŤenimi vplivi sezone in koledarja - 55+56 Gostinstvo;SURS--2013901S--2--55+56--M;indeks;Q;1;15;3;c;

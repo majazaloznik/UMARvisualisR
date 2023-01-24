@@ -61,7 +61,9 @@ univariate_line_pipeline <- function(series,
 #' @return plots chart
 #' @export
 multiline_pipeline  <- function(df, con, xmin = "2011-01-01", xmax =NULL){
-  prep_l <- prep_multi_line(df, con)
-  multivariate_line_chart(prep_l, xmin = xmin, xmax = xmax)
-
+  prep_l <-  tryCatch(prep_multi_line(df, con),
+                      error = function(e) {print(e)
+                        print("Graf bo presko\u010den.")
+                        return(NULL)})
+  if(!is.null(prep_l)) multivariate_line_chart(prep_l, xmin = xmin, xmax = xmax)
 }
