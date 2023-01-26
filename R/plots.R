@@ -262,10 +262,10 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       if(x_las == 1) {mgp_2 <- -0.2}
       if(x_las == 2) {mgp_2 <- 0.3}
       suppressWarnings(par(mgp=c(3,mgp_2,0)))
-      axis.Date(1,at=seq(ss, ee, by="1 year"),
+      suppressWarnings(axis.Date(1,at=seq(ss, ee, by="1 year"),
                 col = umar_cols("gridlines"),
                 lwd = 0, tck = 0,  family ="Myriad Pro",
-                las = x_las, padj = 0.5, format = "%Y")
+                las = x_las, padj = 0.5, format = "%Y"))
       par(mgp=c(3,0.5,0))
 
       axis(2, col = umar_cols("gridlines"),lwd = 0,  tck=0.0,
