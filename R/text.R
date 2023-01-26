@@ -16,7 +16,7 @@
 #'
 #' @export
 #'
-wrap_string <- function(string, width = 120, max_rows = 3){
+wrap_string <- function(string, width = 100, max_rows = 3){
   split_text <- strwrap(string,
                         width = width)
   split_text <- split_text[1:min(length(split_text), max_rows)]

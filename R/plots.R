@@ -296,7 +296,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
         left_legend_space <- xyinch(par("cin"), warn.log = FALSE)[[1]]
         net_legend_height <- half_legend * legend_row_height
         lh <- diff(grconvertY(0:1, 'inches', 'user')) * par('cin')[2] * par('cex') * par('lheight')
-        short_legend_labels <- substr(legend_labels, 1, 50)
+        short_legend_labels <- substr(legend_labels, 1, 45)
         shortened <- nchar(legend_labels)!= nchar(short_legend_labels)
         short_legend_labels <- paste(short_legend_labels,
                                      ifelse(shortened, "...", ""))
