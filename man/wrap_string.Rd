@@ -4,7 +4,7 @@
 \alias{wrap_string}
 \title{Wrap a character string to a specified character width}
 \usage{
-wrap_string(string, width = 120, max_rows = 3)
+wrap_string(string, width = 100, max_rows = 3)
 }
 \arguments{
 \item{string}{a character string to be wrapped- vector of length one}
