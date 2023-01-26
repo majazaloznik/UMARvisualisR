@@ -20,40 +20,40 @@
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
 <defs>
-  <clipPath id='cpNTAuNDB8NjYyLjQwfDUwLjQwfDUzMi44MA=='>
-    <rect x='50.40' y='50.40' width='612.00' height='482.40' />
+  <clipPath id='cpNTAuNDB8NjYyLjQwfDU3LjYwfDUzMi44MA=='>
+    <rect x='50.40' y='57.60' width='612.00' height='475.20' />
   </clipPath>
 </defs>
-<g clip-path='url(#cpNTAuNDB8NjYyLjQwfDUwLjQwfDUzMi44MA==)'>
+<g clip-path='url(#cpNTAuNDB8NjYyLjQwfDU3LjYwfDUzMi44MA==)'>
 <line x1='50.40' y1='532.80' x2='662.40' y2='532.80' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='50.40' y1='463.89' x2='662.40' y2='463.89' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='50.40' y1='394.97' x2='662.40' y2='394.97' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='50.40' y1='326.06' x2='662.40' y2='326.06' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='50.40' y1='257.14' x2='662.40' y2='257.14' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='50.40' y1='188.23' x2='662.40' y2='188.23' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='50.40' y1='119.31' x2='662.40' y2='119.31' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='50.40' y1='50.40' x2='662.40' y2='50.40' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='50.40' y1='464.91' x2='662.40' y2='464.91' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='50.40' y1='397.03' x2='662.40' y2='397.03' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='50.40' y1='329.14' x2='662.40' y2='329.14' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='50.40' y1='261.26' x2='662.40' y2='261.26' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='50.40' y1='193.37' x2='662.40' y2='193.37' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='50.40' y1='125.49' x2='662.40' y2='125.49' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='50.40' y1='57.60' x2='662.40' y2='57.60' style='stroke-width: 0.75; stroke: #BFBFBF;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 </g>
-<g clip-path='url(#cpNTAuNDB8NjYyLjQwfDUwLjQwfDUzMi44MA==)'>
-<line x1='50.40' y1='-1052.23' x2='662.40' y2='-1052.23' style='stroke-width: 0.75; stroke: #50575E;' />
-<line x1='50.40' y1='326.06' x2='662.40' y2='326.06' style='stroke-width: 0.75; stroke: #50575E;' />
-<polyline points='73.07,274.77 85.21,317.92 97.49,322.60 109.91,338.47 122.32,336.15 134.61,371.46 146.89,358.44 159.30,382.70 171.72,388.12 183.86,339.73 196.14,342.77 208.56,290.27 220.97,291.17 233.12,284.34 245.40,277.51 257.82,298.64 270.23,298.85 282.38,299.11 294.66,294.67 307.07,289.97 319.49,288.64 331.77,275.15 344.05,285.21 356.47,279.66 368.88,257.99 381.03,272.91 393.31,267.33 405.73,240.48 418.14,268.14 430.29,269.56 442.57,256.51 454.98,264.69 467.40,266.07 479.54,282.83 491.83,279.31 504.24,284.80 516.66,341.99 528.94,483.52 541.22,346.11 553.63,369.71 566.05,303.98 578.19,102.22 590.48,256.23 602.89,181.90 615.31,192.07 627.45,211.56 639.73,279.68 ' style='stroke-width: 1.50; stroke: #A10305;' />
+<g clip-path='url(#cpNTAuNDB8NjYyLjQwfDU3LjYwfDUzMi44MA==)'>
+<line x1='50.40' y1='-1028.57' x2='662.40' y2='-1028.57' style='stroke-width: 0.75; stroke: #50575E;' />
+<line x1='50.40' y1='329.14' x2='662.40' y2='329.14' style='stroke-width: 0.75; stroke: #50575E;' />
+<polyline points='73.07,278.62 85.21,321.12 97.49,325.74 109.91,341.37 122.32,339.08 134.61,373.87 146.89,361.04 159.30,384.94 171.72,390.28 183.86,342.61 196.14,345.60 208.56,293.89 220.97,294.78 233.12,288.05 245.40,281.32 257.82,302.14 270.23,302.34 282.38,302.59 294.66,298.22 307.07,293.59 319.49,292.29 331.77,278.99 344.05,288.91 356.47,283.44 368.88,262.09 381.03,276.79 393.31,271.29 405.73,244.85 418.14,272.09 430.29,273.49 442.57,260.63 454.98,268.69 467.40,270.06 479.54,286.56 491.83,283.09 504.24,288.50 516.66,344.84 528.94,484.26 541.22,348.90 553.63,372.15 566.05,307.39 578.19,108.65 590.48,260.36 602.89,187.14 615.31,197.15 627.45,216.36 639.73,283.45 ' style='stroke-width: 1.50; stroke: #A10305;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
-<line x1='73.07' y1='532.80' x2='73.07' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='122.32' y1='532.80' x2='122.32' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='171.72' y1='532.80' x2='171.72' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='220.97' y1='532.80' x2='220.97' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='270.23' y1='532.80' x2='270.23' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='319.49' y1='532.80' x2='319.49' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='368.88' y1='532.80' x2='368.88' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='418.14' y1='532.80' x2='418.14' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='467.40' y1='532.80' x2='467.40' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='516.66' y1='532.80' x2='516.66' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='566.05' y1='532.80' x2='566.05' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
-<line x1='615.31' y1='532.80' x2='615.31' y2='542.45' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='73.07' y1='532.80' x2='73.07' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='122.32' y1='532.80' x2='122.32' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='171.72' y1='532.80' x2='171.72' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='220.97' y1='532.80' x2='220.97' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='270.23' y1='532.80' x2='270.23' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='319.49' y1='532.80' x2='319.49' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='368.88' y1='532.80' x2='368.88' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='418.14' y1='532.80' x2='418.14' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='467.40' y1='532.80' x2='467.40' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='516.66' y1='532.80' x2='516.66' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='566.05' y1='532.80' x2='566.05' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
+<line x1='615.31' y1='532.80' x2='615.31' y2='542.30' style='stroke-width: 0.75; stroke: #BFBFBF;' />
 <text x='97.49' y='544.88' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2011</text>
 <text x='146.89' y='544.88' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2012</text>
 <text x='196.14' y='544.88' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2013</text>
@@ -67,19 +67,19 @@
 <text x='590.48' y='544.88' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2021</text>
 <text x='639.73' y='544.88' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='22.25px' lengthAdjust='spacingAndGlyphs'>2022</text>
 <text x='43.20' y='536.24' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='14.45px' lengthAdjust='spacingAndGlyphs'>-15</text>
-<text x='43.20' y='467.33' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='14.45px' lengthAdjust='spacingAndGlyphs'>-10</text>
-<text x='43.20' y='398.41' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='8.89px' lengthAdjust='spacingAndGlyphs'>-5</text>
-<text x='43.20' y='329.50' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='5.56px' lengthAdjust='spacingAndGlyphs'>0</text>
-<text x='43.20' y='260.58' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='5.56px' lengthAdjust='spacingAndGlyphs'>5</text>
-<text x='43.20' y='191.67' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>10</text>
-<text x='43.20' y='122.76' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>15</text>
-<text x='43.20' y='53.84' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>20</text>
-<polygon points='50.40,532.80 662.40,532.80 662.40,50.40 50.40,50.40 ' style='stroke-width: 0.75; stroke: #BFBFBF; fill: none;' />
-<text x='50.40' y='28.32' style='font-size: 10.00px; font-family: sans;' textLength='423.05px' lengthAdjust='spacingAndGlyphs'>Bruto domači proizvod -- Stopnja rasti obsega glede na enako četrtletje predhodnega leta (%) --</text>
-<text x='50.40' y='40.32' style='font-size: 10.00px; font-family: sans;' textLength='77.27px' lengthAdjust='spacingAndGlyphs'>Originalni podatki</text>
-<text transform='translate(11.52,291.60) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='8.89px' lengthAdjust='spacingAndGlyphs'>%</text>
-<text transform='translate(681.12,291.60) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='146.80px' lengthAdjust='spacingAndGlyphs'>Posodobljeno: 17.11.22 10:30:00</text>
-<text transform='translate(695.52,291.60) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='110.09px' lengthAdjust='spacingAndGlyphs'>Zadnje odbobje: 2022Q3</text>
+<text x='43.20' y='468.36' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='14.45px' lengthAdjust='spacingAndGlyphs'>-10</text>
+<text x='43.20' y='400.47' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='8.89px' lengthAdjust='spacingAndGlyphs'>-5</text>
+<text x='43.20' y='332.58' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='5.56px' lengthAdjust='spacingAndGlyphs'>0</text>
+<text x='43.20' y='264.70' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='5.56px' lengthAdjust='spacingAndGlyphs'>5</text>
+<text x='43.20' y='196.81' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>10</text>
+<text x='43.20' y='128.93' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>15</text>
+<text x='43.20' y='61.04' text-anchor='end' style='font-size: 10.00px; font-family: sans;' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>20</text>
+<polygon points='50.40,532.80 662.40,532.80 662.40,57.60 50.40,57.60 ' style='stroke-width: 0.75; stroke: #BFBFBF; fill: none;' />
+<text x='50.40' y='35.52' style='font-size: 10.00px; font-family: sans;' textLength='423.05px' lengthAdjust='spacingAndGlyphs'>Bruto domači proizvod -- Stopnja rasti obsega glede na enako četrtletje predhodnega leta (%) --</text>
+<text x='50.40' y='47.52' style='font-size: 10.00px; font-family: sans;' textLength='77.27px' lengthAdjust='spacingAndGlyphs'>Originalni podatki</text>
+<text transform='translate(11.52,295.20) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='8.89px' lengthAdjust='spacingAndGlyphs'>%</text>
+<text transform='translate(681.12,295.20) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='146.80px' lengthAdjust='spacingAndGlyphs'>Posodobljeno: 17.11.22 10:30:00</text>
+<text transform='translate(695.52,295.20) rotate(-90)' text-anchor='middle' style='font-size: 10.00px; font-family: sans;' textLength='110.09px' lengthAdjust='spacingAndGlyphs'>Zadnje odbobje: 2022Q3</text>
 <text x='50.40' y='11.52' style='font-size: 10.50px; font-weight: bold; font-family: sans;' textLength='216.56px' lengthAdjust='spacingAndGlyphs'>Izdatkovna struktura BDP, Slovenija, četrtletno</text>
 </g>
 </svg>
