@@ -315,10 +315,10 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
                yjust = 0,
                x.intersp = 0.5)
         mtext(main_title[[1]], side = 3, line = 1 + half_legend,
-              family ="Myriad Pro", font = 2, adj = 0, cex = 1.05)
+              family ="Myriad Pro", font = 2, adj = 0, cex = 1.10)
       } else {
         mtext(main_title[[1]], side = 3, line = 1 + sub_title[[2]],
-              family ="Myriad Pro", font = 2, adj = 0, cex = 1.05)
+              family ="Myriad Pro", font = 2, adj = 0, cex = 1.10)
       }
     }
 }
