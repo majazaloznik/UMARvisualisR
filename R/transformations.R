@@ -8,6 +8,7 @@ rolling_average <- function(df, periods = 3, align = "center"){
 yoy_change <- function(df, lag = 12){
  df %>%
     dplyr::arrange(period) %>%
+    dplyr::mutate(raw = if(exists('raw', where= df)) raw else value) %>%
     dplyr::mutate(value = value/dplyr::lag(value,n = lag)*100)
 }
 
@@ -38,7 +39,7 @@ add_rolling_average <- function(data_points, periods = 3, align = "center") {
 #' Add year on year change column to prepared data
 #'
 #' Year-on-year change is calculated based on the type of interval and overwrites the
-#' values of the original data. The unit is also changed to "%", adn the
+#' values of the original data. The unit is also changed to "%", and the
 #' transformation text is added.
 #'
 #' @param data_points prepared list of dataframes with the `value` column
@@ -79,7 +80,6 @@ add_yoy_change <- function(data_points, interval) {
 #' @export
 add_yoy_of_rolling <- function(data_points, periods = 3, align = "center", interval){
   data_points <- add_rolling_average(data_points, periods = periods, align = align)$data_points
-  data_points <- subset(data_points, select = -c(raw))
   data_points <- add_yoy_change(data_points, interval)$data_points
   align_txt <- ifelse(align == "c", " (centr.)",
                       ifelse(align == "r", " (desne)",

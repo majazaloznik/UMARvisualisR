@@ -17,6 +17,6 @@ with  text for describing the transformation and the unit overwritten as well.
 }
 \description{
 Year-on-year change is calculated based on the type of interval and overwrites the
-values of the original data. The unit is also changed to "%", adn the
+values of the original data. The unit is also changed to "%", and the
 transformation text is added.
 }

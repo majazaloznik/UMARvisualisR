@@ -16,5 +16,5 @@ same list with updated column names in the dataframe(s) in `data_points`
 \description{
 From the prepared list used to plot the charts, this funciton renames the columns
 with the raw and transformed data with the series names, preparing them
-for export into an excel spreadsheet with the yet unwritten funcito `export_to_excel`.
+for export into an excel spreadsheet with the yet unwritten funciton \link[UMARvisualisR]{write_to_sheet}.
 }

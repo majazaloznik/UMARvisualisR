@@ -4,7 +4,16 @@
 \alias{multiline_pipeline}
 \title{Multiline pipeline from input dataframe}
 \usage{
-multiline_pipeline(df, con, xmin = "2011-01-01", xmax = NULL)
+multiline_pipeline(
+  df,
+  con,
+  xmin = "2011-01-01",
+  xmax = NULL,
+  draw_charts = TRUE,
+  export_excel = FALSE,
+  wb,
+  odd = TRUE
+)
 }
 \arguments{
 \item{df}{dataframe with the following fields: `tabel_name`, `series_name`, `series_code`,
@@ -16,9 +25,18 @@ multiline_pipeline(df, con, xmin = "2011-01-01", xmax = NULL)
 \item{xmin}{to be passed to \link[UMARvisualisR]{apply_xlims}}
 
 \item{xmax}{to be passed to \link[UMARvisualisR]{apply_xlims}}
+
+\item{draw_charts}{logical}
+
+\item{export_excel}{logical}
+
+\item{wb}{active binding to openxlsx workbook object}
+
+\item{odd}{logical indicating alternating charts, used in the TOC of the Excel
+spreadsheet for the backgrounds for greater readability.}
 }
 \value{
-plots chart
+plots chart and writes the data to an excel file - if you chose so.
 }
 \description{
 Pipeline that takes an appropriate dataframe with instrucitons for the charts and

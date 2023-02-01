@@ -5,11 +5,11 @@ test_that("transformations work", {
   df <- data.frame(value = c(1:24), period = c(24:1))
   expect_true(any(is.na(yoy_change(df, 12)$value)))
   prep_l <- add_yoy_change(df, "M")
-  expect_equal(dim(prep_l[[1]]), c(24,2))
+  expect_equal(dim(prep_l[[1]]), c(24,3))
   expect_equal(length(prep_l), 3)
   prep_l <- add_yoy_of_rolling(df, interval ="M")
   expect_equal(length(prep_l), 3)
-  expect_equal(dim(prep_l[[1]]), c(24,2))
+  expect_equal(dim(prep_l[[1]]), c(24,3))
   df <- data.frame(value = c(1:24), period = c(24:1))
   input_data <- list(data_points = list(df), rolling_average_periods = 3, rolling_average_alignment = "c",
                 year_on_year = FALSE, interval = "M")
