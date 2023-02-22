@@ -110,7 +110,8 @@ do_transformations <- function(input_data){
 
   # transformations:
   periods = unique(rolling_average_periods)
-  align = unique(rolling_average_alignment)
+  align = ifelse(is.na(unique(rolling_average_alignment)), "c",
+                 unique(rolling_average_alignment))
   if (!is.na(periods)) rolling <- TRUE else rolling <- FALSE
   if (!is.na(unique(year_on_year)) & unique(year_on_year)) yoy <- TRUE else yoy <- FALSE
 
