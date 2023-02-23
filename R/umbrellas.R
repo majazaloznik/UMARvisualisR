@@ -71,7 +71,7 @@ multiline_pipeline  <- function(df, con, xmin = "2011-01-01", xmax =NULL,
   # prepare the data
   prep_l <-  tryCatch(prep_multi_line(df, con),
                       error = function(e) {print(e)
-                        print("Graf bo presko\u010den.")
+                        print("Graf bo preskocen.")
                         return(NULL)})
   # draw chart
   if(draw_charts){
