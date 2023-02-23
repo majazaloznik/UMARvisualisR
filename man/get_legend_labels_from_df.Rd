@@ -4,13 +4,16 @@
 \alias{get_legend_labels_from_df}
 \title{Get legend labels from input dataframe}
 \usage{
-get_legend_labels_from_df(df)
+get_legend_labels_from_df(df, original_table_names)
 }
 \arguments{
 \item{df}{input dataframe with at least the following columns: `series_name`, `chart_no`}
+
+\item{original_table_names}{character vector with original table names.}
 }
 \value{
-character vector of length nrow(df) with legend labels
+character vector of length nrow(df) with legend labels and optionally a second one
+with the new chart name.
 }
 \description{
 One of the columns is the `series_name` one, which is from the `series` table and contains

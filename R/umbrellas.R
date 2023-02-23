@@ -74,10 +74,10 @@ multiline_pipeline  <- function(df, con, xmin = "2011-01-01", xmax =NULL,
                         print("Graf bo preskocen.")
                         return(NULL)})
   # draw chart
-  if(draw_charts){
-  if(!is.null(prep_l)) multivariate_line_chart(prep_l, xmin = xmin, xmax = xmax)
+  if(draw_charts & !is.null(prep_l)){
+    multivariate_line_chart(prep_l, xmin = xmin, xmax = xmax)
   }
-  if(export_excel) {
+  if(export_excel & !is.null(prep_l)) {
     prep_l <- rename_columns(prep_l)
     write_to_sheet(prep_l, df, wb=wb, odd)
   }

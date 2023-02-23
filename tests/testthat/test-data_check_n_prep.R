@@ -39,6 +39,8 @@ dittodb::with_mock_db({
     expect_equal(length(out), 9)
     expect_equal(length(out[[1]]), 1)
     expect_equal(dim(out[[1]][[1]]), c(111,3))
+    out <- prep_multi_line(spl$`20`, con)
+    expect_false(any(is.na(out$legend_labels)))
   })
 
   test_that("labelling function works ok", {
@@ -52,7 +54,7 @@ dittodb::with_mock_db({
     out <- get_legend_labels_from_df(df)
     expect_equal(out,c("C", "c"))
     df <- data.frame(series_name = c("A", "B"), chart_no = c(1, 1))
-    out <- get_legend_labels_from_df(df)
+    out <- get_legend_labels_from_df(df, c("C", "D"))
     expect_equal(out, c("A", "B"))
   })
 })

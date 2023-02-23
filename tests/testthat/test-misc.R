@@ -21,7 +21,7 @@ test_that("range finding works ", {
   expect_equal(nrow(remove_head_tail_NAs(df)), 9)
   expect_equal(nrow(apply_xlims(df, xmax = as.Date("2015/08/01"))), 6)
   x <- read_csv_guess_encoding(test_path("testdata", "test_report_input.csv"))
-  expect_equal(dim(x), c(29,13))
+  expect_equal(dim(x), c(31,13))
   expect_false(all_equal(df$raw))
 })
 

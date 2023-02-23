@@ -67,3 +67,17 @@ out <- prep_multi_line(spl$`1`, con)
 stop_db_capturing()
 
 
+
+dittodb::start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "sandbox",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+dbExecute(con, "set search_path to test_platform")
+on.exit(dbDisconnect)
+df <- read_csv_guess_encoding(test_path("testdata", "test_report_input.csv"))
+spl <- split(df, df$chart_no)
+prep_multi_line(spl$`20`, con)
+dittodb::stop_db_capturing()

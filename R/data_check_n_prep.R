@@ -119,23 +119,31 @@ multi_titles <- function(df, con){
 #' At the moment no limits are placed on the length of the labels, that's coming next.
 #'
 #' @param df input dataframe with at least the following columns: `series_name`, `chart_no`
-#'
-#' @return character vector of length nrow(df) with legend labels
+#' @param original_table_names character vector with original table names.
+#' @return character vector of length nrow(df) with legend labels and optionally a second one
+#' with the new chart name.
 #' @export
 #'
-get_legend_labels_from_df <- function(df) {
+get_legend_labels_from_df <- function(df, original_table_names) {
   splt <- sapply(list(df$series_name)[[1]], function(x) strsplit(x, " -- "))
   if(!UMARvisualisR::all_equal(sapply(splt, length))) {
     warning(paste("Graf \u0161t.", unique(df$chart_no),
                   ": Oznak legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so serije iz razli\u010dnih tabel."))
     diff <- rep(NA, nrow(df))} else {
       intersection <- Reduce(intersect, splt)
-      if(!unique(sapply(splt, length)) == length(intersection)+1) {
-        warning(paste("Graf \u0161t.", unique(df$chart_no),
-                      ": Oznak legende ni mogo\u010e dolo\u010diti avtomati\u010dno, ker se razlikujejo po ve\u010d kot eni dimenziji"))
-        diff <- rep(NA, nrow(df))} else {
-          diff <- sapply(splt, function(x) setdiff(x, intersection))
-          unname(diff)}
+      if(UMARvisualisR::all_equal(splt)){
+        if(!UMARvisualisR::all_equal(original_table_names)) {
+          new_table_name <- wrap_string(unique(splt))
+          mget(c("original_table_names", "new_table_name"))
+        }
+      } else {
+        if(!unique(sapply(splt, length)) == length(intersection)+1) {
+          warning(paste("Graf \u0161t.", unique(df$chart_no),
+                        ": Oznak legende ni mogo\u010e dolo\u010diti avtomati\u010dno, ker se razlikujejo po ve\u010d kot eni dimenziji"))
+          diff <- rep(NA, nrow(df))} else {
+            diff <- sapply(splt, function(x) setdiff(x, intersection))
+            unname(diff)}
+      }
     }
 }
 
@@ -165,13 +173,18 @@ get_legend_labels_from_df <- function(df) {
 prep_multi_line <- function(df, con, date_valid = NULL){
   if ("chart_no" %in% names(df)) print(paste0("Pripravljam podatke za graf \u0161t. ",
                                               unique(df$chart_no), "."))
+  original_table_names <- df$table_name
   df <- multi_checks(df, con)
   interval <- unique(df$interval_id)
   unit <- first_up(unique(df$unit_name))
   main_title <- wrap_string(unique(df$table_name))
   if (nrow(df) > 1) {
     sub_title <- list(NA, 0)
-    legend_labels <- get_legend_labels_from_df(df)} else {
+    legend_labels <- get_legend_labels_from_df(df, original_table_names)
+    if(length(names(legend_labels)) == 2) {
+      main_title <- legend_labels[[2]]
+      legend_labels <- legend_labels[[1]]
+      }} else {
       sub_title <- wrap_string(df$series_name)
       legend_labels <- NA}
   df <- df %>%

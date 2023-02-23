@@ -37,7 +37,8 @@ dittodb::with_mock_db({
     vdiffr::expect_doppelganger("no chart3", p)
     p <- function() multiline_pipeline(spl[[5]],con = con)
     vdiffr::expect_doppelganger("no chart4", p)
-
+    # same series names
+    p <- function() multiline_pipeline(spl[[6]],con = con)
+    vdiffr::expect_doppelganger("same series", p)
   })
 })
-
