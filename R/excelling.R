@@ -30,11 +30,14 @@ rename_columns <- function(prep_l) {
       prep_l$data_points <- purrr::map2(prep_l$data_points, prep_l$legend_labels,
                                         ~dplyr::rename(.x, !!paste0(.y, " -- original") := raw))
 
-      } else {
-    prep_l$data_points <- purrr::map2(prep_l$data_points, prep_l$legend_labels,
-                                      ~dplyr::rename(.x, !!.y := value))
+    } else {
+      if(!any(is.na(prep_l$legend_labels))) {
+        prep_l$data_points <- purrr::map2(prep_l$data_points, prep_l$legend_labels,
+                                          ~dplyr::rename(.x, !!.y := value))
+      }
     }
   }
+
   prep_l$data_points <- purrr::map(prep_l$data_points, ~ dplyr::relocate(., period_id, period))
   return(prep_l)
 }

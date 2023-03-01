@@ -2,6 +2,8 @@ prep_l <- readRDS(test_path("testdata", "prep_l.rds"))
 prep_11 <- readRDS(test_path("testdata", "prep_11.rds"))
 prep_16 <- readRDS(test_path("testdata", "prep_16.rds"))
 prep_20 <- readRDS(test_path("testdata", "prep_20.rds"))
+prep_33 <- readRDS(test_path("testdata", "prep_33.rds"))
+prep_40 <- readRDS(test_path("testdata", "prep_40.rds"))
 
 test_that("multiplication works", {
   out <- rename_columns(prep_l)
@@ -18,4 +20,8 @@ test_that("multiplication works", {
   expect_true(all(dim(out$data_points[[2]]) == c(274,4)))
   expect_true(grepl("Transf.", names(out$data_points[[2]])[3]))
   expect_true(grepl("original", names(out$data_points[[2]])[4]))
+  out <- rename_columns(prep_33)
+  expect_true(grepl("NA", names(out$data_points[[1]])[3]))
+  out <- rename_columns(prep_40)
+  expect_true(grepl("value", names(out$data_points[[1]])[3]))
 })
