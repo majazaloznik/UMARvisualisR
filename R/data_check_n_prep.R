@@ -132,14 +132,14 @@ get_legend_labels_from_df <- function(df, original_table_names = NULL) {
   # check for different number of dimensions
   if(!UMARvisualisR::all_equal(sapply(splt, length))) {
     warning(paste("Graf \u0161t.", unique(df$chart_no),
-                  ": Oznak legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so serije iz razli\u010dnih tabel."))
-    diff <- rep(NA, nrow(df))} else {
+                  ": Besedila legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so serije iz razli\u010dnih tabel."))
+    diff <- df$series_code} else {
       intersection <- Reduce(intersect, splt)
       if(UMARvisualisR::all_equal(splt)){
         if(is.null(original_table_names) | UMARvisualisR::all_equal(original_table_names)){
           warning(paste("Graf \u0161t.", unique(df$chart_no),
                         ": Oznak legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so imena serij in tabel enaka."))
-          diff <- rep(NA, nrow(df))} else  {
+          diff <- df$series_code} else  {
           new_table_name <- wrap_string(paste(unique(splt)[[1]], collapse = " -- "))
           mget(c("original_table_names", "new_table_name"))
         }
@@ -147,7 +147,7 @@ get_legend_labels_from_df <- function(df, original_table_names = NULL) {
         if(!unique(sapply(splt, length)) == length(intersection)+1) {
           warning(paste("Graf \u0161t.", unique(df$chart_no),
                         ": Oznak legende ni mogo\u010e dolo\u010diti avtomati\u010dno, ker se razlikujejo po ve\u010d kot eni dimenziji"))
-          diff <- rep(NA, nrow(df))} else {
+          diff <- df$series_code} else {
             diff <- sapply(splt, function(x) setdiff(x, intersection))
             unname(diff)}
       }

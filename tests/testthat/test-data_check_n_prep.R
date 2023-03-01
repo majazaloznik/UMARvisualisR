@@ -44,28 +44,36 @@ dittodb::with_mock_db({
   })
 
   test_that("labelling function works ok", {
-    df <- data.frame(series_name = c("A -- B", "A -- B -- C"), chart_no = c(1, 1))
+    df <- data.frame(series_name = c("A -- B", "A -- B -- C"), chart_no = c(1, 1),
+                     series_code = c("c1", "c2"))
     expect_warning(out <- get_legend_labels_from_df(df))
     expect_true(length(out) == 2)
-    df <- data.frame(series_name = c("A -- B", "A -- B"), chart_no = c(1, 1))
+    df <- data.frame(series_name = c("A -- B", "A -- B"), chart_no = c(1, 1),
+                     series_code = c("c1", "c2"))
     expect_warning(out <- get_legend_labels_from_df(df))
     expect_true(length(out) == 2)
-    df <- data.frame(series_name = c("A -- B -- C", "A -- b -- c"), chart_no = c(1, 1))
+    df <- data.frame(series_name = c("A -- B -- C", "A -- b -- c"), chart_no = c(1, 1),
+                     series_code = c("c1", "c2"))
     expect_warning(out <- get_legend_labels_from_df(df))
     expect_true(length(out) == 2)
-    df <- data.frame(series_name = c("A -- B -- C", "A -- B -- c"), chart_no = c(1, 1))
+    df <- data.frame(series_name = c("A -- B -- C", "A -- B -- c"), chart_no = c(1, 1),
+                     series_code = c("c1", "c2"))
     out <- get_legend_labels_from_df(df)
     expect_equal(out,c("C", "c"))
-    df <- data.frame(series_name = c("A", "B"), chart_no = c(1, 1))
+    df <- data.frame(series_name = c("A", "B"), chart_no = c(1, 1),
+                     series_code = c("c1", "c2"))
     out <- get_legend_labels_from_df(df, c("C", "D"))
     expect_equal(out, c("A", "B"))
-    df <- data.frame(series_name = c("A", "A"), chart_no = c(1, 1))
+    df <- data.frame(series_name = c("A", "A"), chart_no = c(1, 1),
+                     series_code = c("c1", "c2"))
     out <- get_legend_labels_from_df(df, c("C", "D"))
     expect_equal(length(out), 2)
-    df <- data.frame(series_name = c("A", "A"), chart_no = c(1, 1))
+    df <- data.frame(series_name = c("A", "A"), chart_no = c(1, 1),
+                     series_code = c("c1", "c2"))
     out <- get_legend_labels_from_df(df, c("C -- m", "D -- m"))
     expect_equal(length(out), 2)
-    df <- data.frame(series_name = c("A -- B", "A -- B"), chart_no = c(1, 1))
+    df <- data.frame(series_name = c("A -- B", "A -- B"), chart_no = c(1, 1),
+                     series_code = c("c1", "c2"))
     expect_warning(out <- get_legend_labels_from_df(df, c("Y", "X")), regexp = NA)
     expect_equal(length(out), 2)
     expect_equal(out[[2]][[1]], c("A -- B"))
