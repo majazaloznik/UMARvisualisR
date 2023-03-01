@@ -270,7 +270,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
                 lwd = 0, tck = 0,  family ="Myriad Pro",
                 las = x_las, padj = 0.5, format = "%Y")
       par(mgp=c(3,0.5,0))
-
+      options(scipen=999)
       axis(2, col = umar_cols("gridlines"),lwd = 0,  tck=0.0,
            las = 2,  family ="Myriad Pro")
       box(col = umar_cols("gridlines"), lwd = 1)
