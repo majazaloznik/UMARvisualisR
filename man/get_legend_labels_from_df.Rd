@@ -4,12 +4,13 @@
 \alias{get_legend_labels_from_df}
 \title{Get legend labels from input dataframe}
 \usage{
-get_legend_labels_from_df(df, original_table_names)
+get_legend_labels_from_df(df, original_table_names = NULL)
 }
 \arguments{
 \item{df}{input dataframe with at least the following columns: `series_name`, `chart_no`}
 
-\item{original_table_names}{character vector with original table names.}
+\item{original_table_names}{character vector with original table names, which is only relevant
+if series names are identical.}
 }
 \value{
 character vector of length nrow(df) with legend labels and optionally a second one
@@ -20,8 +21,10 @@ One of the columns is the `series_name` one, which is from the `series` table an
 the dimension values separated by `--`. If these names have the same number of dimension
 values and differ by just one of them, then that one is returned as the legend labels.
 Warnings are issued for different numbers of dimensions or differences in more than
-one dim, in which case NAs are returned.
-If the labels have been entered manually, they are used instead - but must of course
-be unique and not contain the `  -- ` character sequence.
-At the moment no limits are placed on the length of the labels, that's coming next.
+one dim, or if the series names are the same and no table names are provided,
+in which three cases NAs are returned.
+}
+\details{
+If the series are different by one dimension, that is returned, and if the series
+are the same and the different table names are provided, then those are returned.
 }

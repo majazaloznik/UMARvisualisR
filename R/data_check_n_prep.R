@@ -113,27 +113,34 @@ multi_titles <- function(df, con){
 #' the dimension values separated by `--`. If these names have the same number of dimension
 #' values and differ by just one of them, then that one is returned as the legend labels.
 #' Warnings are issued for different numbers of dimensions or differences in more than
-#' one dim, in which case NAs are returned.
-#' If the labels have been entered manually, they are used instead - but must of course
-#' be unique and not contain the `  -- ` character sequence.
-#' At the moment no limits are placed on the length of the labels, that's coming next.
+#' one dim, or if the series names are the same and no table names are provided,
+#' in which three cases NAs are returned.
+#'
+#' If the series are different by one dimension, that is returned, and if the series
+#' are the same and the different table names are provided, then those are returned.
+#'
 #'
 #' @param df input dataframe with at least the following columns: `series_name`, `chart_no`
-#' @param original_table_names character vector with original table names.
+#' @param original_table_names character vector with original table names, which is only relevant
+#' if series names are identical.
 #' @return character vector of length nrow(df) with legend labels and optionally a second one
 #' with the new chart name.
 #' @export
 #'
-get_legend_labels_from_df <- function(df, original_table_names) {
+get_legend_labels_from_df <- function(df, original_table_names = NULL) {
   splt <- sapply(list(df$series_name)[[1]], function(x) strsplit(x, " -- "))
+  # check for different number of dimensions
   if(!UMARvisualisR::all_equal(sapply(splt, length))) {
     warning(paste("Graf \u0161t.", unique(df$chart_no),
                   ": Oznak legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so serije iz razli\u010dnih tabel."))
     diff <- rep(NA, nrow(df))} else {
       intersection <- Reduce(intersect, splt)
       if(UMARvisualisR::all_equal(splt)){
-        if(!UMARvisualisR::all_equal(original_table_names)) {
-          new_table_name <- wrap_string(unique(splt))
+        if(is.null(original_table_names) | UMARvisualisR::all_equal(original_table_names)){
+          warning(paste("Graf \u0161t.", unique(df$chart_no),
+                        ": Oznak legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so imena serij in tabel enaka."))
+          diff <- rep(NA, nrow(df))} else  {
+          new_table_name <- wrap_string(paste(unique(splt)[[1]], collapse = " -- "))
           mget(c("original_table_names", "new_table_name"))
         }
       } else {
