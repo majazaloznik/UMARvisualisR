@@ -90,12 +90,21 @@ write_to_sheet <- function(prep_l, df, wb, odd) {
 #' @keywords internal
 
 write_metadata <- function(prep_l, sheet_name, df, wb, odd) {
-  meta <- data.frame(chart = sheet_name,
-                     updated=prep_l$updated,
-                     main = prep_l$main_title[[1]],
-                     series = df$series_name,
-                     transformation = ifelse(is.null(prep_l$transf_txt),
-                                             NA_character_, prep_l$transf_txt))
+  if(nrow(df) == 1){
+    meta <- data.frame(chart = sheet_name,
+                       updated=prep_l$updated,
+                       main = prep_l$main_title[[1]],
+                       series = df$series_name,
+                       transformation = ifelse(is.null(prep_l$transf_txt),
+                                               NA_character_, prep_l$transf_txt))}
+  else {
+    meta <- data.frame(chart = sheet_name,
+                       updated=prep_l$updated,
+                       main = prep_l$main_title[[1]],
+                       series = prep_l$legend_labels,
+                       transformation = ifelse(is.null(prep_l$transf_txt),
+                                               NA_character_, prep_l$transf_txt))
+  }
   meta$chart[duplicated(meta$chart)] <- NA
   meta$updated[duplicated(meta$updated)] <- NA
   meta$main[duplicated(meta$main)] <- NA
