@@ -2,7 +2,7 @@
 #'
 #' From the prepared list used to plot the charts, this funciton renames the columns
 #' with the raw and transformed data with the series names, preparing them
-#' for export into an excel spreadsheet with the yet unwritten funciton \link[UMARvisualisR]{write_to_sheet}.
+#' for export into an excel spreadsheet with the function \link[UMARvisualisR]{write_to_sheet}.
 #'
 #' @param prep_l list of prepared data, which must include elements `data_points`, `sub_title`
 #' or `legend_labels` and `transf_txt` if a transformation was made

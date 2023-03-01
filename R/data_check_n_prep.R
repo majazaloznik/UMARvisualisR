@@ -99,7 +99,7 @@ multi_checks <- function(df, con){
 multi_titles <- function(df, con){
   if(!all_equal(df$table_name))  {
     warning(paste("Graf \u0161tevika", unique(df$chart_no),
-                  "\n Vse izbrane serije morajo imeti enak naslov tabele, razen, če imajo vse isto ime in različne tabele."))
+                  "\n Vse izbrane serije morajo imeti enak naslov tabele, razen, \u010de imajo vse isto ime in razli\u010dna imena tabel."))
     df$table_name <-  paste("Graf \u0161tevika", unique(df$chart_no))
   }
   if(all_equal(df$series_code) & is.na(unique(df$table_name))) df$table_name <- UMARaccessR::get_table_name_from_series(df$id[1], con)
