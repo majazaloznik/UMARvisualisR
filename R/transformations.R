@@ -9,7 +9,7 @@ yoy_change <- function(df, lag = 12){
  df %>%
     dplyr::arrange(period) %>%
     dplyr::mutate(raw = if(exists('raw', where= df)) raw else value) %>%
-    dplyr::mutate(value = value/dplyr::lag(value,n = lag)*100)
+    dplyr::mutate(value = value/dplyr::lag(value,n = lag)*100 - 100)
 }
 
 #' Add rolling average column to prepared data
