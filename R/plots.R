@@ -211,11 +211,13 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       data_points <- lapply(data_points, function(x) apply_xlims(x, xmin, xmax))
       xlim <- c(sapply(data_points, function(x) min(x$period, na.rm = TRUE), simplify = FALSE)[[1]],
                 sapply(data_points, function(x) max(x$period, na.rm = TRUE), simplify = FALSE)[[1]])
-
-      if(any(sapply(data_points, names) %in% "raw")) {
-        ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$raw))))
-      } else {
-        ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))}
+      if(is.null(prep_l$transf_txt)) {
+        ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))} else {
+          if(grepl("drse\u010da sredina", prep_l$transf_txt)) {
+            ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$raw))))
+          } else {
+            ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))}
+        }
 
       #plot
       plot(xlim[1], ylim[1],type = "n",
@@ -236,9 +238,10 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
         abline(h = 0, col = umar_cols("emph"), lwd = 1)}
 
       # plot main line (and raw background if exists - but only for univariate)
-      if(any(sapply(data_points, names) %in% "raw") & length(data_points) ==1) {
-        lines(data_points[[1]]$period, data_points[[1]]$raw,
-              col = umar_cols("siva"), lwd = 2)}
+      if(!is.null(prep_l$transf_txt)){
+        if(grepl("drse\u010da sredina", prep_l$transf_txt) & length(data_points) ==1) {
+          lines(data_points[[1]]$period, data_points[[1]]$raw,
+                col = umar_cols("siva"), lwd = 2)}}
       mapply(function(x, y) lines(x$period, x$value,
                                   col = y, lwd = 2), data_points, umar_cols()[1:length(data_points)])
 
