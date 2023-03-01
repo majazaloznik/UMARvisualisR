@@ -218,6 +218,11 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
           } else {
             ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))}
         }
+      y_label_max <- max(ylim)
+      y_lab_lines <- ceiling(strwidth(y_label_max, units = "inches")/par("csi"))
+      par(mar = c(3, y_lab_lines + 1, title_lines + 1, 4),
+          mgp=c(3,0.5,0), xpd = FALSE)
+
 
       #plot
       plot(xlim[1], ylim[1],type = "n",
@@ -281,7 +286,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       mtext(sub_title[[1]], side = 3,
             line = 0.5, family ="Myriad Pro", adj = 0)
       mtext(unit, side = 2,
-            line = 2.5, family ="Myriad Pro")
+            line = y_lab_lines+0.1, family ="Myriad Pro")
       mtext(paste("Posodobljeno:",
                   strftime(update_time,
                            format ="%d.%m.%y %H:%M:%S", tz = "CET")),
