@@ -66,7 +66,7 @@ dittodb::with_mock_db({
     out <- get_legend_labels_from_df(df, c("C -- m", "D -- m"))
     expect_equal(length(out), 2)
     df <- data.frame(series_name = c("A -- B", "A -- B"), chart_no = c(1, 1))
-    out <- get_legend_labels_from_df(df, c("Y", "X"))
+    expect_warning(out <- get_legend_labels_from_df(df, c("Y", "X")), regexp = NA)
     expect_equal(length(out), 2)
     expect_equal(out[[2]][[1]], c("A -- B"))
 
