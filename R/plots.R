@@ -219,7 +219,8 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
             ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))}
         }
       y_label_max <- max(ylim)
-      y_lab_lines <- ceiling(strwidth(y_label_max, units = "inches")/par("csi"))
+      y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ","),
+                              units = "inches")/par("csi") + 1
       par(mar = c(3, y_lab_lines + 1, title_lines + 1, 4),
           mgp=c(3,0.5,0), xpd = FALSE)
 
@@ -275,9 +276,13 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
                 lwd = 0, tck = 0,  family ="Myriad Pro",
                 las = x_las, padj = 0.5, format = "%Y")
       par(mgp=c(3,0.5,0))
-      options(scipen=999)
-      axis(2, col = umar_cols("gridlines"),lwd = 0,  tck=0.0,
-           las = 2,  family ="Myriad Pro")
+      axis_labels <- axis(2, col = umar_cols("gridlines"), lwd = 0,  tck=0.0,
+           las = 2,  family ="Myriad Pro", labels = FALSE)
+      axis(2, at = axis_labels,
+           labels = format(axis_labels, big.mark = ".", decimal.mark = ",",
+                           scientific = FALSE),
+           col = umar_cols("gridlines"), lwd = 0,  tck=0.0,
+                          las = 2,  family ="Myriad Pro")
       box(col = umar_cols("gridlines"), lwd = 1)
 
       # titles and labels
