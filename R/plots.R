@@ -219,7 +219,8 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
             ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))}
         }
       y_label_max <- max(ylim)
-      y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ","),
+      y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ",",
+                                     scientific = FALSE),
                               units = "inches")/par("csi") + 1
       par(mar = c(3, y_lab_lines + 1, title_lines + 1, 4),
           mgp=c(3,0.5,0), xpd = FALSE)
