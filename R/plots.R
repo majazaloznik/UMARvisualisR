@@ -31,9 +31,9 @@ univariate_line_chart <- function(prep_l, ...){
       single <- apply_xlims(single, ...)
 
       if(any(names(prep_l[[1]]) %in% "raw")) {
-        ylim <- find_pretty_ylim(single$raw)
+        ylim <- find_pretty_ylim(single$raw)$ylim
       } else {
-      ylim <- find_pretty_ylim(single$value)}
+      ylim <- find_pretty_ylim(single$value)$ylim}
 
       #plot
       plot(single$period, single$value, type = "n",
@@ -212,11 +212,17 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       xlim <- c(sapply(data_points, function(x) min(x$period, na.rm = TRUE), simplify = FALSE)[[1]],
                 sapply(data_points, function(x) max(x$period, na.rm = TRUE), simplify = FALSE)[[1]])
       if(is.null(prep_l$transf_txt)) {
-        ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))} else {
+        y_ax <- find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))
+        ylim <- y_ax$ylim
+        y_breaks <- y_ax$y_breaks} else {
           if(grepl("drse\u010da sredina", prep_l$transf_txt)) {
-            ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$raw))))
+            y_ax <- find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$raw))))
+            ylim <- y_ax$ylim
+            y_breaks <- y_ax$y_breaks
           } else {
-            ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))}
+            y_ax <- find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))
+            ylim <- y_ax$ylim
+            y_breaks <- y_ax$y_breaks}
         }
       y_label_max <- max(ylim)
       if(unit == "EUR" & y_label_max > 1000000) y_label_max <- y_label_max/1000000
@@ -235,7 +241,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
            main = "",
            cex.main = 1,
            family ="Myriad Pro",
-           panel.first={grid(nx = NA, ny = NULL, col = umar_cols("gridlines"), lty = 1)},
+           panel.first={grid(nx = NA, ny = length(y_breaks) - 1, col = umar_cols("gridlines"), lty = 1)},
            yaxs="i",
            ylim = ylim,
            xlim = xlim)
@@ -278,8 +284,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
                 lwd = 0, tck = 0,  family ="Myriad Pro",
                 las = x_las, padj = 0.5, format = "%Y")
       par(mgp=c(3,0.5,0))
-      axis_labels <- axis(2, col = umar_cols("gridlines"), lwd = 0,  tck=0.0,
-           las = 2,  family ="Myriad Pro", labels = FALSE)
+      axis_labels <- y_breaks
       if(unit == "EUR" & max(axis_labels) > 1000000) {
         unit <- "mio EUR"
         axis_labels_new <- axis_labels/1000000

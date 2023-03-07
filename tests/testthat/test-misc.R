@@ -7,7 +7,8 @@ test_that("range finding works ", {
   expect_error(in_range_strict(1, c(2,1)))
   expect_equal(first_up("in"), "In")
   expect_equal(first_up("iN"), "IN")
-  expect_equal(find_pretty_ylim(c(1, 3, 10)), c(0, 12))
+  expect_equal(find_pretty_ylim(c(1, 3, 10))$ylim, c(0, 12))
+  expect_equal(find_pretty_ylim(c(1, 3, 10))$y_breaks, c(0, 2,4,6,8,10, 12))
   expect_equal(0, nrow(apply_xlims(data.frame(period = as.Date("2010/01/01"),
                                               period_id = as.Date("2010/01/01"),
                                               value = 1))))

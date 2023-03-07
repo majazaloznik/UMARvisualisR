@@ -55,7 +55,9 @@ find_pretty_ylim <- function(values){
     values <- c(values, min(values, na.rm = TRUE)-diff*0.05)}
   if(ylim[2] == max(values, na.rm = TRUE)) {
     values <- c(values, max(values, na.rm = TRUE)+diff*0.05)}
-  range(pretty(c(values)), na.rm = TRUE)
+  ylim <- range(pretty(c(values)), na.rm = TRUE)
+  y_breaks <- pretty(c(values))
+  mget(c("ylim", "y_breaks"))
 }
 
 
