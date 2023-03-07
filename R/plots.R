@@ -219,6 +219,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
             ylim <-find_pretty_ylim(unlist(lapply(data_points, function(x) c(x$value))))}
         }
       y_label_max <- max(ylim)
+      if(unit == "EUR" & y_label_max > 1000000) y_label_max <- y_label_max/1000000
       y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ",",
                                      scientific = FALSE),
                               units = "inches")/par("csi") + 1
@@ -279,11 +280,20 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       par(mgp=c(3,0.5,0))
       axis_labels <- axis(2, col = umar_cols("gridlines"), lwd = 0,  tck=0.0,
            las = 2,  family ="Myriad Pro", labels = FALSE)
-      axis(2, at = axis_labels,
-           labels = format(axis_labels, big.mark = ".", decimal.mark = ",",
-                           scientific = FALSE),
-           col = umar_cols("gridlines"), lwd = 0,  tck=0.0,
-                          las = 2,  family ="Myriad Pro")
+      if(unit == "EUR" & max(axis_labels) > 1000000) {
+        unit <- "mio EUR"
+        axis_labels_new <- axis_labels/1000000
+        axis(2, at = axis_labels,
+             labels = format(axis_labels_new, big.mark = ".", decimal.mark = ",",
+                             scientific = FALSE),
+             col = umar_cols("gridlines"), lwd = 0,  tck=0.0,
+             las = 2,  family ="Myriad Pro")
+      } else {
+        axis(2, at = axis_labels,
+             labels = format(axis_labels, big.mark = ".", decimal.mark = ",",
+                             scientific = FALSE),
+             col = umar_cols("gridlines"), lwd = 0,  tck=0.0,
+             las = 2,  family ="Myriad Pro")}
       box(col = umar_cols("gridlines"), lwd = 1)
 
       # titles and labels
