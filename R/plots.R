@@ -296,7 +296,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       par(mgp=c(3,0.5,0))
       axis_labels <- y_breaks
       if(unit == "EUR" & max(axis_labels) > 1000000) {
-        unit <- "mio EUR"
+        unit <- "Mio EUR"
         axis_labels_new <- axis_labels/1000000
         axis(2, at = axis_labels,
              labels = format(axis_labels_new, big.mark = ".", decimal.mark = ",",

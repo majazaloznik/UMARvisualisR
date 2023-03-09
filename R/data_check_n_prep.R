@@ -185,6 +185,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
   interval <- unique(df$interval_id)
   unit <- first_up(unique(df$unit_name))
   unit <- ifelse(unit == "Eur", "EUR", unit)
+  unit <- ifelse(unit == "Mio eur", "Mio EUR", unit)
   main_title <- wrap_string(unique(df$table_name))
   if (nrow(df) > 1) {
     sub_title <- list(NA, 0)
