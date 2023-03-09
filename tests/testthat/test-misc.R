@@ -24,6 +24,13 @@ test_that("range finding works ", {
   x <- read_csv_guess_encoding(test_path("testdata", "test_report_input.csv"))
   expect_equal(dim(x), c(31,13))
   expect_false(all_equal(df$raw))
+  x <- list(data.frame(period_id = "2022"))
+  expect_equal(get_interval(x), "A")
+  x <- list(data.frame(period_id = "2022M02"))
+  expect_equal(get_interval(x), "M")
+  x <- list(data.frame(period_id = "2022Q01"))
+  expect_equal(get_interval(x), "Q")
+
 })
 
 

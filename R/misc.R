@@ -148,3 +148,17 @@ rounding <- function (x, digits=0)
   return(z)
 }
 
+
+#' Helper to regex the interval from the datapoints table
+#'
+#' @param data_points list of dataframes with a `period_id` column
+#'
+#' @return single character string
+#' @export
+#'
+get_interval <- function(data_points) {
+ string <- data_points[[1]]$period_id[1]
+ ifelse(grepl(".+M.+", string), "M",
+        ifelse(grepl(".+Q.+", string), "Q",
+               ifelse(grepl("[0-9]{4}", string), "A", NA)))
+}
