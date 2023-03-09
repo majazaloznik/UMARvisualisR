@@ -279,10 +279,20 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       if(x_las == 1) {mgp_2 <- -0.2}
       if(x_las == 2) {mgp_2 <- 0.3}
       suppressWarnings(par(mgp=c(3,mgp_2,0)))
+      interval <- get_interval(data_points)
+      if(interval == "A"){
+        axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
+                  col = umar_cols("gridlines"),
+                  lwd = 0, tck = 0,  family ="Myriad Pro",
+                  las = x_las, padj = 0.5, format = "%Y")
+      } else {
       axis.Date(1,at=seq(ss, ee, by="1 year"),
                 col = umar_cols("gridlines"),
                 lwd = 0, tck = 0,  family ="Myriad Pro",
                 las = x_las, padj = 0.5, format = "%Y")
+        }
+
+
       par(mgp=c(3,0.5,0))
       axis_labels <- y_breaks
       if(unit == "EUR" & max(axis_labels) > 1000000) {
