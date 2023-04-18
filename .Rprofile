@@ -22,10 +22,10 @@ if (interactive()) {
   suppressMessages(require(devtools))
 }
 
-con <- DBI::dbConnect(RPostgres::Postgres(),
-                      dbname = "sandbox",
-                      host = "localhost",
-                      port = 5432,
-                      user = "mzaloznik",
-                      password = Sys.getenv("PG_local_MAJA_PSW"))
-DBI::dbExecute(con, "set search_path to test_platform")
+#con <- DBI::dbConnect(RPostgres::Postgres(),
+#                      dbname = "sandbox",
+#                      host = "localhost",
+#                      port = 5432,
+#                      user = "mzaloznik",
+#                      password = Sys.getenv("PG_local_MAJA_PSW"))
+#DBI::dbExecute(con, "set search_path to test_platform")
