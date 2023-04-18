@@ -53,8 +53,14 @@
     "UMARaccessR": {
       "Package": "UMARaccessR",
       "Version": "0.1.0",
-      "Source": "unknown",
-      "Hash": "5e559db15a221d641d57b3fed9650f5e",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "UMARaccessR",
+      "RemoteUsername": "majazaloznik",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "e19e437969c757c779a48d026032bbb95bf1cc38",
+      "Hash": "2b4b1c4e1e0da944f6f2ebb12daded1e",
       "Requirements": [
         "DBI",
         "RPostgres",
@@ -128,6 +134,23 @@
       "Repository": "CRAN",
       "Hash": "976cf154dfb043c012d87cddd8bca363",
       "Requirements": []
+    },
+    "bslib": {
+      "Package": "bslib",
+      "Version": "0.4.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "a7fbf03946ad741129dc81098722fca1",
+      "Requirements": [
+        "base64enc",
+        "cachem",
+        "htmltools",
+        "jquerylib",
+        "jsonlite",
+        "memoise",
+        "mime",
+        "rlang"
+      ]
     },
     "cachem": {
       "Package": "cachem",
@@ -327,6 +350,19 @@
         "vctrs"
       ]
     },
+    "dygraphs": {
+      "Package": "dygraphs",
+      "Version": "1.1.1.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "716869fffc16e282c118f8894e082a7d",
+      "Requirements": [
+        "htmltools",
+        "htmlwidgets",
+        "magrittr",
+        "zoo"
+      ]
+    },
     "ellipsis": {
       "Package": "ellipsis",
       "Version": "0.3.2",
@@ -360,6 +396,17 @@
       "Repository": "CRAN",
       "Hash": "77bd60a6157420d4ffa93b27cf6a58b8",
       "Requirements": []
+    },
+    "fontawesome": {
+      "Package": "fontawesome",
+      "Version": "0.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e80750aec5717dedc019ad7ee40e4a7c",
+      "Requirements": [
+        "htmltools",
+        "rlang"
+      ]
     },
     "fs": {
       "Package": "fs",
@@ -448,15 +495,30 @@
     },
     "htmltools": {
       "Package": "htmltools",
-      "Version": "0.5.2",
+      "Version": "0.5.5",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "526c484233f42522278ab06fb185cb26",
+      "Hash": "ba0240784ad50a62165058a27459304a",
       "Requirements": [
         "base64enc",
         "digest",
+        "ellipsis",
         "fastmap",
         "rlang"
+      ]
+    },
+    "htmlwidgets": {
+      "Package": "htmlwidgets",
+      "Version": "1.6.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "a865aa85bcb2697f47505bfd70422471",
+      "Requirements": [
+        "htmltools",
+        "jsonlite",
+        "knitr",
+        "rmarkdown",
+        "yaml"
       ]
     },
     "httr": {
@@ -480,6 +542,16 @@
       "Repository": "CRAN",
       "Hash": "6154ec2223172bce8162d4153cda21f7",
       "Requirements": []
+    },
+    "jquerylib": {
+      "Package": "jquerylib",
+      "Version": "0.1.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "5aab57a3bd297eee1c1d862735972182",
+      "Requirements": [
+        "htmltools"
+      ]
     },
     "jsonlite": {
       "Package": "jsonlite",
@@ -813,6 +885,25 @@
       "Repository": "CRAN",
       "Hash": "4ed1f8336c8d52c3e750adcdc57228a7",
       "Requirements": []
+    },
+    "rmarkdown": {
+      "Package": "rmarkdown",
+      "Version": "2.21",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "493df4ae51e2e984952ea4d5c75786a3",
+      "Requirements": [
+        "bslib",
+        "evaluate",
+        "fontawesome",
+        "htmltools",
+        "jquerylib",
+        "jsonlite",
+        "knitr",
+        "stringr",
+        "xfun",
+        "yaml"
+      ]
     },
     "roxygen2": {
       "Package": "roxygen2",
