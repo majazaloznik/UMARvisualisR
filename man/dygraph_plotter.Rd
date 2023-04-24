@@ -7,11 +7,8 @@
 dygraph_plotter(prep_l)
 }
 \arguments{
-\item{prep_l}{}
-
-\item{xmin}{to be passed to \link[UMARvisualisR]{apply_xlims}}
-
-\item{xmax}{to be passed to \link[UMARvisualisR]{apply_xlims}}
+\item{prep_l}{list of length 8+ with data.frame with data, the unit used and the
+main and sub titles etc.. see \link[UMARvisualisR]{prep_multi_line}.}
 }
 \value{
 nothing, plots to open device

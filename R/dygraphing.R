@@ -4,10 +4,7 @@
 #' approx in line with our corporate identity.
 #'
 #' Data input must be prepared with the \link[UMARvisualisR]{prep_multi_line} function.
-#' At the moment only plots years as labels.
 #'
-#' Todo: add arguments such as x-value range, add flexibility of axis labels for different
-#' time ranges..
 #'
 #' @param prep_l list of length 8+ with data.frame with data, the unit used and the
 #' main and sub titles etc.. see \link[UMARvisualisR]{prep_multi_line}.
@@ -15,8 +12,6 @@
 #' @return nothing, plots to open device
 #' @export
 #'
-#'
-#' @examples
 dygraph_plotter <- function(prep_l) {
   list2env(prep_l, envir = environment())
 # a single rolling average gets special treatment.
