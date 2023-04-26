@@ -9,7 +9,8 @@ multiline_pipeline(
   con,
   xmin = "2011-01-01",
   xmax = NULL,
-  draw_charts = TRUE,
+  pdf_charts = TRUE,
+  html_charts = FALSE,
   export_excel = FALSE,
   wb,
   odd = TRUE
@@ -26,7 +27,9 @@ multiline_pipeline(
 
 \item{xmax}{to be passed to \link[UMARvisualisR]{apply_xlims}}
 
-\item{draw_charts}{logical}
+\item{pdf_charts}{logical}
+
+\item{html_charts}{logical}
 
 \item{export_excel}{logical}
 

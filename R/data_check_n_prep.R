@@ -178,7 +178,7 @@ get_legend_labels_from_df <- function(df, original_table_names = NULL) {
 #'
 
 prep_multi_line <- function(df, con, date_valid = NULL){
-  if ("chart_no" %in% names(df)) print(paste0("Pripravljam podatke za graf \u0161t. ",
+  if ("chart_no" %in% names(df)) warning(paste0("Pripravljam podatke za graf \u0161t. ",
                                               unique(df$chart_no), "."))
   original_table_names <- df$table_name
   df <- multi_checks(df, con)
@@ -216,7 +216,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
   updated <- max(df$updated)
   max_period <- do.call("max", purrr::map(data_points, function(x) max(x$period)))
   last_period <- data_points[[1]]$period_id[data_points[[1]]$period == max_period]
-  print(paste0("Podatki za graf \u0161t. ", unique(df$chart_no), " so pripravljeni."))
+  warning(paste0("Podatki za graf \u0161t. ", unique(df$chart_no), " so pripravljeni."))
   mget(c("data_points", "unit", "main_title" , "sub_title", "updated", "last_period",
          "interval", "legend_labels", "transf_txt"))
 }

@@ -56,7 +56,8 @@ univariate_line_pipeline <- function(series,
 #' @inheritParams common_parameters
 #' @param xmin to be passed to \link[UMARvisualisR]{apply_xlims}
 #' @param xmax to be passed to \link[UMARvisualisR]{apply_xlims}
-#' @param draw_charts logical
+#' @param pdf_charts logical
+#' @param html_charts logical
 #' @param export_excel logical
 #' @param wb active binding to openxlsx workbook object
 #' @param odd logical indicating alternating charts, used in the TOC of the Excel
@@ -66,7 +67,8 @@ univariate_line_pipeline <- function(series,
 #' @return plots chart and writes the data to an excel file - if you chose so.
 #' @export
 multiline_pipeline  <- function(df, con, xmin = "2011-01-01", xmax =NULL,
-                                draw_charts = TRUE,
+                                pdf_charts = TRUE,
+                                html_charts = FALSE,
                                 export_excel = FALSE, wb, odd = TRUE){
   # prepare the data
   prep_l <-  tryCatch(prep_multi_line(df, con),
@@ -74,9 +76,14 @@ multiline_pipeline  <- function(df, con, xmin = "2011-01-01", xmax =NULL,
                         print("Graf bo preskocen.")
                         return(NULL)})
   # draw chart
-  if(draw_charts & !is.null(prep_l)){
+  if(pdf_charts & !is.null(prep_l)){
     multivariate_line_chart(prep_l, xmin = xmin, xmax = xmax)
   }
+  # draw chart
+  if(html_charts & !is.null(prep_l)){
+    dygraph_plotter(prep_l )
+  }
+
   if(export_excel & !is.null(prep_l)) {
     prep_l <- rename_columns(prep_l)
     write_to_sheet(prep_l, df, wb=wb, odd)

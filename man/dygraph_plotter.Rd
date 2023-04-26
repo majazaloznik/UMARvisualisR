@@ -19,8 +19,4 @@ approx in line with our corporate identity.
 }
 \details{
 Data input must be prepared with the \link[UMARvisualisR]{prep_multi_line} function.
-At the moment only plots years as labels.
-
-Todo: add arguments such as x-value range, add flexibility of axis labels for different
-time ranges..
 }

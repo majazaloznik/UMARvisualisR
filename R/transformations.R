@@ -116,7 +116,7 @@ do_transformations <- function(input_data){
   if (!is.na(unique(year_on_year)) & unique(year_on_year)) yoy <- TRUE else yoy <- FALSE
 
   if (rolling | yoy) {
-    print(paste0("Za\u010denjam s transformacijami podatkov."))
+    warning(paste0("Za\u010denjam s transformacijami podatkov."))
     if(rolling & yoy){
       yoyd_rolld <- purrr::map(data_points, add_yoy_of_rolling,
                                periods, align, interval )
