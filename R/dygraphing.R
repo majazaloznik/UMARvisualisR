@@ -149,7 +149,7 @@ dygraph_plotter_mixed <- function(prep_l, bar = TRUE) {
       data |>
         dygraphs::dygraph(main = paste("Posodobljeno:", updated, "   ", transf_txt)) |>
         dygraphs::dyStackedBarGroup(data_colz[-1]) |>
-        dyAxis("y", label = "Temp (F)", valueRange = ylim) |>
+        dyAxis("y", label = unit, valueRange = ylim) |>
         dygraphs::dyOptions(colors=c(unname(umar_cols()[1:length(data_colz)])),
                             strokeWidth = 1.5) |>
         dygraphs::dyAxis("x", drawGrid = c(FALSE)) |>
@@ -157,7 +157,6 @@ dygraph_plotter_mixed <- function(prep_l, bar = TRUE) {
         dygraphs::dyRangeSelector() |>
         dygraphs::dyLegend(show = "always", hideOnMouseOut = FALSE) |>
         dygraphs::dyLegend(width = 600) |>
-        dygraphs::dyAxis("y", label = unit) |>
         dygraphs::dySeries(data_colz[1]) -> chart
     }
   }
