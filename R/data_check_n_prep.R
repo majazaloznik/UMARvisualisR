@@ -201,7 +201,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
     dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series_code(series_code, con, date_valid)$id,
                   updated = UMARaccessR::get_date_published_from_vintage(vintage_id, con)$published)
   data_points <- purrr::map(df$vintage_id, UMARaccessR::get_data_points_from_vintage, con)
-  data_points <- purrr::map(data_points, UMARaccessR::add_date_from_period_id, interval)
+  data_points <- purrr::map(data_points, UMARaccessR::add_last_date_from_period_id, interval)
   # transformations:
   input_data <- list(data_points = data_points,
                      rolling_average_periods = df$rolling_average_periods,

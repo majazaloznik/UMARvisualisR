@@ -59,8 +59,8 @@
       "RemoteRepo": "UMARaccessR",
       "RemoteUsername": "majazaloznik",
       "RemoteRef": "HEAD",
-      "RemoteSha": "e19e437969c757c779a48d026032bbb95bf1cc38",
-      "Hash": "2b4b1c4e1e0da944f6f2ebb12daded1e",
+      "RemoteSha": "850f1ee7e9f8b668acfafaa3c1d566ba221ced08",
+      "Hash": "a1db6cc8cd05f22878c1bd5f77a761b8",
       "Requirements": [
         "DBI",
         "RPostgres",
@@ -149,7 +149,8 @@
         "jsonlite",
         "memoise",
         "mime",
-        "rlang"
+        "rlang",
+        "sass"
       ]
     },
     "cachem": {
@@ -192,10 +193,10 @@
     },
     "commonmark": {
       "Package": "commonmark",
-      "Version": "1.8.0",
+      "Version": "1.9.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "2ba81b120c1655ab696c935ef33ea716",
+      "Hash": "d691c61bff84bd63c383874d2d0c3307",
       "Requirements": []
     },
     "covr": {
@@ -360,6 +361,7 @@
         "htmltools",
         "htmlwidgets",
         "magrittr",
+        "xts",
         "zoo"
       ]
     },
@@ -956,6 +958,20 @@
         "xml2"
       ]
     },
+    "sass": {
+      "Package": "sass",
+      "Version": "0.4.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "2bb4371a4c80115518261866eab6ab11",
+      "Requirements": [
+        "R6",
+        "fs",
+        "htmltools",
+        "rappdirs",
+        "rlang"
+      ]
+    },
     "sessioninfo": {
       "Package": "sessioninfo",
       "Version": "1.2.2",
@@ -1187,10 +1203,10 @@
     },
     "xfun": {
       "Package": "xfun",
-      "Version": "0.36",
+      "Version": "0.39",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "f5baec54606751aa53ac9c0e05848ed6",
+      "Hash": "8f56e9acb54fb525e66464d57ab58bcb",
       "Requirements": []
     },
     "xml2": {
@@ -1209,6 +1225,16 @@
       "Hash": "6c85f015dee9cc7710ddd20f86881f58",
       "Requirements": [
         "processx"
+      ]
+    },
+    "xts": {
+      "Package": "xts",
+      "Version": "0.13.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b8aa1235fd8b0ff10756150b792dc60f",
+      "Requirements": [
+        "zoo"
       ]
     },
     "yaml": {
