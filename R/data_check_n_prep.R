@@ -62,7 +62,7 @@ prep_single_line <- function(vintage, con, interval=NULL,
 #' @export
 #'
 multi_checks <- function(df, con){
-  if(nrow(df) > 8)  stop(
+  if(nrow(df) > 8)  warning(
     paste("Graf \u0161tevilka", unique(df$chart_no),
           "\n Maksimalno \u0161tevilo serij na enem grafu je 8."))
   if(!all_equal(df$unit_name))  stop(

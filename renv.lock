@@ -903,6 +903,7 @@
         "jsonlite",
         "knitr",
         "stringr",
+        "tinytex",
         "xfun",
         "yaml"
       ]
@@ -1068,6 +1069,16 @@
         "rlang",
         "vctrs",
         "withr"
+      ]
+    },
+    "tinytex": {
+      "Package": "tinytex",
+      "Version": "0.45",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e4e357f28c2edff493936b6cb30c3d65",
+      "Requirements": [
+        "xfun"
       ]
     },
     "tzdb": {
