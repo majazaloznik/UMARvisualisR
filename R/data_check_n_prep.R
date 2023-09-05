@@ -157,8 +157,8 @@ get_legend_labels_from_df <- function(df, original_table_names = NULL) {
 
 #' Prepare data needed for multi (or single) line chart
 #'
-#' Uses an input table which must have the following columns: `itnerval_id`,
-#' `unit_name`, `table_name`, `series_name` for the subtitle, `id` for the series id
+#' Uses an input table which must have the following columns: `interval_id`,
+#' `unit_name`, `table_name`, `series_name` for the subtitle, `series_code` for the series id
 #' (same as gets input into \link[UMARvisualisR]{multi_checks}, which is
 #' run on the dataframe as the first step in this funciton, to check everything is cool with
 #' the inputs.
@@ -201,7 +201,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
     dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series_code(series_code, con, date_valid)$id,
                   updated = UMARaccessR::get_date_published_from_vintage(vintage_id, con)$published)
   data_points <- purrr::map(df$vintage_id, UMARaccessR::get_data_points_from_vintage, con)
-  data_points <- purrr::map(data_points, UMARaccessR::add_date_from_period_id, interval)
+  data_points <- purrr::map(data_points, add_date_from_period_id)
   # transformations:
   input_data <- list(data_points = data_points,
                      rolling_average_periods = df$rolling_average_periods,

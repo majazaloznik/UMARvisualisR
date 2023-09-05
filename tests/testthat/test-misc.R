@@ -30,7 +30,9 @@ test_that("range finding works ", {
   expect_equal(get_interval(x), "M")
   x <- list(data.frame(period_id = "2022Q01"))
   expect_equal(get_interval(x), "Q")
-
+  x <- add_date_from_period_id(data.frame(period_id = c("2023M02","2023M03")))
+  expect_equal(dim(x), c(2,2))
+  expect_equal(x$period[1], as.Date("2023-02-01"))
 })
 
 

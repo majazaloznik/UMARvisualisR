@@ -151,14 +151,34 @@ rounding <- function (x, digits=0)
 
 #' Helper to regex the interval from the datapoints table
 #'
-#' @param data_points list of dataframes with a `period_id` column
+#' @param string period string
 #'
 #' @return single character string
 #' @export
 #'
-get_interval <- function(data_points) {
- string <- data_points[[1]]$period_id[1]
+get_interval <- function(string) {
  ifelse(grepl(".+M.+", string), "M",
         ifelse(grepl(".+Q.+", string), "Q",
                ifelse(grepl("[0-9]{4}", string), "A", NA)))
+}
+
+#' Add period date column from period ID
+#'
+#' Converts the 2023M02 type and 2023Q2 into 1.2.2023 or 1.4.2023, while
+#' keeping the year alone.
+#'
+#' @param df dataframe with a period_id column
+#'
+#' @return dataframe with an extra column called period with the dates
+#' @export
+#'
+add_date_from_period_id <- function(df){
+  df %>%
+    dplyr::rowwise() |>
+    dplyr::mutate(interval = get_interval(period_id)) |>
+    dplyr::mutate(period = dplyr::if_else(interval ==  "M", lubridate::ym(period_id, quiet = TRUE),
+                                          dplyr::if_else(interval == "Q", lubridate::yq(period_id, quiet = TRUE),
+                                                         dplyr::if_else(interval == "A", lubridate::ymd(period_id, truncated = 2L, quiet = TRUE),
+                                                                        as.Date(NA))))) %>%
+    dplyr::select(-interval)
 }

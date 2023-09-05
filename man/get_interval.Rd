@@ -4,10 +4,10 @@
 \alias{get_interval}
 \title{Helper to regex the interval from the datapoints table}
 \usage{
-get_interval(data_points)
+get_interval(string)
 }
 \arguments{
-\item{data_points}{list of dataframes with a `period_id` column}
+\item{string}{period string}
 }
 \value{
 single character string

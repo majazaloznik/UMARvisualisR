@@ -279,7 +279,7 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       if(x_las == 1) {mgp_2 <- -0.2}
       if(x_las == 2) {mgp_2 <- 0.3}
       suppressWarnings(par(mgp=c(3,mgp_2,0)))
-      interval <- get_interval(data_points)
+      interval <- get_interval(data_points[[1]]$period_id[1])
       if(interval == "A"){
         axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
                   col = umar_cols("gridlines"),
