@@ -59,8 +59,8 @@
       "RemoteRepo": "UMARaccessR",
       "RemoteUsername": "majazaloznik",
       "RemoteRef": "HEAD",
-      "RemoteSha": "850f1ee7e9f8b668acfafaa3c1d566ba221ced08",
-      "Hash": "a1db6cc8cd05f22878c1bd5f77a761b8",
+      "RemoteSha": "9d59c3676ef4d566d0fd52de8114653c68eb2e6b",
+      "Hash": "be6252c87d2f7ec553bf011298775d64",
       "Requirements": [
         "DBI",
         "RPostgres",
@@ -428,10 +428,10 @@
     },
     "gert": {
       "Package": "gert",
-      "Version": "1.6.0",
+      "Version": "1.9.3",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "98c014c4c933f23ea5a0321a4d0b588b",
+      "Hash": "b544c397820e05a97d391b2d614a921a",
       "Requirements": [
         "askpass",
         "credentials",
@@ -645,10 +645,10 @@
     },
     "openssl": {
       "Package": "openssl",
-      "Version": "2.0.2",
+      "Version": "2.1.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "6d3bef2e305f55c705c674653c7d7d3d",
+      "Hash": "273a6bb4a9844c296a459d2176673270",
       "Requirements": [
         "askpass"
       ]
