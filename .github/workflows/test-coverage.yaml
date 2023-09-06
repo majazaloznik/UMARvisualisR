@@ -28,14 +28,18 @@ jobs:
         shell: bash
         run: |
           rm .Rprofile
+
       - name: Check libgit2 version
         run: |
           if [[ "${{ runner.os }}" == "Linux" ]]; then
-            dpkg -l | grep libgit2
+            echo "Listing dpkg info for debugging:"
+            dpkg -l
+            echo "Searching for libgit2:"
+            dpkg -l | grep libgit2 || echo "libgit2 not found"
           elif [[ "${{ runner.os }}" == "macOS" ]]; then
-            brew info libgit2
+            brew info libgit2 || echo "libgit2 not found"
           elif [[ "${{ runner.os }}" == "Windows" ]]; then
-            choco list --local-only | Select-String 'libgit2'
+            choco list --local-only | Select-String 'libgit2' || echo "libgit2 not found"
           fi
 
       - uses: r-lib/actions/setup-renv@v2
