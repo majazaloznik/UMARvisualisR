@@ -79,6 +79,16 @@ dittodb::with_mock_db({
     expect_equal(out[[2]][[1]], c("A -- B"))
 
   })
+
+  test_that("pub ready input checks work", {
+    df <- read_csv_guess_encoding(test_path("testdata", "test_report_input.csv"))
+    spl <- split(df, df$chart_no)
+    expect_error(check_plot_inputs(spl$`3`))
+    expect_message(check_plot_inputs(spl$`22`))
+    expect_message(check_plot_inputs(spl$`23`))
+
+  })
+
 })
 
 

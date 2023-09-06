@@ -220,3 +220,37 @@ prep_multi_line <- function(df, con, date_valid = NULL){
   mget(c("data_points", "unit", "main_title" , "sub_title", "updated", "last_period",
          "interval", "legend_labels", "transf_txt"))
 }
+
+
+#' Check input data for multi-line chart
+#'
+#' New version for publication ready charts.
+#' Helper function to check that the input data dataframe for multi line charts is
+#' correct. This means that series used in a single chart have to:
+#' - be unique
+#' - have a single unit - possibly two for dual y-axis
+#' - have a maximum of 8 series
+#'
+#' @param df input dataframe with at least the following columns: series_code, unit_name
+#'
+#' @return input df, possibly with updated main titles.
+#' @export
+#'
+check_plot_inputs <- function(df){
+  errors  <- c()
+  if(is.null(df)){
+    stop("\nV tabeli ni nobene serije.")}
+
+  if(nrow(df) > 8){
+    errors <- c(errors,
+                paste("\nMaksimalno \u0161tevilo serij na enem grafu je 8."))}
+
+  if (length(unique(df$unit_name)) > 2) {
+    errors <- c(errors,
+                paste("\nV grafu ne more\u0161 imeti ve\u010d kot dveh razli\u010dnih enot."))}
+
+  if (length(errors) == 0) TRUE else {
+    message(paste("Najdene so bile naslednje napake:",
+                paste(errors, collapse = "")))}
+
+}
