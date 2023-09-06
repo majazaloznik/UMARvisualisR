@@ -214,8 +214,8 @@ prep_multi_line <- function(df, con, date_valid = NULL){
   unit <- ifelse(is.na(transformed$unit), unit, transformed$unit)
 
   updated <- max(df$updated)
-  max_period <- do.call("max", purrr::map(data_points, function(x) max(x$period)))
-  last_period <- data_points[[1]]$period_id[data_points[[1]]$period == max_period]
+
+  last_period <- get_max_period(data_points)
   warning(paste0("Podatki za graf \u0161t. ", unique(df$chart_no), " so pripravljeni."))
   mget(c("data_points", "unit", "main_title" , "sub_title", "updated", "last_period",
          "interval", "legend_labels", "transf_txt"))

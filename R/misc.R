@@ -182,3 +182,31 @@ add_date_from_period_id <- function(df){
                                                                         as.Date(NA))))) %>%
     dplyr::select(-interval)
 }
+
+
+
+#' Get max period id from list of dataframes with with periods and their ids
+#'
+#' Helper function to get the period id for the most recent data point in a
+#' list of dataframes which have period (date) and period_id columns (i.e. 2023M03)
+#'
+#' @param data_points list of dataframes with period and period_id columns
+#'
+#' @return value of the most recent period_id in list
+#' @keywords internal
+#'
+get_max_period <- function(data_points){
+  # Initialize variables for max_period and max_period_id
+  max_info <- list(max_period = -Inf, max_period_id = NA)
+  # Find max_period and corresponding max_period_id across data frames
+  max_info <- purrr::reduce(data_points, function(curr_max_info, df) {
+    idx_max_in_df <- which.max(df$period)
+    max_in_df <- df$period[idx_max_in_df]
+    if (max_in_df > curr_max_info$max_period) {
+      curr_max_info$max_period <- max_in_df
+      curr_max_info$max_period_id <- df$period_id[idx_max_in_df]
+    }
+    curr_max_info
+  }, .init = max_info)
+  max_info$max_period_id
+}

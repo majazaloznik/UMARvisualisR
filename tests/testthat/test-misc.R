@@ -33,6 +33,10 @@ test_that("range finding works ", {
   x <- add_date_from_period_id(data.frame(period_id = c("2023M02","2023M03")))
   expect_equal(dim(x), c(2,2))
   expect_equal(x$period[1], as.Date("2023-02-01"))
+  data_points <- list(
+    data.frame(period_id = c("a", "b", "c"), period = c(5, 8, 3)),
+    data.frame(period_id = c("d", "e", "f"), period = c(2, 7, 1)))
+  expect_equal(get_max_period(data_points), "b")
 })
 
 
