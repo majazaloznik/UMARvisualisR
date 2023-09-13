@@ -1,2 +1,2 @@
-structure(list(name = "odstotne toèke"), class = "data.frame", row.names = c(NA, 
+structure(list(name = "odstotne to\u010dke"), class = "data.frame", row.names = c(NA,
 -1L))
