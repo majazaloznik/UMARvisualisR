@@ -37,6 +37,28 @@ test_that("range finding works ", {
     data.frame(period_id = c("a", "b", "c"), period = c(5, 8, 3)),
     data.frame(period_id = c("d", "e", "f"), period = c(2, 7, 1)))
   expect_equal(get_max_period(data_points), "b")
+  df <- data.frame(xmin = c("2010-01-01", "2010-01-01", NA, "2010-01-01"))
+  expect_true(check_consistency_or_na(df$xmin))
+  df2 <- data.frame(xmin = c("2010-01-01", "2010-01-02", NA, "2010-01-01"))
+  expect_false(check_consistency_or_na(df2$xmin))
+
+})
+
+
+dittodb::with_mock_db({
+  con <- DBI::dbConnect(RPostgres::Postgres(),
+                        dbname = "platform",
+                        host = "localhost",
+                        port = 5432,
+                        user = "mzaloznik",
+                        password = Sys.getenv("PG_local_MAJA_PSW"))
+  DBI::dbExecute(con, "set search_path to test_platform")
+  test_that("unit update works", {
+    df <- read_csv_guess_encoding(testthat::test_path("testdata", "test_report_input4.csv"))
+    x <- update_units(df, con)
+    expect_equal(x$enota, c("indeks", "indeks", "odstotne točke", "%", "%", "%" ))
+  })
+
 })
 
 

@@ -210,3 +210,45 @@ get_max_period <- function(data_points){
   }, .init = max_info)
   max_info$max_period_id
 }
+
+
+#' Check if a column has values and they are all the same
+#'
+#' Column check that returns true if all valid values are the same. This
+#' means all NAs or some NAs are also OK, basically saying the column
+#' has a single unique valid value, which can be used as a parameter downstream
+#'
+#'
+#' @param column a dataframe column
+#'
+#' @return
+#' @keywords internal
+check_consistency_or_na <- function(column) {
+  # Extract the unique non-missing values
+  unique_vals <- unique(column[!is.na(column)])
+  # Check if there's more than one unique non-missing value
+  if (length(unique_vals) > 1) {
+    FALSE  } else {TRUE}
+}
+
+
+#' Updates units in publication chart input table
+#'
+#' Updates the units based on the transformations - to index or% if necessary -
+#' and then queries the database for the remaining units if there are still
+#' any missing.
+#'
+#' @param df with at a minimum the columns serija, enota, indeks_let and rast
+#' @param con database connection
+#'
+#' @return df with updated
+#' @export
+update_units <- function(df, con){
+ df |>
+    dplyr::mutate(enota = ifelse(!is.na(indeks_obdobje), "indeks",
+                                 ifelse(!is.na(rast), "%",
+                                        enota))) |>
+    dplyr::rowwise() |>
+    dplyr::mutate(enota = ifelse(is.na(enota), UMARaccessR::get_unit_from_series(
+      UMARaccessR::get_series_id_from_series_code(serija, con), con), enota))
+}

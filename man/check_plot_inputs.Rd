@@ -7,7 +7,7 @@
 check_plot_inputs(df)
 }
 \arguments{
-\item{df}{input dataframe with at least the following columns: series_code, unit_name}
+\item{df}{input dataframe with at least the following columns: serija, enota}
 }
 \value{
 input df, possibly with updated main titles.

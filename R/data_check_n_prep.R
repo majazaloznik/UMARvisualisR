@@ -231,7 +231,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
 #' - have a single unit - possibly two for dual y-axis
 #' - have a maximum of 8 series
 #'
-#' @param df input dataframe with at least the following columns: series_code, unit_name
+#' @param df input dataframe with at least the following columns: serija, enota
 #'
 #' @return input df, possibly with updated main titles.
 #' @export
@@ -245,12 +245,143 @@ check_plot_inputs <- function(df){
     errors <- c(errors,
                 paste("\nMaksimalno \u0161tevilo serij na enem grafu je 8."))}
 
-  if (length(unique(df$unit_name)) > 2) {
+  dup_rows <- which(duplicated(df) | duplicated(df, fromLast = TRUE))
+  if (length(dup_rows) > 0) {
+    errors <- c(errors,
+                paste("\nV tabeli ne sme\u0161 imeti podvojenih vrstic:\n", toString(dup_rows)))
+  }
+
+  if (length(unique(df$enota)) > 2) {
     errors <- c(errors,
                 paste("\nV grafu ne more\u0161 imeti ve\u010d kot dveh razli\u010dnih enot."))}
+
+  if (!check_consistency_or_na(df$xmin)) {
+    errors <- c(errors,
+                paste("\nVse xmin vrednosti morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$xmax)) {
+    errors <- c(errors,
+                paste("\nVse xmax vrednosti morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$naslov)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju naslov morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$datum_podatkov)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju datum_podatkov morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$opomba)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju opomba morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$stolpci_legende)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju stolpci_legende morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$leva_y_os)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju leva_y_os morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$desna_y_os)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju desna_y_os morajo biti enake."))}
+
+  if (any(duplicated(df$legenda))) {
+    errors <- c(errors,
+                paste("\nNe more\u0161 imeti enakih oznak legend."))}
 
   if (length(errors) == 0) TRUE else {
     message(paste("Najdene so bile naslednje napake:",
                 paste(errors, collapse = "")))}
+}
 
+
+#' Prepare plot configuration from dataframe
+#'
+#' Takes the input dataframe which may or may not have config data for the plot
+#' and the series and should have gone through the \link[UMARvisualisR]{check_plot_inputs}
+#' check first!
+#' Updates the default config with whatever is in the dataframe. Defaults are
+#' hardcoded here and the prep will work even if only the series codes are
+#' given in the dataframe, which is the bare minimum and will produce a basic
+#' line plot configuration. The output config is the input to the plotting function.
+#'
+#' @param df with at least the columns series_code and unit
+#' @param con database connection
+#'
+#' @return a config list for plotting
+#' @export
+#'
+prep_config <- function(df, con) {
+
+  config <- list(
+    xmin = "2010-01-01",
+    xmax = NULL,
+    title = NULL,
+    horizontal_alignment = "l",
+    date_valid = NULL,
+    footnote = NULL,
+    legend_columns = 1,
+    dual_y = FALSE,
+    left_y = NULL,
+    right_y = NULL,
+    series = list(
+      list(code = NULL,
+           unit = NULL,
+           type = "line",
+           colour = NA,
+           stacked = FALSE,
+           legend_txt = NULL,
+           rolling_period = NA,
+           rolling_alignment = "c",
+           growth = NA,
+           index_period = NA))
+  )
+  # plot parameters
+  if (!all(is.na(df$xmin))) {
+    config$xmin <- unique(df$xmin)
+  }
+  if (!all(is.na(df$xmax))) {
+    config$xmax <- unique(df$xmax)
+  }
+  if (!all(is.na(df$naslov))) {
+    config$title <- unique(df$naslov)
+  }
+  if (!all(is.na(df$datum_podatkov))) {
+    config$date_valid <- unique(df$datum_podatkov)
+  }
+  if (!all(is.na(df$opomba))) {
+    config$footnote <- unique(df$opomba)
+  }
+  if (!all(is.na(df$stolpci_legende))) {
+    config$legend_columns <- unique(df$stolpci_legende)
+  }
+  if (!all(is.na(df$leva_y_os))) {
+    config$left_y <- unique(df$leva_y_os)
+  }
+  if (!all(is.na(df$desna_y_os))) {
+    config$right_y <- unique(df$desna_y_os)
+  }
+  # update units
+  df <- update_units(df, con)
+  # series parameters
+  series_list <- list()
+  for (i in 1:nrow(df)) {
+    series_info <- list(
+      series_code = df$serija[i],
+      unit = df$enota[i],
+      type = ifelse(is.na(df$tip[i]), config$series[[1]]$type, df$tip[i]),
+      colour = ifelse(is.na(df$barva[i]), umar_cols()[i], umar_cols()[df$barva[i]]),
+      stacked = ifelse(is.na(df$stacked[i]), config$series[[1]]$stacked, df$stacked[i]),
+      legend_txt = ifelse(is.na(df$legenda[i]), df$serija[i], df$legenda[i]),
+      rolling_period = df$drseca_obdobja[i],
+      rolling_alignment = df$drseca_poravnava[i],
+      growth = df$rast[i],
+      index_period = df$indeks_obdobje[i])
+    series_list[[i]] <- series_info
+  }
+  config$series <- series_list
+
+config
 }

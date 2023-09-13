@@ -84,13 +84,41 @@ dittodb::with_mock_db({
     df <- read_csv_guess_encoding(test_path("testdata", "test_report_input.csv"))
     spl <- split(df, df$chart_no)
     expect_error(check_plot_inputs(spl$`3`))
-    expect_message(check_plot_inputs(spl$`22`))
-    expect_message(check_plot_inputs(spl$`23`))
-
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet1")
+    expect_true(check_plot_inputs(x))
+   x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet2")
+    expect_true(check_plot_inputs(x))
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet3")
+    expect_message(check_plot_inputs(x))
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet4")
+    expect_message(check_plot_inputs(x))
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet5")
+    expect_message(check_plot_inputs(x))
   })
 
+  test_that("pub ready config prep works", {
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet1")
+    expect_equal(prep_config(x)$xmin , "2010-01-01")
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet3")
+    expect_equal(prep_config(x)$title , "Naslov")
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet6")
+    expect_equal(prep_config(x, con)$series[[1]]$unit, "%")
+  })
 })
 
 
+dittodb::with_mock_db({
+  con <- DBI::dbConnect(RPostgres::Postgres(),
+                        dbname = "platform",
+                        host = "localhost",
+                        port = 5432,
+                        user = "mzaloznik",
+                        password = Sys.getenv("PG_local_MAJA_PSW"))
+  DBI::dbExecute(con, "set search_path to test_platform")
+  test_that("pub ready config prep works w con", {
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet6")
+    expect_equal(prep_config(x, con)$series |> purrr::map_chr(~  .[["unit"]]), c("%", "indeks"))
+  })
 
+})
 
