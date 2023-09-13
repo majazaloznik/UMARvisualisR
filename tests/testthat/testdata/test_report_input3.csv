@@ -1,0 +1,4 @@
+table_name;px_code;series_name;series_code;unit_name;interval_id;selection;chart_no;rolling_average_periods;rolling_average_alignment;year_on_year
+0300230S;0300230S;Bruto domači proizvod - Stopnja rasti obsega glede na enako četrtletje predhodnega leta (%) - Originalni podatki;SURS--0300230S--B1GQ--G4--N--Q;indeks;Q;1;1;;;
+0300220S;0300220S;Bruto domači proizvod - Stopnja rasti obsega glede na enako četrtletje predhodnega leta (%) - Originalni podatki;SURS--0300220S--_T--L--Y--Q;mio eur;Q;1;1;;;
+1700107S;1700107S;Bruto domači proizvod - Stopnja rasti obsega glede na enako četrtletje predhodnega leta (%) - Originalni podatki;SURS--1700107S--18--2--6--Q;%;Q;1;1;;;

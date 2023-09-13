@@ -38,9 +38,9 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-tests/testthat/testdata/*.xlsx
 
 # top level shite
-*.xlsx
-test*
+test.*
+test*.pdf
+.sandbox*
 
