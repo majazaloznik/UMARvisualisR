@@ -41,7 +41,10 @@ test_that("range finding works ", {
   expect_true(check_consistency_or_na(df$xmin))
   df2 <- data.frame(xmin = c("2010-01-01", "2010-01-02", NA, "2010-01-01"))
   expect_false(check_consistency_or_na(df2$xmin))
-
+  x <- c(1,2,NA, NA)
+  expect_true(check_uniqueness_or_na(x))
+  x <- c(1,2,2, NA)
+  expect_false(check_uniqueness_or_na(x))
 })
 
 
@@ -56,7 +59,7 @@ dittodb::with_mock_db({
   test_that("unit update works", {
     df <- read_csv_guess_encoding(testthat::test_path("testdata", "test_report_input4.csv"))
     x <- update_units(df, con)
-    expect_equal(x$enota, c("indeks", "indeks", "odstotne točke", "%", "%", "%" ))
+    expect_equal(x$enota, c("Indeks", "Indeks", "Odstotne točke", "%", "%", "%" ))
   })
 
 })

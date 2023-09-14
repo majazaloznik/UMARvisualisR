@@ -109,4 +109,21 @@ x <- update_units(df, con)
 dittodb::stop_db_capturing()
 
 
+dittodb::start_db_capturing()
+con <- dbConnect(RPostgres::Postgres(),
+                 dbname = "platform",
+                 host = "localhost",
+                 port = 5432,
+                 user = "mzaloznik",
+                 password = Sys.getenv("PG_local_MAJA_PSW"))
+dbExecute(con, "set search_path to test_platform")
+on.exit(dbDisconnect)
+x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet9")
+prep_config(x, con)
+prep_config(x[1:2,], con)
+x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet10")
+prep_config(x, con)
+
+dittodb::stop_db_capturing()
+
 

@@ -140,9 +140,9 @@ get_legend_labels_from_df <- function(df, original_table_names = NULL) {
           warning(paste("Graf \u0161t.", unique(df$chart_no),
                         ": Oznak legende ni mogo\u010de dolo\u010diti avtomati\u010dno, ker so imena serij in tabel enaka."))
           diff <- df$series_code} else  {
-          new_table_name <- wrap_string(paste(unique(splt)[[1]], collapse = " -- "))
-          mget(c("original_table_names", "new_table_name"))
-        }
+            new_table_name <- wrap_string(paste(unique(splt)[[1]], collapse = " -- "))
+            mget(c("original_table_names", "new_table_name"))
+          }
       } else {
         if(!unique(sapply(splt, length)) == length(intersection)+1) {
           warning(paste("Graf \u0161t.", unique(df$chart_no),
@@ -179,7 +179,7 @@ get_legend_labels_from_df <- function(df, original_table_names = NULL) {
 
 prep_multi_line <- function(df, con, date_valid = NULL){
   if ("chart_no" %in% names(df)) warning(paste0("Pripravljam podatke za graf \u0161t. ",
-                                              unique(df$chart_no), "."))
+                                                unique(df$chart_no), "."))
   original_table_names <- df$table_name
   df <- multi_checks(df, con)
   interval <- unique(df$interval_id)
@@ -193,7 +193,7 @@ prep_multi_line <- function(df, con, date_valid = NULL){
     if(length(names(legend_labels)) == 2) {
       main_title <- legend_labels[[2]]
       legend_labels <- legend_labels[[1]]
-      }} else {
+    }} else {
       sub_title <- wrap_string(df$series_name)
       legend_labels <- NA}
   df <- df %>%
@@ -226,17 +226,20 @@ prep_multi_line <- function(df, con, date_valid = NULL){
 #'
 #' New version for publication ready charts.
 #' Helper function to check that the input data dataframe for multi line charts is
-#' correct. This means that series used in a single chart have to:
+#' correct. And updates the units if they are missing or if the series have transformations.
+#' This means that series used in a single chart have to:
 #' - be unique
 #' - have a single unit - possibly two for dual y-axis
 #' - have a maximum of 8 series
+#' ...
 #'
 #' @param df input dataframe with at least the following columns: serija, enota
+#' @param con database connection
 #'
 #' @return input df, possibly with updated main titles.
 #' @export
 #'
-check_plot_inputs <- function(df){
+check_plot_inputs <- function(df, con){
   errors  <- c()
   if(is.null(df)){
     stop("\nV tabeli ni nobene serije.")}
@@ -267,6 +270,14 @@ check_plot_inputs <- function(df){
     errors <- c(errors,
                 paste("\nVse vrednosti v polju naslov morajo biti enake."))}
 
+  if (!check_consistency_or_na(df$velikost)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju velikost morajo biti enake."))}
+
+  if (!all(df$velikost  %in% c(1, 2, 3, NA))) {
+    errors <- c(errors,
+                paste("\nV polju velikost so dovoljene samo vrednosti 1, 2 ali 3."))}
+
   if (!check_consistency_or_na(df$datum_podatkov)) {
     errors <- c(errors,
                 paste("\nVse vrednosti v polju datum_podatkov morajo biti enake."))}
@@ -279,6 +290,10 @@ check_plot_inputs <- function(df){
     errors <- c(errors,
                 paste("\nVse vrednosti v polju stolpci_legende morajo biti enake."))}
 
+  if (!all(df$stolpci_legende  %in% c(1, 2, 3, NA))) {
+    errors <- c(errors,
+                paste("\nV polju stolpci_legende so dovoljene samo vrednosti 1, 2 ali 3."))}
+
   if (!check_consistency_or_na(df$leva_y_os)) {
     errors <- c(errors,
                 paste("\nVse vrednosti v polju leva_y_os morajo biti enake."))}
@@ -290,10 +305,93 @@ check_plot_inputs <- function(df){
   if (any(duplicated(df$legenda))) {
     errors <- c(errors,
                 paste("\nNe more\u0161 imeti enakih oznak legend."))}
+  x <- df |>
+    dplyr::select(intersect(names(df), c("serija", "drseca_obdobja", "drseca_poravnava",
+                                         "rast", "indeks_obdobje", "glajenje_prvo"))) |>
+    duplicated() |> any()
+  if (x) {
+    errors <- c(errors,
+                paste("\nSerije se ne smejo podvajati, razen \u010de imajo razli\u010dne transformacije."))}
 
-  if (length(errors) == 0) TRUE else {
+  # update units
+  df <- update_units(df, con)
+
+  # check units
+  if (length(unique_without_na(df$enota)) > 2) {
+    stop("V grafu ima\u0161 (po transformacijah) ve\u010d kot dve enoti, kar je nemogo\u010de izrisati.")
+  } else {
+    if (length(unique_without_na(df$enota)) == 2) {
+      if (all(is.na(df$leva_y_os))| all(is.na(df$leva_y_os))) {
+        stop("V grafu ima\u0161 (po transformacijah) dve enoti, nima\u0161 pa vrednosti leva_y_os oz. desna_y_os.")
+      }
+    }
+  }
+  if (!all(df$tip  %in% c("line", "bar", "area", NA))) {
+    errors <- c(errors,
+                paste("\nV polju tip so dovoljene samo vrednosti 'line', 'bar' in 'area'."))}
+
+  if (!check_uniqueness_or_na(df$barva)) {
+    errors <- c(errors,
+                paste("\nV polju barva ne sme\u0161 podvajati barv."))}
+
+  if (!all(df$barva  %in% c(1:8, NA))) {
+    errors <- c(errors,
+                paste("\nV polju barva so dovoljene samo vrednosti od 1 do 8."))}
+
+  if (!all(df$stacked  %in% c(TRUE, FALSE, NA))) {
+    errors <- c(errors,
+                paste("\nV polju stacked so dovoljene samo vrednosti TRUE ali FALSE (prazno polje je tudi dovoljeno in pomeni isto kot FALSE)."))}
+
+  if (!all(sapply(df$drseca_obdobja, \(x) is.numeric(x) || is.na(x)))) {
+    errors <- c(errors,
+                paste("\nV polju drseca_obdobja so dovoljene samo numeri\u010dne vrednosti."))}
+
+  if (!all(df$drseca_poravnava  %in% c("R", "D", "C", "L", "r", "d", "c", "l", NA))) {
+    errors <- c(errors,
+                paste("\nV polju drseca_poravnava so dovoljene samo vrednosti 'D', 'C' in 'L'."))}
+
+  if (!all(df$rast  %in% c("YOY", "QOQ", "MOM", "yoy", "qoq", "mom", NA))) {
+    errors <- c(errors,
+                paste("\nV polju rast so dovoljene samo vrednosti 'YOY', 'QOQ' in 'MOM'."))}
+  # check growths
+  growth_check <- df |>
+    dplyr::mutate(interval = substr(serija, nchar(serija), nchar(serija)),
+                  check = dplyr::if_else(rast == "QOQ" & interval != "Q", FALSE,
+                                         dplyr::if_else(rast == "MOM" & interval != "M", FALSE, TRUE, missing = TRUE), missing =TRUE)) |>
+    dplyr::pull(check) |>
+    all()
+
+  if (!growth_check) {
+    errors <- c(errors,
+                paste("\nVrednosti v polju rast se ne ujemajo z intervalom serije (npr. mese\u010dna rast za letne podatke)."))}
+
+  # check indices
+  check <- df |>
+    dplyr::mutate(check = dplyr::if_else(
+      is.na(indeks_obdobje), TRUE,
+      dplyr::if_else(
+        grepl("^\\d{4}M\\d{2}$", indeks_obdobje) &
+          substr(serija, nchar(serija), nchar(serija)) == "M", TRUE,
+        dplyr::if_else(
+          grepl("^\\d{4}Q\\d{1}$", indeks_obdobje) &
+            substr(serija, nchar(serija), nchar(serija)) == "Q", TRUE,
+          dplyr::if_else(
+            grepl("^\\d{4}$", indeks_obdobje), TRUE, FALSE))))) |>
+    dplyr::filter(check == FALSE) |>
+    dplyr::pull(indeks_obdobje)
+
+  if (length(check) > 0) {
+    errors <- c(errors,
+                paste("\nVrednosti v polju indeks_obdobje niso v pravilni obliki ali pa se ne ujemajo z intervalom serije:",
+                      paste(check, collapse = ", "), "."))}
+
+  if (!check_consistency_or_na(df$indeks_obdobje)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju indeks_obdobje morajo biti enake."))}
+
+  if (length(errors) == 0) df else {
     message(paste("Najdene so bile naslednje napake:",
-                paste(errors, collapse = "")))}
+                  paste(errors, collapse = "")))}
 }
 
 
@@ -308,26 +406,26 @@ check_plot_inputs <- function(df){
 #' line plot configuration. The output config is the input to the plotting function.
 #'
 #' @param df with at least the columns series_code and unit
-#' @param con database connection
 #'
 #' @return a config list for plotting
 #' @export
 #'
-prep_config <- function(df, con) {
+prep_config <- function(df) {
 
   config <- list(
     xmin = "2010-01-01",
     xmax = NULL,
     title = NULL,
-    horizontal_alignment = "l",
+    horizontal_alignment = "c",
     date_valid = NULL,
     footnote = NULL,
     legend_columns = 1,
     dual_y = FALSE,
     left_y = NULL,
     right_y = NULL,
+    chart_size = 2,
     series = list(
-      list(code = NULL,
+      list(series_code = NULL,
            unit = NULL,
            type = "line",
            colour = NA,
@@ -336,35 +434,52 @@ prep_config <- function(df, con) {
            rolling_period = NA,
            rolling_alignment = "c",
            growth = NA,
-           index_period = NA))
+           index_period = NA,
+           roll_first = TRUE))
   )
   # plot parameters
   if (!all(is.na(df$xmin))) {
-    config$xmin <- unique(df$xmin)
+    config$xmin <- unique_without_na(df$xmin)
   }
   if (!all(is.na(df$xmax))) {
-    config$xmax <- unique(df$xmax)
+    config$xmax <- unique_without_na(df$xmax)
   }
   if (!all(is.na(df$naslov))) {
-    config$title <- unique(df$naslov)
+    config$title <- unique_without_na(df$naslov)
+  }
+  if (!all(is.na(df$velikost))) {
+    config$chart_size <- unique_without_na(df$velikost)
   }
   if (!all(is.na(df$datum_podatkov))) {
-    config$date_valid <- unique(df$datum_podatkov)
+    config$date_valid <- unique_without_na(df$datum_podatkov)
   }
   if (!all(is.na(df$opomba))) {
-    config$footnote <- unique(df$opomba)
+    config$footnote <- unique_without_na(df$opomba)
   }
   if (!all(is.na(df$stolpci_legende))) {
-    config$legend_columns <- unique(df$stolpci_legende)
+    config$legend_columns <- unique_without_na(df$stolpci_legende)
   }
   if (!all(is.na(df$leva_y_os))) {
-    config$left_y <- unique(df$leva_y_os)
+    config$left_y <- unique_without_na(df$leva_y_os)
   }
   if (!all(is.na(df$desna_y_os))) {
-    config$right_y <- unique(df$desna_y_os)
+    config$right_y <- unique_without_na(df$desna_y_os)
   }
-  # update units
-  df <- update_units(df, con)
+  if(length(unique_without_na(df$enota)) == 2) {
+    config$dual_y <- TRUE}
+
+  # update colours
+  colours <- df$barva
+  missing_colours <- is.na(colours)
+  existing_colours <- colours[!is.na(colours)]
+  remaining_colours <- c(1:8)[!1:8 %in% existing_colours]
+  colours[missing_colours] <- remaining_colours[1:sum(missing_colours)]
+
+  # clean up rolling alignments
+  alignments <- df$drseca_poravnava
+  alignments <- toupper(alignments)
+  alignments[alignments == "D"] <- "R"
+
   # series parameters
   series_list <- list()
   for (i in 1:nrow(df)) {
@@ -372,16 +487,17 @@ prep_config <- function(df, con) {
       series_code = df$serija[i],
       unit = df$enota[i],
       type = ifelse(is.na(df$tip[i]), config$series[[1]]$type, df$tip[i]),
-      colour = ifelse(is.na(df$barva[i]), umar_cols()[i], umar_cols()[df$barva[i]]),
+      colour = umar_cols()[colours[i]],
       stacked = ifelse(is.na(df$stacked[i]), config$series[[1]]$stacked, df$stacked[i]),
       legend_txt = ifelse(is.na(df$legenda[i]), df$serija[i], df$legenda[i]),
       rolling_period = df$drseca_obdobja[i],
-      rolling_alignment = df$drseca_poravnava[i],
+      rolling_alignment = alignments[i],
       growth = df$rast[i],
-      index_period = df$indeks_obdobje[i])
+      index_period = df$indeks_obdobje[i],
+      roll_first = TRUE)
     series_list[[i]] <- series_info
   }
   config$series <- series_list
 
-config
+  config
 }

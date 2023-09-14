@@ -17,5 +17,5 @@ df with updated
 \description{
 Updates the units based on the transformations - to index or% if necessary -
 and then queries the database for the remaining units if there are still
-any missing.
+any missing. And fixes the capitalisation ready for the y-label
 }

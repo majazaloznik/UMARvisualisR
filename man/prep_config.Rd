@@ -4,12 +4,10 @@
 \alias{prep_config}
 \title{Prepare plot configuration from dataframe}
 \usage{
-prep_config(df, con)
+prep_config(df)
 }
 \arguments{
 \item{df}{with at least the columns series_code and unit}
-
-\item{con}{database connection}
 }
 \value{
 a config list for plotting

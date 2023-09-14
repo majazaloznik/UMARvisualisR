@@ -9,6 +9,9 @@ check_consistency_or_na(column)
 \arguments{
 \item{column}{a dataframe column}
 }
+\value{
+any(duplicated(
+}
 \description{
 Column check that returns true if all valid values are the same. This
 means all NAs or some NAs are also OK, basically saying the column

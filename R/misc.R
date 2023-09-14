@@ -212,6 +212,17 @@ get_max_period <- function(data_points){
 }
 
 
+
+#' Get unique values without NA
+#'
+#' @param vec vector
+#'
+#' @return vector of unique without NAs
+#' @keywords internal
+unique_without_na <- function(vec) {
+  unique(vec[!is.na(vec)])
+}
+
 #' Check if a column has values and they are all the same
 #'
 #' Column check that returns true if all valid values are the same. This
@@ -221,22 +232,38 @@ get_max_period <- function(data_points){
 #'
 #' @param column a dataframe column
 #'
-#' @return
+#' @return any(duplicated(
 #' @keywords internal
 check_consistency_or_na <- function(column) {
   # Extract the unique non-missing values
-  unique_vals <- unique(column[!is.na(column)])
+  unique_vals <- unique_without_na(column)
   # Check if there's more than one unique non-missing value
   if (length(unique_vals) > 1) {
     FALSE  } else {TRUE}
 }
 
+#' Check if a column has values and they are all the different or NA
+#'
+#' Column check that returns true if all valid values are the different This
+#' means all NAs or some NAs are also OK, no duplicates excep for NAs if they exist
+#'
+#' @param column a dataframe column
+#'
+#' @return logical
+#' @keywords internal
+check_uniqueness_or_na <- function(column) {
+  # Extract the unique non-missing values
+  valid_vals <- column[!is.na(column)]
+  # Check if there's more than one unique non-missing value
+  if (any(duplicated((valid_vals)))) {
+    FALSE  } else {TRUE}
+}
 
 #' Updates units in publication chart input table
 #'
 #' Updates the units based on the transformations - to index or% if necessary -
 #' and then queries the database for the remaining units if there are still
-#' any missing.
+#' any missing. And fixes the capitalisation ready for the y-label
 #'
 #' @param df with at a minimum the columns serija, enota, indeks_let and rast
 #' @param con database connection
@@ -250,5 +277,7 @@ update_units <- function(df, con){
                                         enota))) |>
     dplyr::rowwise() |>
     dplyr::mutate(enota = ifelse(is.na(enota), UMARaccessR::get_unit_from_series(
-      UMARaccessR::get_series_id_from_series_code(serija, con), con), enota))
+      UMARaccessR::get_series_id_from_series_code(serija, con), con), enota)) |>
+    dplyr::mutate(enota = dplyr::if_else(enota == "eur", "EUR",
+                                  dplyr::if_else(enota == "mio eur", "Mio EUR", first_up(enota))))
 }
