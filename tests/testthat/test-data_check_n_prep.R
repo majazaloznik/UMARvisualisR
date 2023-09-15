@@ -151,6 +151,10 @@ dittodb::with_mock_db({
     expect_message(check_plot_inputs(x, con))
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet21")
     expect_s3_class(check_plot_inputs(x, con), "data.frame")
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet23")
+    expect_message(check_plot_inputs(x, con))
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet24")
+    expect_message(check_plot_inputs(x, con))
   })
 
 

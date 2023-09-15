@@ -149,3 +149,76 @@ do_transformations <- function(input_data){
   output_data$unit <- unit
   return(output_data)
 }
+
+
+
+transform_rolling <- function(df, periods = 3, align = "c"){
+  df %>%
+    dplyr::arrange(date) %>%
+    dplyr::mutate(value = zoo::rollmean(value, k = periods,fill= NA,align = align))
+}
+
+#' New function for growth transformations
+#'
+#' @param df dataframe with date and value columns
+#' @param type valid are YOY, QOQ and MOM
+#'
+#' @return df with updated valeus
+#' @export
+#'
+transform_growth <- function(df, type = "YOY"){
+  lag_matrix <- matrix(c(1, NA, NA,
+                         4, 1, NA,
+                         12, NA, 1),
+                       nrow=3, byrow=TRUE,
+                       dimnames=list(c(12, 3, 1), c("YOY", "QOQ", "MOM")))
+  interval <- as.character(get_interval_in_months(df$date))
+  lag_value <- lag_matrix[interval, type]
+  df |>
+      dplyr::arrange(date) |>
+      dplyr::mutate(value = value/dplyr::lag(value, n = lag_value)*100 - 100)
+}
+
+
+#' FUnction for transformation to an index with a specific base period
+#'
+#' Calculates the intex based on the period. The following options are allowed:
+#'
+#' + the base period is a year: the average will be taken of the months or quarters,
+#' of course this works fine for annual data as well.
+#' + if the base period is a quarter, you can only do the transformation on
+#' quarterly data - but this is checked in the check_plot_inputs function
+#' + if the base period is a month, you can also only use it on monthly data.
+#'
+#' @param df data frame with date and value columns
+#' @param base_period either a year in YYYY format or quarter in 2023Q2 format
+#' or month in 2023M03 format
+#'
+#' @return dataframe with trnsformed values
+#' @export
+#'
+transform_index <- function(df, base_period){
+  interval <- get_interval_in_months(df$date)
+  if (grepl("^\\d{4}$", base_period)) {
+    base_value <- df |>
+      dplyr::filter(lubridate::year(date) == base_period) |>
+      dplyr::summarise(value= mean(value)) |>
+      dplyr::pull(value)
+  }
+  if (grepl("^\\d{4}Q\\d{1}$", base_period)){
+    base_start <- lubridate::yq(base_period)
+    base_end <- base_start + months(3)
+    base_value <- df %>%
+      dplyr::filter(date >= base_start & date < base_end) |>
+      dplyr::pull(value)
+  }
+  if (grepl("^\\d{4}M\\d{2}$", base_period)) {
+    base_start <- lubridate::ym(base_period)
+    base_end <- base_start + months(1)
+    base_value <- df %>%
+      dplyr::filter(date >= base_start & date < base_end) |>
+      dplyr::pull(value)
+  }
+  df |>
+    dplyr::mutate(value = value/base_value*100)
+}

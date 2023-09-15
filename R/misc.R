@@ -332,5 +332,20 @@ replace_period_id_column <- function(df, position = "c"){
   df |>
     dplyr::rowwise() |>
     dplyr::mutate(date = get_date_from_period(period_id, position), .keep = "unused") |>
-    dplyr::relocate(date)
+    dplyr::relocate(date) |>
+    dplyr::ungroup()
+}
+
+
+
+#' Helper to get the time interval from a date column
+#'
+#' @param date_column what it says on the box
+#'
+#' @return integer value in months
+#' @export
+get_interval_in_months <- function(date_column) {
+  # Calculate the difference between the first two dates
+  interval <- as.numeric(difftime(date_column[2], date_column[1], units = "weeks")) / 4.34524
+  round(interval)
 }

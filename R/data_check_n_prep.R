@@ -352,8 +352,8 @@ check_plot_inputs <- function(df, con){
   # check growths
   growth_check <- df |>
     dplyr::mutate(interval = substr(serija, nchar(serija), nchar(serija)),
-                  check = dplyr::if_else(rast == "QOQ" & interval != "Q", FALSE,
-                                         dplyr::if_else(rast == "MOM" & interval != "M", FALSE, TRUE, missing = TRUE), missing =TRUE)) |>
+                  check = dplyr::if_else(toupper(rast) == "QOQ" & interval != "Q", FALSE,
+                                         dplyr::if_else(toupper(rast) == "MOM" & interval != "M", FALSE, TRUE, missing = TRUE), missing =TRUE)) |>
     dplyr::pull(check) |>
     all()
 
@@ -384,6 +384,16 @@ check_plot_inputs <- function(df, con){
   if (!check_consistency_or_na(df$indeks_obdobje)) {
     errors <- c(errors,
                 paste("\nVse vrednosti v polju indeks_obdobje morajo biti enake."))}
+
+  check <- df |>
+    dplyr::mutate(check = dplyr::if_else(!is.na(indeks_obdobje) & !is.na(rast), TRUE,FALSE)) |>
+    dplyr::filter(check) |>
+    dplyr::pull(serija)
+
+  if (length(check) > 0) {
+    errors <- c(errors,
+                paste("\nTransformacija na indeks s stalno osnovo in hkraten izra\u010dun rasti nima smisla in tako ni omogo\u010dena.",
+                      paste(check, collapse = ", "), "."))}
 
   if (length(errors) == 0) df else {
     message(paste("Najdene so bile naslednje napake:",
@@ -475,6 +485,9 @@ prep_config <- function(df) {
   alignments <- df$drseca_poravnava
   alignments <- toupper(alignments)
   alignments[alignments == "D"] <- "R"
+
+  # clean up growths
+  df$rast <- toupper(df$rast)
 
   # series parameters
   series_list <- list()
