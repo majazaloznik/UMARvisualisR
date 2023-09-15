@@ -281,3 +281,56 @@ update_units <- function(df, con){
     dplyr::mutate(enota = dplyr::if_else(enota == "eur", "EUR",
                                   dplyr::if_else(enota == "mio eur", "Mio EUR", first_up(enota))))
 }
+
+
+#' New fun to get date from period with three types of alignment
+#'
+#' takes year, quarter or month format and returns first ("l"), middle ("c")
+#' or last ("r") date, the default is "c"
+#'
+#' @param period one of three types
+#' @param position l, c or r, defaults to middle
+#'
+#' @return date
+#' @export
+get_date_from_period <- function(period, position = c("c", "l", "r")) {
+  position <- match.arg(position)
+  if (grepl("^\\d{4}$", period)) {
+    date <- lubridate::ymd(period, truncated = 2L)
+    if (position == "l") date <- lubridate::ymd(period, truncated = 2L)
+    else if (position == "c") date <- lubridate::ymd(paste0(period, "-07-01"))
+    else if (position == "r") date <- lubridate::ymd(paste0(period, "-12-31"))
+  } else if (grepl("^\\d{4}Q\\d{1}$", period)) {
+    date <- lubridate::yq(period)
+    if (position == "l") date <- lubridate::yq(period)
+    else if (position == "c") {
+      date <- date + months(1) # Start of 2nd month
+      # Get to the middle of this month
+      date <- date + lubridate::days(floor(lubridate::day(lubridate::ceiling_date(date, "month") - lubridate::days(1)) / 2))
+    } else if (position == "r") date <- lubridate::ceiling_date(date, "quarter") - lubridate::days(1)
+  } else if (grepl("^\\d{4}M\\d{2}$", period)) {
+    date <- lubridate::ym(paste0(substr(period, 1, 4), "-", substr(period, 6, 7)))
+    if (position == "l") date <- lubridate::ym(paste0(substr(period, 1, 4), "-", substr(period, 6, 7)))
+    else if (position == "c") date <- date + lubridate::days(floor(lubridate::day(lubridate::ceiling_date(date, "month") - lubridate::days(1)) / 2))
+    else if (position == "r") date <- lubridate::ceiling_date(date, "month") - lubridate::days(1)
+  } else {
+    stop("Invalid period format")
+  }
+date
+}
+
+
+#' Replace the period_id column with the correctly alligned date
+#'
+#' @param df dataframe with period_id column
+#' @param position defaults to "c", but "l" and "r" are also valid
+#'
+#' @return df with same number of cols
+#' @export
+#'
+replace_period_id_column <- function(df, position = "c"){
+  df |>
+    dplyr::rowwise() |>
+    dplyr::mutate(date = get_date_from_period(period_id, position), .keep = "unused") |>
+    dplyr::relocate(date)
+}

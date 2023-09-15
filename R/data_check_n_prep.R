@@ -254,10 +254,6 @@ check_plot_inputs <- function(df, con){
                 paste("\nV tabeli ne sme\u0161 imeti podvojenih vrstic:\n", toString(dup_rows)))
   }
 
-  if (length(unique(df$enota)) > 2) {
-    errors <- c(errors,
-                paste("\nV grafu ne more\u0161 imeti ve\u010d kot dveh razli\u010dnih enot."))}
-
   if (!check_consistency_or_na(df$xmin)) {
     errors <- c(errors,
                 paste("\nVse xmin vrednosti morajo biti enake."))}
@@ -501,3 +497,28 @@ prep_config <- function(df) {
 
   config
 }
+
+
+#' Get the datapoints from the database
+#'
+#' taking the configuration list output from \link[UMARvisualisR]{prep_config} returns
+#' a list with a dataframe for each of the series of the correct vintage
+#'
+#' @param config configuration list
+#' @param con connection to database
+#'
+#' @return list with a df for each series
+#' @export
+#'
+get_data <- function(config, con) {
+
+  series_codes <- vapply(config$series, \(x) x$series_code, character(1))
+
+  vintage_id <- purrr::map_int(series_codes, ~UMARaccessR::get_vintage_from_series_code(.x, con, config$date_valid)$id)
+
+  data_points <- purrr::map(vintage_id, UMARaccessR::get_data_points_from_vintage, con)
+
+  purrr::map(data_points, replace_period_id_column, config$horizontal_alignment)
+
+}
+

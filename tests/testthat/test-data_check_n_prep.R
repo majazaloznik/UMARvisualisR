@@ -153,5 +153,14 @@ dittodb::with_mock_db({
     expect_s3_class(check_plot_inputs(x, con), "data.frame")
   })
 
+
+  test_that("data access works", {
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
+    df <- check_plot_inputs(x, con)
+    config <- prep_config(df)
+    datapoints <- get_data(config, con)
+    expect_equal(datapoints[[1]]$value[1],214593085)
+    expect_equal(datapoints[[1]]$date[1],as.Date("1992-07-01"))
+  })
 })
 

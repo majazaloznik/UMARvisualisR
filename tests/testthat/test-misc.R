@@ -64,6 +64,32 @@ dittodb::with_mock_db({
 
 })
 
+test_that("get_date_from_period function works correctly", {
+
+  # Testing for years
+  expect_equal(get_date_from_period("2022"), lubridate::ymd("2022-07-01"))       # defaults to "middle"
+  expect_equal(get_date_from_period("2022", "l"), lubridate::ymd("2022-01-01"))
+  expect_equal(get_date_from_period("2022", "r"), lubridate::ymd("2022-12-31"))
+  # Testing for quarters
+  expect_equal(get_date_from_period("2022Q1"), lubridate::ymd("2022-02-15"))    # defaults to "middle"
+  expect_equal(get_date_from_period("2022Q1", "l"), lubridate::ymd("2022-01-01"))
+  expect_equal(get_date_from_period("2022Q1", "r"), lubridate::ymd("2022-03-31"))
+  # Testing for months
+  expect_equal(get_date_from_period("2022M04"), lubridate::ymd("2022-04-16"))   # defaults to "middle"
+  expect_equal(get_date_from_period("2022M04", "l"), lubridate::ymd("2022-04-01"))
+  expect_equal(get_date_from_period("2022M04", "r"), lubridate::ymd("2022-04-30"))
+  # test middles match
+  expect_equal(get_date_from_period("2023M02"), get_date_from_period("2023Q1"))
+  expect_equal(get_date_from_period("2023M05"), get_date_from_period("2023Q2"))
+  expect_equal(get_date_from_period("2023M08"), get_date_from_period("2023Q3"))
+  expect_equal(get_date_from_period("2023M11"), get_date_from_period("2023Q4"))
+  # Testing for invalid format
+  expect_error(get_date_from_period("invalid_format"), "Invalid period format")
+
+  expect_equal(replace_period_id_column(data.frame(period_id = "2023M02"))$date[1],
+               as.Date("2023-02-15"))
+})
+
 
 
 
