@@ -2,7 +2,7 @@
 % Please edit documentation in R/transformations.R
 \name{transform_index}
 \alias{transform_index}
-\title{FUnction for transformation to an index with a specific base period}
+\title{Function for transformation to an index with a specific base period}
 \usage{
 transform_index(df, base_period)
 }
@@ -16,7 +16,7 @@ or month in 2023M03 format}
 dataframe with trnsformed values
 }
 \description{
-Calculates the intex based on the period. The following options are allowed:
+Calculates the index based on the period. The following options are allowed:
 }
 \details{
 + the base period is a year: the average will be taken of the months or quarters,
@@ -24,4 +24,10 @@ of course this works fine for annual data as well.
 + if the base period is a quarter, you can only do the transformation on
 quarterly data - but this is checked in the check_plot_inputs function
 + if the base period is a month, you can also only use it on monthly data.
+
+The format of the base_period is not checked because if is checked in
+\link[UMARvisualisR]{check_plot_inputs} already.
+
+If the base period does not exist in the data, the oldest value is used
+and a warning is issued to that effect.
 }

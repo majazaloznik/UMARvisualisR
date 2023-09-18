@@ -6,7 +6,7 @@ rolling_average <- function(df, periods = 3, align = "center"){
 }
 
 yoy_change <- function(df, lag = 12){
- df %>%
+  df %>%
     dplyr::arrange(period) %>%
     dplyr::mutate(raw = if(exists('raw', where= df)) raw else value) %>%
     dplyr::mutate(value = value/dplyr::lag(value,n = lag)*100 - 100)
@@ -150,8 +150,16 @@ do_transformations <- function(input_data){
   return(output_data)
 }
 
-
-
+#' New function for rolling average transformations
+#'
+#' @param df dataframe with date and value columns
+#' @param periods number of periods to be averaged over
+#' @param align alignment method - center is the default, right is correct and
+#' left i don't know why it even exists
+#'
+#' @return dataframe with transformed values.
+#' @export
+#'
 transform_rolling <- function(df, periods = 3, align = "c"){
   df %>%
     dplyr::arrange(date) %>%
@@ -175,20 +183,26 @@ transform_growth <- function(df, type = "YOY"){
   interval <- as.character(get_interval_in_months(df$date))
   lag_value <- lag_matrix[interval, type]
   df |>
-      dplyr::arrange(date) |>
-      dplyr::mutate(value = value/dplyr::lag(value, n = lag_value)*100 - 100)
+    dplyr::arrange(date) |>
+    dplyr::mutate(value = value/dplyr::lag(value, n = lag_value)*100 - 100)
 }
 
 
-#' FUnction for transformation to an index with a specific base period
+#' Function for transformation to an index with a specific base period
 #'
-#' Calculates the intex based on the period. The following options are allowed:
+#' Calculates the index based on the period. The following options are allowed:
 #'
 #' + the base period is a year: the average will be taken of the months or quarters,
 #' of course this works fine for annual data as well.
 #' + if the base period is a quarter, you can only do the transformation on
 #' quarterly data - but this is checked in the check_plot_inputs function
 #' + if the base period is a month, you can also only use it on monthly data.
+#'
+#' The format of the base_period is not checked because if is checked in
+#' \link[UMARvisualisR]{check_plot_inputs} already.
+#'
+#' If the base period does not exist in the data, the oldest value is used
+#' and a warning is issued to that effect.
 #'
 #' @param df data frame with date and value columns
 #' @param base_period either a year in YYYY format or quarter in 2023Q2 format
@@ -204,6 +218,14 @@ transform_index <- function(df, base_period){
       dplyr::filter(lubridate::year(date) == base_period) |>
       dplyr::summarise(value= mean(value)) |>
       dplyr::pull(value)
+    if(is.nan(base_value)) {
+      base_period <- lubridate::year(min(df$date))
+      base_value <- df |>
+        dplyr::filter(lubridate::year(date) == base_period) |>
+        dplyr::summarise(value= mean(value)) |>
+        dplyr::pull(value)
+      warning("Bazno obdobje indeksa je spremenjeno na ", base_period, ".")
+    }
   }
   if (grepl("^\\d{4}Q\\d{1}$", base_period)){
     base_start <- lubridate::yq(base_period)
@@ -211,6 +233,14 @@ transform_index <- function(df, base_period){
     base_value <- df %>%
       dplyr::filter(date >= base_start & date < base_end) |>
       dplyr::pull(value)
+    if (is.na(base_value) || is.nan(base_value) || length(base_value) == 0) {
+      base_value <- df %>%
+        dplyr::filter(date == min(date)) |>
+        dplyr::pull(value)
+      base_period <- paste0(lubridate::year(min(df$date)), "Q",
+                            lubridate::quarter(min(df$date)))
+      warning("Bazno obdobje indeksa je spremenjeno na ", base_period, ".")
+    }
   }
   if (grepl("^\\d{4}M\\d{2}$", base_period)) {
     base_start <- lubridate::ym(base_period)
@@ -218,7 +248,16 @@ transform_index <- function(df, base_period){
     base_value <- df %>%
       dplyr::filter(date >= base_start & date < base_end) |>
       dplyr::pull(value)
+    if (is.na(base_value) || is.nan(base_value) || length(base_value) == 0) {
+      base_value <- df %>%
+        dplyr::filter(date == min(date)) |>
+        dplyr::pull(value)
+      base_period <- paste0(lubridate::year(min(df$date)), "M",
+                            sprintf("%02d", lubridate::month(min(df$date))))
+      warning("Bazno obdobje indeksa je spremenjeno na ", base_period, ".")
+    }
   }
-  df |>
+  df <- df |>
     dplyr::mutate(value = value/base_value*100)
+  list(df = df, base_period = base_period)
 }

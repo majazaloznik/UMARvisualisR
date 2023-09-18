@@ -15,9 +15,49 @@ test_that("transformations work", {
                 year_on_year = FALSE, interval = "M")
   expect_equal(length(do_transformations(input_data)), 7)
   expect_equal(dim(do_transformations(input_data)$data_points[[1]]), c(24,3))
+
 })
 
 
 
+dittodb::with_mock_db({
+  con <- DBI::dbConnect(RPostgres::Postgres(),
+                        dbname = "platform",
+                        host = "localhost",
+                        port = 5432,
+                        user = "mzaloznik",
+                        password = Sys.getenv("PG_local_MAJA_PSW"))
+  DBI::dbExecute(con, "set search_path to test_platform")
 
-
+  test_that("transformations work as expected", {
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
+    df <- check_plot_inputs(x, con)
+    config <- prep_config(df)
+    datapoints <- get_data(config, con)
+    expect_equal(transform_rolling(datapoints[[3]])[2, 2][[1]], 4.073873667, tolerance = 1e-8)
+    expect_equal(transform_rolling(datapoints[[3]], 3, "r")[3, 2][[1]], 4.073873667, tolerance = 1e-8)
+    expect_equal(transform_rolling(datapoints[[3]], 3, "l")[1, 2][[1]], 4.073873667, tolerance = 1e-8)
+    df <- data.frame(date = as.Date(c('2023-01-01', '2023-01-02', '2023-01-03')),
+                     value = c(1, 5, 3))
+    result <- transform_rolling(df, periods = 3)
+    expect_true(result$value[2] >= min(df$value) && result$value[2] <= max(df$value))
+    expect_error(transform_rolling(df, periods = 3, "lkj"))
+    df <- data.frame(date = as.Date(c('2023-01-01', '2023-01-02', '2023-01-03')),
+                     value = c("M", 5, 3))
+    expect_error(transform_rolling(df))
+    expect_equal(transform_growth(datapoints[[1]])[2,2][[1]], 40.2, tolerance = 1e-2)
+    expect_equal(transform_growth(datapoints[[3]])[5,2][[1]], -94.4, tolerance = 1e-2)
+    expect_equal(transform_growth(datapoints[[3]], "QOQ")[2,2][[1]], -97.1, tolerance = 1e-2)
+    expect_equal(transform_growth(datapoints[[2]])[13,2][[1]], 12.9, tolerance = 1e-2)
+    expect_equal(transform_growth(datapoints[[2]], "MOM")[2,2][[1]], 10.1, tolerance = 1e-2)
+    expect_equal(transform_index(datapoints[[1]], 1993)$df[2,2][[1]], 100)
+    expect_warning(expect_equal(transform_index(datapoints[[1]], 1990)$df[1,2][[1]], 100))
+    expect_warning(expect_equal(transform_index(datapoints[[1]], 1990)$df[1,2][[1]], 100))
+    expect_warning(expect_equal(mean(transform_index(datapoints[[3]], 1990)$df[1:4,2][[1]]), 100))
+    expect_equal(mean(transform_index(datapoints[[3]], "1996Q1")$df[1,2][[1]]), 100)
+    expect_warning(expect_equal(mean(transform_index(datapoints[[3]], "1995Q1")$df[1,2][[1]]), 100))
+    expect_warning(expect_equal(mean(transform_index(datapoints[[2]], "1996")$df[1:6,2][[1]]), 100))
+    expect_warning(expect_equal(transform_index(datapoints[[2]], "1996M01")$df[1,2][[1]], 100))
+    expect_equal(transform_index(datapoints[[2]], "1999M08")$df[2,2][[1]], 100)
+  })
+})

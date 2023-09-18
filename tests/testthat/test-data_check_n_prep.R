@@ -165,6 +165,7 @@ dittodb::with_mock_db({
     datapoints <- get_data(config, con)
     expect_equal(datapoints[[1]]$value[1],214593085)
     expect_equal(datapoints[[1]]$date[1],as.Date("1992-07-01"))
+    expect_equal(datapoints[[3]]$value[1],10.062781)
   })
 })
 

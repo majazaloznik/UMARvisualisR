@@ -531,7 +531,9 @@ get_data <- function(config, con) {
 
   data_points <- purrr::map(vintage_id, UMARaccessR::get_data_points_from_vintage, con)
 
-  purrr::map(data_points, replace_period_id_column, config$horizontal_alignment)
+  data_points <- purrr::map(data_points, replace_period_id_column, config$horizontal_alignment)
+
+  purrr::map(data_points,na.omit)
 
 }
 
