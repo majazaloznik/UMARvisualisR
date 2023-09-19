@@ -20,7 +20,7 @@ Takes the dataframe with date and value columns and the series'
 config list (not the chart config list, just the series') and
 does the transformations. Currently the default is that rolling
 averages are performed first, but i can change that later and
-add the other way round. The \link[UMARvisualisR]{check_plot_input}
+add the other way round. The \link[UMARvisualisR]{check_plot_inputs}
 function has already made sure the combinations of transformations
 are all legal.
 }
