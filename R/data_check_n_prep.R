@@ -531,9 +531,77 @@ get_data <- function(config, con) {
 
   data_points <- purrr::map(vintage_id, UMARaccessR::get_data_points_from_vintage, con)
 
-  data_points <- purrr::map(data_points, replace_period_id_column, config$horizontal_alignment)
-
-  purrr::map(data_points,na.omit)
+  purrr::map(data_points, replace_period_id_column, config$horizontal_alignment)
 
 }
 
+#' Transform a series dataframe with the series confing
+#'
+#' Takes the dataframe with date and value columns and the series'
+#' config list (not the chart config list, just the series') and
+#' does the transformations. Currently the default is that rolling
+#' averages are performed first, but i can change that later and
+#' add the other way round. The \link[UMARvisualisR]{check_plot_inputs}
+#' function has already made sure the combinations of transformations
+#' are all legal.
+#'
+#' @param df dataframe with date and value columns
+#' @param series_config list of series' config paramters from
+#' \link[UMARvisualisR]{prep_config}.
+#'
+#' @return df and series' config
+#' @export
+#'
+transform_data <- function(df, series_config) {
+
+  if(series_config$roll_first){
+    if(!is.na(series_config$rolling_period)){
+      df <- transform_rolling(df, series_config$rolling_period,
+                        series_config$rolling_alignment)
+    }
+
+    if(!is.na(series_config$growth)){
+      df <- transform_growth(df, series_config$growth)
+    }
+
+    if(!is.na(series_config$index_period)){
+      out <- transform_index(df, series_config$index_period)
+      df <- out$df
+      series_config$index_period <- out$base_period
+      series_config$unit <- paste0(series_config$unit, " (", out$base_period, "= 100)")
+    }
+  }
+  list(df = df, series_config = series_config)
+}
+
+
+#' Whole data prep pipeline for plotting publicaiton ready charts
+#'
+#' takes as its input a dataframe with one series per row and all the relevant info.
+#' (see vignette that hasn't been written yet). Checks the data input is OK,
+#' prepares the config, gets the data, transforms the data if necessary and
+#' returns a list od dataframes with all the datapoints and the config list.
+#'
+#' @param df input dataframe with at least the following columns: serija, enota
+#' @param con database connection
+#'
+#' @return list of dataframes and config list
+#' @export
+#'
+prep_data <- function(df, con) {
+
+  df <- check_plot_inputs(df, con)
+
+  config <-  prep_config(df)
+
+  data_points <- get_data(config, con)
+
+  results <- purrr::map2(data_points, config$series, transform_data)
+
+  out <- purrr::transpose(results)
+
+  data_points <- out$df
+  config$series <- out$series_config
+
+  return(list(data_points = data_points, config = config))
+}

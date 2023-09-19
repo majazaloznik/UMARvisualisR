@@ -158,14 +158,31 @@ dittodb::with_mock_db({
   })
 
 
-  test_that("data access works", {
+  test_that("data access and transformations work", {
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
     df <- check_plot_inputs(x, con)
     config <- prep_config(df)
     datapoints <- get_data(config, con)
     expect_equal(datapoints[[1]]$value[1],214593085)
     expect_equal(datapoints[[1]]$date[1],as.Date("1992-07-01"))
-    expect_equal(datapoints[[3]]$value[1],10.062781)
+    expect_equal(datapoints[[3]]$value[5],10.062781)
+    out <- transform_data(datapoints[[1]], config$series[[1]])
+    expect_true(is.na(out$df[1, 2]))
+    out <- transform_data(datapoints[[2]], config$series[[2]])
+    expect_true(is.na(out$df[1, 2]))
+    out <- transform_data(datapoints[[3]], config$series[[3]])
+    expect_equal(out$df[5, 2][[1]], 479, tolerance = 1e-2)
+  })
+
+  test_that("data prep works", {
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
+    results <- prep_data(x, con)
+    expect_true(length(results) == 2)
+    expect_true(length(results$data_points) == 3)
+    expect_true(length(results$config$series) == 3)
+    expect_true(is.na(results$data_points[[1]][1, 2]))
+    expect_true(is.na(results$data_points[[2]][1, 2]))
+    expect_equal(results$data_points[[3]][5, 2][[1]], 479, tolerance = 1e-2)
   })
 })
 

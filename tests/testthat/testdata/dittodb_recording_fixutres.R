@@ -125,6 +125,21 @@ library(dittodb)
 # prep_config(x, con)
 # dittodb::stop_db_capturing()
 
+# dittodb::start_db_capturing()
+# con <- dbConnect(RPostgres::Postgres(),
+#                  dbname = "platform",
+#                  host = "localhost",
+#                  port = 5432,
+#                  user = "mzaloznik",
+#                  password = Sys.getenv("PG_local_MAJA_PSW"))
+# dbExecute(con, "set search_path to test_platform")
+# on.exit(dbDisconnect)
+# x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
+# df <- check_plot_inputs(x, con)
+# config <- prep_config(df)
+# datapoitns <- get_data(config, con)
+# dittodb::stop_db_capturing()
+
 dittodb::start_db_capturing()
 con <- dbConnect(RPostgres::Postgres(),
                  dbname = "platform",
@@ -134,8 +149,7 @@ con <- dbConnect(RPostgres::Postgres(),
                  password = Sys.getenv("PG_local_MAJA_PSW"))
 dbExecute(con, "set search_path to test_platform")
 on.exit(dbDisconnect)
-x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
-df <- check_plot_inputs(x, con)
-config <- prep_config(df)
-datapoitns <- get_data(config, con)
+x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet25")
+results <- prep_data(x, con)
 dittodb::stop_db_capturing()
+

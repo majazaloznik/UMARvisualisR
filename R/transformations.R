@@ -161,9 +161,10 @@ do_transformations <- function(input_data){
 #' @export
 #'
 transform_rolling <- function(df, periods = 3, align = "c"){
+  if(is.na(align)) align <- "c"
   df %>%
     dplyr::arrange(date) %>%
-    dplyr::mutate(value = zoo::rollmean(value, k = periods,fill= NA,align = align))
+    dplyr::mutate(value = zoo::rollmean(value, k = periods,fill= NA, align = align))
 }
 
 #' New function for growth transformations
@@ -216,13 +217,15 @@ transform_index <- function(df, base_period){
   if (grepl("^\\d{4}$", base_period)) {
     base_value <- df |>
       dplyr::filter(lubridate::year(date) == base_period) |>
-      dplyr::summarise(value= mean(value)) |>
+      dplyr::summarise(value= mean(value, na.rm = TRUE)) |>
       dplyr::pull(value)
-    if(is.nan(base_value)) {
-      base_period <- lubridate::year(min(df$date))
+    if(is.na(base_value) || is.nan(base_value) || length(base_value) == 0) {
+      base_period <- lubridate::year(df |> na.omit() |>
+                                       dplyr::summarise(min = min(date)) |>
+                                       dplyr::pull())
       base_value <- df |>
         dplyr::filter(lubridate::year(date) == base_period) |>
-        dplyr::summarise(value= mean(value)) |>
+        dplyr::summarise(value= mean(value, na.rm = TRUE)) |>
         dplyr::pull(value)
       warning("Bazno obdobje indeksa je spremenjeno na ", base_period, ".")
     }
@@ -230,15 +233,16 @@ transform_index <- function(df, base_period){
   if (grepl("^\\d{4}Q\\d{1}$", base_period)){
     base_start <- lubridate::yq(base_period)
     base_end <- base_start + months(3)
-    base_value <- df %>%
+    base_value <- df  |>
       dplyr::filter(date >= base_start & date < base_end) |>
       dplyr::pull(value)
     if (is.na(base_value) || is.nan(base_value) || length(base_value) == 0) {
-      base_value <- df %>%
-        dplyr::filter(date == min(date)) |>
-        dplyr::pull(value)
-      base_period <- paste0(lubridate::year(min(df$date)), "Q",
-                            lubridate::quarter(min(df$date)))
+      base_record <-  df  |>
+        dplyr::filter(!is.na(value))  |>
+        dplyr::slice(1)
+      base_value <- base_record$value
+      base_period <- paste0(lubridate::year(base_record$date), "Q",
+                            lubridate::quarter(base_record$date))
       warning("Bazno obdobje indeksa je spremenjeno na ", base_period, ".")
     }
   }
@@ -249,11 +253,12 @@ transform_index <- function(df, base_period){
       dplyr::filter(date >= base_start & date < base_end) |>
       dplyr::pull(value)
     if (is.na(base_value) || is.nan(base_value) || length(base_value) == 0) {
-      base_value <- df %>%
-        dplyr::filter(date == min(date)) |>
-        dplyr::pull(value)
-      base_period <- paste0(lubridate::year(min(df$date)), "M",
-                            sprintf("%02d", lubridate::month(min(df$date))))
+      base_record <-  df  |>
+        dplyr::filter(!is.na(value))  |>
+        dplyr::slice(1)
+      base_value <- base_record$value
+      base_period <- paste0(lubridate::year(base_record$date), "M",
+                            sprintf("%02d", lubridate::month(base_record$date)))
       warning("Bazno obdobje indeksa je spremenjeno na ", base_period, ".")
     }
   }
