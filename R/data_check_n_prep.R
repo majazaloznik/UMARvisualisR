@@ -254,13 +254,25 @@ check_plot_inputs <- function(df, con){
                 paste("\nV tabeli ne sme\u0161 imeti podvojenih vrstic:\n", toString(dup_rows)))
   }
 
+  xx <- FALSE
   if (!check_consistency_or_na(df$xmin)) {
     errors <- c(errors,
-                paste("\nVse xmin vrednosti morajo biti enake."))}
+                paste("\nVse xmin vrednosti morajo biti enake."))
+    xx <- TRUE}
 
   if (!check_consistency_or_na(df$xmax)) {
     errors <- c(errors,
-                paste("\nVse xmax vrednosti morajo biti enake."))}
+                paste("\nVse xmax vrednosti morajo biti enake."))
+    xx <- TRUE}
+
+  if (!xx) {
+    df <- df |>
+      dplyr::mutate(xmin = ifelse(all(is.na(xmin)), NA, UMARvisualisR:::unique_without_na(xmin)),
+                    xmax = ifelse(all(is.na(xmax)), NA, UMARvisualisR:::unique_without_na(xmax)))}
+
+  if(!xx && !is.na(unique(df$xmin)) && !is.na(unique(df$xmax)) && unique(df$xmin) > unique(df$xmax)){
+    errors <- c(errors,
+                paste("\nVrendost xmax ne more biti manj\u0161a od vrednosti xmin."))}
 
   if (!check_consistency_or_na(df$naslov)) {
     errors <- c(errors,
@@ -419,7 +431,7 @@ check_plot_inputs <- function(df, con){
 prep_config <- function(df) {
 
   config <- list(
-    xmin = "2010-01-01",
+    xmin = as.Date("2010-01-01"),
     xmax = NULL,
     title = NULL,
     horizontal_alignment = "c",
@@ -445,10 +457,12 @@ prep_config <- function(df) {
   )
   # plot parameters
   if (!all(is.na(df$xmin))) {
-    config$xmin <- unique_without_na(df$xmin)
+    config$xmin <- as.Date(UMARvisualisR:::unique_without_na(df$xmin),
+                           origin = "1899-12-30")
   }
   if (!all(is.na(df$xmax))) {
-    config$xmax <- unique_without_na(df$xmax)
+    config$xmax <- as.Date(UMARvisualisR:::unique_without_na(df$xmax),
+                           origin = "1899-12-30")
   }
   if (!all(is.na(df$naslov))) {
     config$title <- unique_without_na(df$naslov)
@@ -483,8 +497,8 @@ prep_config <- function(df) {
 
   # clean up rolling alignments
   alignments <- df$drseca_poravnava
-  alignments <- toupper(alignments)
-  alignments[alignments == "D"] <- "R"
+  alignments <- tolower(alignments)
+  alignments[alignments == "d"] <- "r"
 
   # clean up growths
   df$rast <- toupper(df$rast)
@@ -568,7 +582,6 @@ transform_data <- function(df, series_config) {
       out <- transform_index(df, series_config$index_period)
       df <- out$df
       series_config$index_period <- out$base_period
-      series_config$unit <- paste0(series_config$unit, " (", out$base_period, "= 100)")
     }
   }
   list(df = df, series_config = series_config)
@@ -594,14 +607,56 @@ prep_data <- function(df, con) {
 
   config <-  prep_config(df)
 
-  data_points <- get_data(config, con)
+  datapoints <- get_data(config, con)
 
-  results <- purrr::map2(data_points, config$series, transform_data)
+  results <- purrr::map2(datapoints, config$series, transform_data)
 
   out <- purrr::transpose(results)
 
-  data_points <- out$df
+  datapoints <- out$df
   config$series <- out$series_config
 
-  return(list(data_points = data_points, config = config))
+  return(list(datapoints = datapoints, config = config))
 }
+
+
+
+
+#' Function to split the datapoints into left and right axis.
+#'
+#'
+#'
+#' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
+#' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
+#'
+#' @return list of left and right datapoints and configs (if right exists)
+#' @export
+split_by_unit <- function(datapoints, config){
+  units <- purrr::map_chr(config$series, ~ .x$unit)
+  unique_units <- unique(units)
+  split_datapoints <- purrr::map(unique_units, function(x) {
+    series_index <- which(units == x)
+    datapoints[series_index]
+  })
+  datapoints_left <- split_datapoints[[1]]
+  datapoints_right <- if (length(split_datapoints) > 1) split_datapoints[[2]] else NULL
+  if(!is.null(datapoints_right)){
+    split_config_series <- purrr::map(unique_units, function(x) {
+      series_index <- which(units == x)
+      config$series[series_index]
+    })
+    config$series <- split_config_series[[1]]
+    config_left <- config
+    config_left$y_axis_label <- unique_units[[1]]
+    config$series <- if (length(split_config_series) > 1) split_config_series[[2]] else NULL
+    config_right <- config
+    config_right$y_axis_label <- unique_units[[2]]
+  } else {
+    config_left <- config
+    config_left$y_axis_label <- unique_units[[1]]
+    config_right <- NULL}
+
+  return(list(datapoints = datapoints_left, config = config_left,
+              datapoints_right = datapoints_right, config_right = config_right))
+}
+

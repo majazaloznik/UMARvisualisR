@@ -84,7 +84,9 @@ dittodb::with_mock_db({
 
   test_that("pub ready config prep works", {
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet1")
-    expect_equal(prep_config(x)$xmin , "2010-01-01")
+    expect_equal(prep_config(x)$xmin , as.Date("2010-01-01"))
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet27")
+    expect_equal(prep_config(x)$xmin , as.Date("2000-12-31"))
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet3")
     expect_equal(prep_config(x)$title , "Naslov")
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet10")
@@ -94,7 +96,7 @@ dittodb::with_mock_db({
                  c("#A7AEB4", "#A10305", "#343D58", "#D46565"))
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet16")
     expect_equal(prep_config(x)$series |>  purrr::map_chr(~ .[["rolling_alignment"]]),
-                 c("C", "R", "R"))
+                 c("c", "r", "r"))
   })
 })
 
@@ -127,7 +129,7 @@ dittodb::with_mock_db({
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet8")
     expect_message(check_plot_inputs(x, con))
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet6")
-    expect_equal(check_plot_inputs(x, con)$enota, c("%", "Indeks"))
+    expect_equal(check_plot_inputs(x, con)$enota, c("%", "Indeks (2015 = 100)"))
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet9")
     expect_error(check_plot_inputs(x, con))
     expect_error(check_plot_inputs(x[1:2,], con))
@@ -155,6 +157,8 @@ dittodb::with_mock_db({
     expect_message(check_plot_inputs(x, con))
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet24")
     expect_message(check_plot_inputs(x, con))
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet27")
+    expect_message(check_plot_inputs(x, con))
   })
 
 
@@ -178,11 +182,29 @@ dittodb::with_mock_db({
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
     results <- prep_data(x, con)
     expect_true(length(results) == 2)
-    expect_true(length(results$data_points) == 3)
+    expect_true(length(results$datapoints) == 3)
     expect_true(length(results$config$series) == 3)
-    expect_true(is.na(results$data_points[[1]][1, 2]))
-    expect_true(is.na(results$data_points[[2]][1, 2]))
-    expect_equal(results$data_points[[3]][5, 2][[1]], 479, tolerance = 1e-2)
+    expect_true(is.na(results$datapoints[[1]][1, 2]))
+    expect_true(is.na(results$datapoints[[2]][1, 2]))
+    expect_equal(results$datapoints[[3]][5, 2][[1]], 479, tolerance = 1e-2)
   })
+
+  test_that("splitting works ", {
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
+    results <- prep_data(x, con)
+    out <- split_by_unit(results$datapoints, results$config)
+    expect_equal(length(out$datapoints), 2)
+    expect_equal(out$config$y_axis_label, "%")
+    expect_equal(length(out$datapoints_right), 1)
+    expect_equal(out$config$y_axis_label, "%")
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet26")
+    results <- prep_data(x, con)
+    out <- split_by_unit(results$datapoints, results$config)
+    expect_equal(length(out$datapoints), 2)
+    expect_equal(out$config$y_axis_label, "Indeks")
+    expect_true(is.null(out$datapoints_right))
+    expect_true(is.null(out$config_right))
+  })
+
 })
 

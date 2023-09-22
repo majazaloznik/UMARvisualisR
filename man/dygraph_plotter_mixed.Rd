@@ -12,6 +12,9 @@ main and sub titles etc.. see \link[UMARvisualisR]{prep_multi_line}.}
 
 \item{bar}{logical if first series is plotted as a bar and the rest line or vice versa.}
 }
+\value{
+nothing, just plots
+}
 \description{
 Plots univariate barchart and multivariate combo chart to dygraph interactive charts,
 approx in line with our corporate identity.

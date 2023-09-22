@@ -213,7 +213,6 @@ transform_growth <- function(df, type = "YOY"){
 #' @export
 #'
 transform_index <- function(df, base_period){
-  interval <- get_interval_in_months(df$date)
   if (grepl("^\\d{4}$", base_period)) {
     base_value <- df |>
       dplyr::filter(lubridate::year(date) == base_period) |>

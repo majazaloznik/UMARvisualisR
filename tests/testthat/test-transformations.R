@@ -61,7 +61,7 @@ dittodb::with_mock_db({
     expect_equal(transform_index(datapoints[[2]], "1999M08")$df[2,2][[1]], 100)
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet25")
     results <- prep_data(x, con)
-    expect_equal(results$data_points[[1]] |> dplyr::filter(lubridate::year(date) == 2010) |>
+    expect_equal(results$datapoints[[1]] |> dplyr::filter(lubridate::year(date) == 2010) |>
       dplyr::pull(value) |>  mean(na.rm = TRUE), 100)
   })
 })

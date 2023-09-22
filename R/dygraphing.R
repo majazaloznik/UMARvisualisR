@@ -86,7 +86,7 @@ dygraph_plotter <- function(prep_l) {
 #' main and sub titles etc.. see \link[UMARvisualisR]{prep_multi_line}.
 #' @param bar logical if first series is plotted as a bar and the rest line or vice versa.
 #'
-#' @return
+#' @return nothing, just plots
 #' @export
 dygraph_plotter_mixed <- function(prep_l, bar = TRUE) {
   list2env(prep_l, envir = environment())

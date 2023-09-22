@@ -272,7 +272,8 @@ check_uniqueness_or_na <- function(column) {
 #' @export
 update_units <- function(df, con){
  df |>
-    dplyr::mutate(enota = ifelse(!is.na(indeks_obdobje), "indeks",
+    dplyr::mutate(enota = ifelse(!is.na(indeks_obdobje), paste0("Indeks (",
+                                                                indeks_obdobje, " = 100)"),
                                  ifelse(!is.na(rast), "%",
                                         enota))) |>
     dplyr::rowwise() |>

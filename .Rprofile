@@ -21,7 +21,9 @@ options(
 if (interactive()) {
   suppressMessages(require(devtools))
 }
-
+if (interactive()) {
+  suppressMessages(require(testthat))
+}
 #con <- DBI::dbConnect(RPostgres::Postgres(),
 #                      dbname = "sandbox",
 #                      host = "localhost",
