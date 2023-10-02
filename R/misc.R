@@ -364,3 +364,56 @@ strip_na_rows <- function(df){
     dplyr::relocate(date) |>
     dplyr::ungroup()
 }
+
+
+#' Helper funciton to wrap title to appropriate width
+#'
+#' Had chatgpt write this for me pretty much. does what it says on the box.
+#'
+#' @param title character
+#' @param max_width in user units - default is plot width from par("usr")
+#' @param cex numeric
+#' @param family of fonts.
+#' @param font value for font style
+#'
+#' @return title but wiht line breaks where needed
+#' @export
+wrap_title <- function(title, max_width = NULL, cex = 1, family = "Myriad Pro", font = 1) {
+  if (is.null(title) || identical(title, "") || is.na(title)) {
+    return(list(title = NULL, num_lines = 0))
+  }
+  if (is.null(max_width)) max_width <- par("usr")[2] - par("usr")[1]
+  words <- strsplit(title, " ")[[1]]
+  current_line <- words[1]
+  lines <- character(0)
+
+  for (word in words[-1]) {
+    temp_line <- paste(current_line, word)
+    if (strwidth(temp_line, cex = cex, family = family, font = font) <= max_width) {
+      current_line <- temp_line
+    } else {
+      lines <- c(lines, current_line)
+      current_line <- word
+    }
+  }
+
+  lines <- c(lines, current_line)
+  wrapped_title <- paste(lines, collapse = "\n")
+  return(list(title = wrapped_title, num_lines = length(lines)))
+}
+
+
+#' helper function to get number of lines required for the legend
+#'
+#' @param elements string of legend entries
+#' @param columns numeric value of number of columns
+#'
+#' @return integer value
+#' @export
+#'
+get_legend_lines <- function(elements, columns){
+  if (length(elements) == 1) {lines <- 0} else {
+    lines <- ceiling(length(elements) / columns)
+  }
+  lines
+}

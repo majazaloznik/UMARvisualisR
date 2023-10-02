@@ -17,5 +17,6 @@ a vector with the xmin and xmax values in date format
 \description{
 takes the maximum range of all the series in the datapoints tables
 and then cuts it down by the values of xmin and xmax passed in the
-config dictionary.
+config dictionary. If the intervals don't overlap, uses just the
+datapoint range, ignoring the user input.
 }

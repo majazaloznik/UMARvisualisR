@@ -2,7 +2,8 @@
 #'
 #' takes the maximum range of all the series in the datapoints tables
 #' and then cuts it down by the values of xmin and xmax passed in the
-#' config dictionary.
+#' config dictionary. If the intervals don't overlap, uses just the
+#' datapoint range, ignoring the user input.
 #'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
@@ -14,10 +15,17 @@ get_x_lims <- function(datapoints, config){
   limits <- unlist(purrr::map(datapoints, \(x) range(x$date, na.rm = TRUE)))
   xmin <- as.Date(min(limits), origin = "1970-01-01")
   xmax <- as.Date(max(limits), origin = "1970-01-01")
+  data_range <- lubridate::interval(as.Date(min(limits), origin = "1970-01-01"),
+                      as.Date(max(limits), origin = "1970-01-01"))
   # cut them down by config args
-  xmax <- min(xmax, as.Date(config$xmax), na.rm = TRUE)
-  xmin <- max(xmin, as.Date(config$xmin), na.rm = TRUE)
-  return(c(xmin, xmax))
+  user_range <- lubridate::interval(as.Date(config$xmin), as.Date(config$xmax))
+  if(length(lubridate::int_length(user_range))==0) {final_range <- data_range } else {
+  final_range <- lubridate::intersect(data_range, user_range)}
+  if(is.na(final_range)) {
+    final_range <- data_range
+    message("Tvoji xmin oz xmax datumi niso v podatkih, zato je prikazan celoten razpon.")
+  }
+  return(c(lubridate::int_start(final_range), lubridate::int_end(final_range)))
 }
 
 #' Plots empty plot with gridlines
@@ -52,14 +60,59 @@ empty_plot <- function(x_lims, y_axis, y_axis_label){
     abline(h = 0, col = umar_cols("emph"), lwd = 1.1)}
 }
 
-write_title <- function(title, size){
-  text_width <- strwidth(title, cex = 1,  family ="Myriad Pro")
-  user_range <- par("usr")[2] - par("usr")[1]
+
+#' Helper funciton to get the number of lines for the top margin and title position
+#'
+#' A bit of an eclectic funciton, but there's no way around it. This funciton
+#' creates a blind plot to get the user dimensions
+#' of the final chart, which lets it wrap the title, which lets it get the number
+#' of lines for the title, which along with the number of lines in the legend
+#' and a few graphical parameters lets us know what the top margin has to be.
+#' Also returns the position of the title in lines and the wrapped title.
+#'
+#' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
+#' @param title_ps title font size in points defaults 10
+#' @param legend_ps legend font size in points, defaults to 9
+#' @param legend_pad padding between plot and legend in lines, defaults to 0.2
+#' @param pad padding above legend and above title in lines, defaults to 0
+#'
+#' @return top margin in lines, vertical title position in lines and wrapped title
+#' @export
+get_top_margin_and_title <- function(config,
+                           title_ps = 10,
+                           legend_ps = 9,
+                           legend_pad = 0.2,
+                           pad = 0){
+  #blind plot
+  plot.new()
+  par(mar = c(3.1, 4.1, 4.1 , 0.2))
+  plot.window(c(0,10), c(0,10))
+  original_ps <- par("ps")
+  print(original_ps)
+  # get top margins
+  legend_lines <- get_legend_lines(config$series, config$legend_columns)
+  par("ps" = title_ps)
+  title <- wrap_title(config$title, font = 2)
+  title_lines <- title[[2]]
+  wrapped_title <- title[[1]]
+
+  lines <- legend_lines * legend_ps/original_ps + ifelse(legend_lines > 0, pad, 0) +
+    title[[2]] * title_ps/original_ps + ifelse(legend_lines > 0, pad, 0) + legend_pad
+
+  title_pos <- legend_lines * legend_ps/original_ps + ifelse(legend_lines > 0, pad, 0) + legend_pad
+  return(list(lines, title_pos, wrapped_title))
 }
 
 
 publication_ready_plot <- function(datapoints, config){
 
+  # params
+  title_ps = 10
+  legend_ps = 9
+  legend_pad = 0.2
+
+
+ # get limits
   x_lims <- get_x_lims(datapoints, config)
 
   if(config$dual_y){
@@ -69,6 +122,29 @@ publication_ready_plot <- function(datapoints, config){
 
   y_axis <- find_pretty_ylim(unlist(purrr::map(datapoints, ~ .x$value)))
 
+  # get top margins
+  top <- get_top_margin_and_title(config,
+                                  legend_pad = legend_pad,
+                                  title_ps = title_ps,
+                                  legend_ps = legend_ps)
+
+  # empty plot
+  par(mar = c(3.1, 4.1, top[[1]] , 0.2))
+  empty_plot(x_lims, y_axis, config$y_axis_label)
+  box()
+
+  # legend placeholder for now.
+  par("ps" = legend_ps)
+  mtext("legend", side = 3,  line = legend_pad, adj = 0, padj = 0, family = "Myriad Pro")
+
+  # position title
+  par("ps" = title_ps)
+  mtext(top[[3]], side = 3,  line = top[[2]], adj = 0, padj = 0, family = "Myriad Pro", font = 2)
+
+
+
+
+
   # y_label_max <- max(ylim)
   # if(unit == "EUR" & y_label_max > 1000000) y_label_max <- y_label_max/1000000
   # y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ",",
@@ -76,18 +152,9 @@ publication_ready_plot <- function(datapoints, config){
   #                         units = "inches")/par("csi") + 1
 
   # # dims for top margin
-  # par(ps=9)
-  # half_legend <- ifelse(length(legend_labels)==1, 0, rounding(length(legend_labels)/2))
 
   # par(mar = c(3, y_lab_lines + 1, half_legend + 0.3, 0.2),
   #     mgp=c(3,0.5,0), xpd = FALSE)
-
-  #plot
-  empty_plot(x_lims, y_axis, config$y_axis_label)
-axis(1)
-axis(2)
-box()
-
   # plot main line (and raw background if exists - but only for univariate)
   mapply(function(x, y) lines(x$period, x$value,
                               col = y, lwd = 2), data_points, umar_cols()[1:length(data_points)])
