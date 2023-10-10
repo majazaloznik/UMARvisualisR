@@ -4,13 +4,7 @@
 \alias{get_top_margin_and_title}
 \title{Helper funciton to get the number of lines for the top margin and title position}
 \usage{
-get_top_margin_and_title(
-  config,
-  title_ps = 10,
-  legend_ps = 9,
-  legend_pad = 0.2,
-  pad = 0
-)
+get_top_margin_and_title(config, left_mar, title_ps)
 }
 \arguments{
 \item{config}{dictionary list from \link[UMARvisualisR]{prep_config}}
@@ -18,17 +12,13 @@ get_top_margin_and_title(
 \item{title_ps}{title font size in points defaults 10}
 
 \item{legend_ps}{legend font size in points, defaults to 9}
-
-\item{legend_pad}{padding between plot and legend in lines, defaults to 0.2}
-
-\item{pad}{padding above legend and above title in lines, defaults to 0}
 }
 \value{
 top margin in lines, vertical title position in lines and wrapped title
 }
 \description{
 A bit of an eclectic funciton, but there's no way around it. This funciton
-creates a blind plot using the xlims of the data to get the user dimensions
+creates a blind plot to get the user dimensions
 of the final chart, which lets it wrap the title, which lets it get the number
 of lines for the title, which along with the number of lines in the legend
 and a few graphical parameters lets us know what the top margin has to be.

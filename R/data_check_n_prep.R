@@ -298,9 +298,9 @@ check_plot_inputs <- function(df, con){
     errors <- c(errors,
                 paste("\nVse vrednosti v polju stolpci_legende morajo biti enake."))}
 
-  if (!all(df$stolpci_legende  %in% c(1, 2, 3, NA))) {
+  if (!all(df$stolpci_legende  %in% c(1, 2, 3, 4, 5, NA))) {
     errors <- c(errors,
-                paste("\nV polju stolpci_legende so dovoljene samo vrednosti 1, 2 ali 3."))}
+                paste("\nV polju stolpci_legende so dovoljene samo vrednosti od 1 do 5."))}
 
   if (!check_consistency_or_na(df$leva_y_os)) {
     errors <- c(errors,
@@ -310,7 +310,7 @@ check_plot_inputs <- function(df, con){
     errors <- c(errors,
                 paste("\nVse vrednosti v polju desna_y_os morajo biti enake."))}
 
-  if (any(duplicated(df$legenda))) {
+  if (any(duplicated(df$legenda[df$barva!=0 | is.na(df$barva)]))) {
     errors <- c(errors,
                 paste("\nNe more\u0161 imeti enakih oznak legend."))}
   x <- df |>
@@ -338,17 +338,21 @@ check_plot_inputs <- function(df, con){
     errors <- c(errors,
                 paste("\nV polju tip so dovoljene samo vrednosti 'line', 'bar' in 'area'."))}
 
-  if (!check_uniqueness_or_na(df$barva)) {
+    if (!check_uniqueness_or_na(df$barva[df$barva != 0])) {
     errors <- c(errors,
                 paste("\nV polju barva ne sme\u0161 podvajati barv."))}
 
-  if (!all(df$barva  %in% c(1:8, NA))) {
+  if (!all(df$barva  %in% c(0:8, NA))) {
     errors <- c(errors,
                 paste("\nV polju barva so dovoljene samo vrednosti od 1 do 8."))}
 
   if (!all(df$stacked  %in% c(TRUE, FALSE, NA))) {
     errors <- c(errors,
                 paste("\nV polju stacked so dovoljene samo vrednosti TRUE ali FALSE (prazno polje je tudi dovoljeno in pomeni isto kot FALSE)."))}
+
+  if (!check_uniqueness_or_na(df$stacked)) {
+    errors <- c(errors,
+                paste("\nV polju stacked morajo biti vse vrednosti enake (ali prazne)."))}
 
   if (!all(sapply(df$drseca_obdobja, \(x) is.numeric(x) || is.na(x)))) {
     errors <- c(errors,
@@ -441,13 +445,13 @@ prep_config <- function(df) {
     dual_y = FALSE,
     left_y = NULL,
     right_y = NULL,
+    stacked = FALSE,
     chart_size = 2,
     series = list(
       list(series_code = NULL,
            unit = NULL,
            type = "line",
            colour = NA,
-           stacked = FALSE,
            legend_txt = NULL,
            rolling_period = NA,
            rolling_alignment = "c",
@@ -485,6 +489,9 @@ prep_config <- function(df) {
   if (!all(is.na(df$desna_y_os))) {
     config$right_y <- unique_without_na(df$desna_y_os)
   }
+  if (!all(is.na(df$stacked))) {
+    config$stacked <- unique_without_na(df$stacked)
+  }
   if(length(unique_without_na(df$enota)) == 2) {
     config$dual_y <- TRUE}
 
@@ -510,9 +517,9 @@ prep_config <- function(df) {
       series_code = df$serija[i],
       unit = df$enota[i],
       type = ifelse(is.na(df$tip[i]), config$series[[1]]$type, df$tip[i]),
-      colour = umar_cols()[colours[i]],
-      stacked = ifelse(is.na(df$stacked[i]), config$series[[1]]$stacked, df$stacked[i]),
-      legend_txt = ifelse(is.na(df$legenda[i]), df$serija[i], df$legenda[i]),
+      colour = ifelse(colours[i] == 0, "white", umar_cols()[colours[i]]),
+      legend_txt = ifelse(is.na(df$legenda[i]),
+                          ifelse(colours[i] == 0, "",df$serija[i]), df$legenda[i]),
       rolling_period = df$drseca_obdobja[i],
       rolling_alignment = alignments[i],
       growth = df$rast[i],

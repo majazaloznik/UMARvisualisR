@@ -28,9 +28,9 @@ dittodb::with_mock_db({
     config <- list(series = c(1,2,3),
                    legend_columns = 2,
                    title = "Very very long title that just keeps going on and on and hopefully takes up at least two lines for me to be able to test this shit properly.")
-    top <- get_top_margin_and_title(config,)
-    expect_true(top[[1]]> 4.4 & top[[1]] < 4.5)
-    expect_equal(top[[2]], 2.2)
+    top <- get_top_margin_and_title(config)
+    expect_true(top[[1]]> 3.1 & top[[1]] < 3.2)
+    expect_equal(top[[2]], 1.54)
 
   })
 

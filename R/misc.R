@@ -51,7 +51,7 @@ first_up <- function(x) {
 find_pretty_ylim <- function(values){
   ylim <- range(pretty(c(values)), na.rm = TRUE)
   diff <- max(values, na.rm = TRUE) - min(values, na.rm = TRUE)
-  if(ylim[1] == min(values, na.rm = TRUE)) {
+  if(ylim[1] == min(values, na.rm = TRUE) & ylim[1] != 0) {
     values <- c(values, min(values, na.rm = TRUE)-diff*0.05)}
   if(ylim[2] == max(values, na.rm = TRUE)) {
     values <- c(values, max(values, na.rm = TRUE)+diff*0.05)}
@@ -416,4 +416,233 @@ get_legend_lines <- function(elements, columns){
     lines <- ceiling(length(elements) / columns)
   }
   lines
+}
+
+#' My legend function
+#'
+#' @param x	 the x and y co-ordinates to be used to position the legend. They can be specified by keyword or in any way which is accepted by xy.coords: See ‘Details’.
+#' @param y the x and y co-ordinates to be used to position the legend. They can be specified by keyword or in any way which is accepted by xy.coords: See ‘Details’.
+#' @param legend a character or expression vector of length ≥ 1 to appear in the legend. Other objects will be coerced by as.graphicsAnnot.
+#' @param fill if specified, this argument will cause boxes filled with the specified colors (or shaded in the specified colors) to appear beside the legend text.
+#' @param col color of points or lines appearing in the legend.
+#' @param lty the line types and widths for lines appearing in the legend. One of these two must be specified for line drawing.
+#' @param lwd the line types and widths for lines appearing in the legend. One of these two must be specified for line drawing.
+#' @param xjust how the legend is to be justified relative to the legend x location. A value of 0 means left justified, 0.5 means centered and 1 means right justified.
+#' @param yjust the same as xjust for the legend y location.
+#' @param x.intersp character interspacing factor for horizontal (x) spacing.
+#' @param y.intersp the same for vertical (y) line distances.
+#' @param text.col the color used for the legend text.
+#' @param text.font the font used for the legend text, see text.
+#' @param ncol the number of columns in which to set the legend items (default is 1, a vertical legend).
+#' @param family font family
+#'
+#' @return nothing, draws legend
+#' @export
+#'
+legend_mz2 <- function(x = par("usr")[[1]],
+                       y =  par("usr")[[4]], legend,
+                       fill = NULL, col = NULL, lty = NULL, lwd = NULL,
+                       xjust = 0, yjust = 1, x.intersp = 0.2, y.intersp = 0.7,
+                       text.col = "black", text.font = NULL, ncol = 1,
+                       family = "Myriad Pro") {
+
+  # check what are we doing
+  mfill <- !missing(fill) && !all(is.na(fill))
+  do.lines <- !missing(lty) && !all(is.na(lty))
+
+  # set par
+  op <- par("xpd")
+  on.exit(par(xpd = op))
+  par(xpd = TRUE)
+  par(family = family)
+
+  # get legend length
+  legend <- as.graphicsAnnot(legend)
+  n.leg <- if (is.call(legend))     1   else length(legend)
+  # get numer of legend lines per column
+  n.legpercol <- ceiling(n.leg/ncol)
+
+  # get legend position coordinates
+  xy <- xy.coords(x, y, setLab = FALSE)
+  x <- xy$x
+  y <- xy$y
+
+  # rewrite rect fun to use dx and dy a
+  rect2 <- function(left, top, dx, dy, ...) {
+    r <- left + dx
+    b <- top - dy
+    rect(left, top, r, b, ...)
+  }
+  # rewrite segments fun to use dx and dy
+  segments2 <- function(x1, y1, dx, dy, ...) {
+    x2 <- x1 + dx
+    y2 <- y1 + dy
+    segments(x1, y1, x2, y2, ...)
+  }
+
+  # get character size into user coordinates
+  cex <- par("cex")
+  text.width <- max(abs(strwidth(legend, units = "user",
+                                 cex = cex, font = text.font)))
+  xyc <- xyinch(par("cin"), warn.log = FALSE)
+  xchar <- cex * xyc[1] # character width in user coordinates
+  ychar <- cex * xyc[2] # character height in user coordinates
+
+  # dimensions of box or line symbol
+  if (!do.lines) xbox <- xchar * 0.54 else
+    xbox <- xchar * 2
+  ybox <- ychar * 0.4
+  # Calculate column widths based on the longest string in each column
+  column_widths <- sapply(1:ncol, function(i) {
+    start_idx <- (i-1) * n.legpercol + 1
+    end_idx <- min(i * n.legpercol, n.leg)
+    max(abs(strwidth(legend[start_idx:end_idx], units = "user", cex = cex, font = text.font)))
+  })
+
+  # Add the width of the legend symbol (box or line) and spaces to the text width
+  column_widths <- column_widths + xbox + (x.intersp + 1) * xchar
+
+
+  # height of the whole legend box
+  h <- (n.legpercol + 0.3) * ychar * y.intersp
+
+  # width of single column
+  w0 <- xbox + text.width + (x.intersp + 1) * xchar
+
+  # width of whole box - kinda irrelevant if you don't use xjust
+  w <- ncol * w0 + 0.5 * xchar
+
+  # adjustments of starting position relative to xy / might throw this out.
+  left <- x - xjust * w
+  top <- y + (1 - yjust) * h
+
+  # # x coordinates of legend elements symbols
+  # xs <- left  + (w0 * rep.int(0:(ncol - 1),
+  #                             rep.int(n.legpercol, ncol)))[1L:n.leg]
+  # Compute the xs values for the legend symbols using the column widths
+  xs <- left + c(0, cumsum(head(column_widths, -1)))[rep(1:ncol, each=n.legpercol)][1:n.leg]
+
+  ys <- top   - y.intersp * ychar * (rep.int(1L:n.legpercol, ncol)[1L:n.leg]  )
+
+  # plot rectangles
+  if (mfill) {
+    if (!is.null(fill))
+      fill <- rep_len(fill, n.leg)
+    rect2(left = xs, top = ys + ybox, dx = xbox,
+          dy = ybox,  col = fill, border = NA)
+  }
+
+  # plot lines
+  if (do.lines)
+    col <- rep_len(col, n.leg)
+  if (missing(lwd) || is.null(lwd))
+    lwd <- par("lwd")
+  if (do.lines) {
+    if (missing(lty) || is.null(lty))
+      lty <- 1
+    lty <- rep_len(lty, n.leg)
+    lwd <- rep_len(lwd, n.leg)
+    ok.l <- !is.na(lty) & (is.character(lty) | lty > 0) &
+      !is.na(lwd)
+    segments2(xs[ok.l] , ys[ok.l] + ybox/2, dx = xbox, dy = 0, lty = lty[ok.l], lwd = lwd[ok.l],
+              col = col[ok.l])
+  }
+
+  # x coordinates of legend text
+  xt <- xs + xbox
+  yt <- ys
+  # add space between symbol and text
+  xt <- xt + x.intersp * xchar
+
+  # plot text
+  text(xt, yt, labels = legend, adj = c(0, 0), cex = cex,
+       col = text.col, font = text.font)
+
+}
+
+
+#' Prepare left axis labels and get width
+#'
+#' Changes euros to millions of euros if necessary and calculates how much
+#' space the left margin needs to be. Returns axis title, axis labels, and
+#' number of lines
+#' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
+#' @param y_axis output of \link[UMARvisualisR]{find_pretty_ylim}
+#'
+#' @return list of axis title, axis labels, and
+#' number of lines
+#' @export
+#'
+left_axis_label_width <- function(config, y_axis) {
+
+  y_label_max <- max(y_axis$ylim)
+  axis_labels <- y_axis$y_breaks
+  axis_positions <- y_axis$y_breaks
+  if(config$y_axis_label == "EUR" & y_label_max > 1000000) y_label_max <- y_label_max/1000000
+  if(config$y_axis_label == "EUR" & max(axis_labels) > 1000000) {
+    config$y_axis_label <- "Mio EUR"
+    axis_labels <- axis_labels/1000000}
+
+  y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ",",
+                                 scientific = FALSE),
+                          units = "inches")/par("csi")
+  current_mar <- par("mar")
+  current_mar[2] <- y_lab_lines + 1
+  par(mar =  current_mar)
+  unit <- config$y_axis_label
+  mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines"))
+}
+
+
+
+
+
+#' Draw left axis labels
+#'
+#' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
+#' @param axes_labels labels from \link[UMARvisualisR]{left_axis_label_width}
+#' @param y_lab_lines number of margin lines from \link[UMARvisualisR]{left_axis_label_width}
+#'
+#' @return nothing, draws axis title and labels
+#' @export
+left_axis_labels <- function(unit, axis_positions, axis_labels, y_lab_lines){
+  par(mgp=c(3,0.5,0), xpd = FALSE)
+  par(ps = 8)
+  axis(2, at = axis_positions,
+       labels = format(axis_labels, big.mark = ".", decimal.mark = ",",
+                       scientific = FALSE),
+       col = umar_cols("gridlines"), lwd = 0,  tck = 0.0,
+       las = 2,  family ="Myriad Pro")
+  mtext(unit, side = 2,
+        line = y_lab_lines + 0.1, family ="Myriad Pro")
+}
+
+
+#' Get data values as a vector
+#'
+#' Returns the data values as a vector to be used to get the ylims, but
+#' also adds a 0 to the range if the chart is a barchart and also makes
+#' sure the ylims are correct if it's a stacked barchart. Christ, i am
+#' really overdoing this shit.
+#'
+#' @param datapoints
+#' @param config
+#'
+#' @return vector of numeric values
+#' @export
+get_data_values <- function(datapoints, config){
+  values <- unlist(purrr::map(datapoints, ~ .x$value))
+
+  if(config$stacked) {
+    series_types <- vapply(config$series, \(x) x$type, character(1))
+    bar_datapoints <- datapoints[series_types == "bar"]
+    bar_datapoints <- purrr::reduce(bar_datapoints, ~dplyr::full_join(.x, .y, by = "date"))
+    bar_datapoints <-  bar_datapoints |>
+      dplyr::rowwise() |>
+      dplyr:: mutate(sum = sum(dplyr::c_across(where(is.numeric))))
+    values <- c(values, bar_datapoints$sum)
+  }
+
+  if(any(vapply(config$series, \(x) x$type, character(1)) == "bar")) values <- c(values, 0)
+  return(values)
 }

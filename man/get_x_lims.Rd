@@ -2,7 +2,7 @@
 % Please edit documentation in R/pub_ready_plots.R
 \name{get_x_lims}
 \alias{get_x_lims}
-\title{Get x limits from data and config}
+\title{Get x limits from data and config and filter datapoiunts}
 \usage{
 get_x_lims(datapoints, config)
 }
@@ -12,11 +12,14 @@ get_x_lims(datapoints, config)
 \item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
 }
 \value{
-a vector with the xmin and xmax values in date format
+a list with the xmin and xmax values in date format and the filtered datapoints
 }
 \description{
 takes the maximum range of all the series in the datapoints tables
 and then cuts it down by the values of xmin and xmax passed in the
 config dictionary. If the intervals don't overlap, uses just the
 datapoint range, ignoring the user input.
+}
+\details{
+Returns the range as well as filtered datapoints.
 }
