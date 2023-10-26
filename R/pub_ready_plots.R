@@ -98,7 +98,7 @@ base_barplot <- function(datapoints, config, y_axis){
   if(beside) spacing <- c(0.1, 0.33) else
     spacing <- 0.33
   # plot emptty barplot
-  midpoints <- my_special_barplot(bar_datapoints, beside = beside,
+  midpoints <- barplot(bar_datapoints, beside = beside,
                        axes = FALSE, ylim = y_axis$ylim, border = NA, col = NA,
                        panel.first={grid(nx = NA, ny = length(y_axis$y_breaks) - 1,
                                          col = umar_cols("gridlines"), lty = 1, lwd = 1.1)},
@@ -113,9 +113,7 @@ base_barplot <- function(datapoints, config, y_axis){
   # plot over gridlines
   my_special_barplot(bar_datapoints, beside = beside,
           axes = FALSE, ylim = y_axis$ylim, col = bar_colours, border = NA,
-          panel.first={grid(nx = NA, ny = length(y_axis$y_breaks) - 1,
-                            col = umar_cols("gridlines"), lty = 1, lwd = 1.1)},
-          space = spacing, xpd = FALSE)
+          space = spacing, xpd = FALSE, add = TRUE)
   box(col = umar_cols("gridlines"), lwd = 1.1)
 
   mget(c("midpoints", "dates"))

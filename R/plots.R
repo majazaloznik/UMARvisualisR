@@ -361,3 +361,55 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
       }
     }
 }
+
+
+
+
+
+#' Barplot that can handle negative values
+#'
+#' A rework of the base barplot funciton that allows for negative
+#' values to be properly plotted i.e. from zero downwards.
+#'
+#' @param data_matrix vector or matrix of heights of the bars
+#' @param ...arguments to be passed to barplot
+#'
+#' @return nothing, just plots
+#' @export
+#'
+
+my_special_barplot <- function(
+    data_matrix,
+    beside = FALSE,
+    axes = TRUE,
+    ylim = NULL,
+    border = "white",
+    col = NULL,
+    panel.first = NULL,
+    space = 0.2,
+    xpd = TRUE,
+    ...
+) {
+  # Extract the add argument
+  args_list <- list(...)
+  add_arg <- if("add" %in% names(args_list)) args_list$add else FALSE
+
+  # Separate positive and negative data
+  positive_data <- pmax(data_matrix, 0)
+  negative_data <- pmin(data_matrix, 0)
+
+  # Draw bars
+  if (!add_arg) {
+    # If original call did not have add = TRUE
+    if (!is.null(panel.first))
+    barplot(positive_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, space = space, xpd = xpd, ...)
+    eval(panel.first, envir = parent.frame())
+    barplot(positive_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, add = TRUE,space = space, xpd = xpd, ...)
+    barplot(negative_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, add = TRUE, space = space, xpd = xpd, ...)
+  } else {
+    # If original call had add = TRUE, only add positive/negative bars
+    eval(panel.first, envir = parent.frame())
+    barplot(positive_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, space = space, xpd = xpd, ...)
+    barplot(negative_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, space = space, xpd = xpd, ...)
+  }
+}
