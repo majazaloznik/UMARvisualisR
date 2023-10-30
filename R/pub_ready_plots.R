@@ -21,8 +21,20 @@ get_x_lims <- function(datapoints, config){
                       as.Date(max(limits), origin = "1970-01-01"))
   # cut them down by config args
   user_range <- lubridate::interval(as.Date(config$xmin), as.Date(config$xmax))
-  if(length(lubridate::int_length(user_range))==0) {final_range <- data_range } else {
-  final_range <- lubridate::intersect(data_range, user_range)}
+  # Check if config$xmin and config$xmax are provided
+  xmin_provided <- !is.null(config$xmin) && !identical(config$xmin, "")
+  xmax_provided <- !is.null(config$xmax) && !identical(config$xmax, "")
+
+  if (xmin_provided && xmax_provided) {
+    user_range <- lubridate::interval(as.Date(config$xmin), as.Date(config$xmax))
+    final_range <- lubridate::intersect(data_range, user_range)
+  } else if (xmin_provided) {
+    final_range <- lubridate::interval(as.Date(config$xmin), lubridate::int_end(data_range))
+  } else if (xmax_provided) {
+    final_range <- lubridate::interval(lubridate::int_start(data_range), as.Date(config$xmax))
+  } else {
+    final_range <- data_range
+  }
   if(is.na(final_range)) {
     final_range <- data_range
     message("Tvoji xmin oz xmax datumi niso v podatkih, zato je prikazan celoten razpon.")
