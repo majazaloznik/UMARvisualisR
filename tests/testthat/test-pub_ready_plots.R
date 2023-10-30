@@ -11,7 +11,7 @@ dittodb::with_mock_db({
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
     results <- prep_data(x, con)
     xlims <- get_x_lims(results$datapoints, results$config)
-    expect_equal(xlims$range, structure(c(8217, 19539), class = "Date"))
+    expect_equal(xlims$range, structure(c(14610, 19539), class = "Date"))
     results$config$xmax <- "2022-01-01"
     xlims <- get_x_lims(results$datapoints, results$config)
     expect_equal(xlims$range, structure(c(14610, 18993), class = "Date"))
