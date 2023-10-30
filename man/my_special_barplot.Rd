@@ -4,23 +4,12 @@
 \alias{my_special_barplot}
 \title{Barplot that can handle negative values}
 \usage{
-my_special_barplot(
-  data_matrix,
-  beside = FALSE,
-  axes = TRUE,
-  ylim = NULL,
-  border = "white",
-  col = NULL,
-  panel.first = NULL,
-  space = 0.2,
-  xpd = TRUE,
-  ...
-)
+my_special_barplot(data_matrix, ...)
 }
 \arguments{
 \item{data_matrix}{vector or matrix of heights of the bars}
 
-\item{...arguments}{to be passed to barplot}
+\item{...}{to be passed to barplot}
 }
 \value{
 nothing, just plots
@@ -28,4 +17,8 @@ nothing, just plots
 \description{
 A rework of the base barplot funciton that allows for negative
 values to be properly plotted i.e. from zero downwards.
+SOme extra lines to handle the fact that you might want to
+pass the add argument to it as well. Does not play nice with
+panel.first, but i don't need it to really, so i left that to the reader
+as an exercise :)
 }

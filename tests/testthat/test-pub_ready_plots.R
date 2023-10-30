@@ -11,26 +11,23 @@ dittodb::with_mock_db({
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
     results <- prep_data(x, con)
     xlims <- get_x_lims(results$datapoints, results$config)
-    expect_equal(xlims, structure(c(709948800, 1688169600), class = c("POSIXct", "POSIXt"
-    ), tzone = "UTC"))
+    expect_equal(xlims$range, structure(c(8217, 19539), class = "Date"))
     results$config$xmax <- "2022-01-01"
     xlims <- get_x_lims(results$datapoints, results$config)
-    expect_equal(xlims, structure(c(1262304000, 1640995200), class = c("POSIXct", "POSIXt"
-    ), tzone = "UTC"))
+    expect_equal(xlims$range, structure(c(14610, 18993), class = "Date"))
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet26")
     results <- prep_data(x, con)
     xlims <- get_x_lims(results$datapoints, results$config)
-    expect_equal(xlims, structure(c(1139961600, 1676419200), class = c("POSIXct", "POSIXt"
-    ), tzone = "UTC"))
+    expect_equal(xlims$range, structure(c(13194, 19403), class = "Date"))
   })
 
   test_that("top margins are calculated correctly", {
     config <- list(series = c(1,2,3),
                    legend_columns = 2,
                    title = "Very very long title that just keeps going on and on and hopefully takes up at least two lines for me to be able to test this shit properly.")
-    top <- get_top_margin_and_title(config)
+    top <- get_top_margin_and_title(config, 1, 10)
     expect_true(top[[1]]> 3.1 & top[[1]] < 3.2)
-    expect_equal(top[[2]], 1.54)
+    expect_equal(top[[2]], 1.46)
 
   })
 

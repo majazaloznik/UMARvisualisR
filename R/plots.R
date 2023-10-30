@@ -370,46 +370,38 @@ multivariate_line_chart <- function(prep_l, xmin = "2011-01-01", xmax =NULL){
 #'
 #' A rework of the base barplot funciton that allows for negative
 #' values to be properly plotted i.e. from zero downwards.
+#' SOme extra lines to handle the fact that you might want to
+#' pass the add argument to it as well. Does not play nice with
+#' panel.first, but i don't need it to really, so i left that to the reader
+#' as an exercise :)
 #'
 #' @param data_matrix vector or matrix of heights of the bars
-#' @param ...arguments to be passed to barplot
+#' @param ... to be passed to barplot
 #'
 #' @return nothing, just plots
 #' @export
 #'
+my_special_barplot <- function(data_matrix, ...){
 
-my_special_barplot <- function(
-    data_matrix,
-    beside = FALSE,
-    axes = TRUE,
-    ylim = NULL,
-    border = "white",
-    col = NULL,
-    panel.first = NULL,
-    space = 0.2,
-    xpd = TRUE,
-    ...
-) {
   # Extract the add argument
   args_list <- list(...)
-  add_arg <- if("add" %in% names(args_list)) args_list$add else FALSE
+  add_arg <- ifelse("add" %in% names(args_list), args_list$add, FALSE)
 
   # Separate positive and negative data
   positive_data <- pmax(data_matrix, 0)
   negative_data <- pmin(data_matrix, 0)
 
+  # Calculate endpoints
+  positive_endpoints <- (apply(positive_data, 2, cumsum))
+  negative_endpoints <- (apply(negative_data, 2, cumsum))
+
   # Draw bars
+  barplot(positive_data, ...)
   if (!add_arg) {
     # If original call did not have add = TRUE
-    if (!is.null(panel.first))
-    barplot(positive_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, space = space, xpd = xpd, ...)
-    eval(panel.first, envir = parent.frame())
-    barplot(positive_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, add = TRUE,space = space, xpd = xpd, ...)
-    barplot(negative_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, add = TRUE, space = space, xpd = xpd, ...)
+    barplot(negative_data, add = TRUE, ...)
   } else {
-    # If original call had add = TRUE, only add positive/negative bars
-    eval(panel.first, envir = parent.frame())
-    barplot(positive_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, space = space, xpd = xpd, ...)
-    barplot(negative_data, beside = beside, axes = axes, ylim = ylim, border = border, col = col, space = space, xpd = xpd, ...)
+    # If original call had add = TRUE it's already in ...
+    barplot(negative_data, ...)
   }
 }

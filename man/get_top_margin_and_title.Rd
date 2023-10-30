@@ -9,15 +9,15 @@ get_top_margin_and_title(config, left_mar, title_ps)
 \arguments{
 \item{config}{dictionary list from \link[UMARvisualisR]{prep_config}}
 
-\item{title_ps}{title font size in points defaults 10}
+\item{left_mar}{number of lines for left margin (usually \link[UMARvisualisR]{left_axis_label_width} + 1}
 
-\item{legend_ps}{legend font size in points, defaults to 9}
+\item{title_ps}{title font size in points defaults 10}
 }
 \value{
 top margin in lines, vertical title position in lines and wrapped title
 }
 \description{
-A bit of an eclectic funciton, but there's no way around it. This funciton
+A bit of an eclectic function, but there's no way around it. This funciton
 creates a blind plot to get the user dimensions
 of the final chart, which lets it wrap the title, which lets it get the number
 of lines for the title, which along with the number of lines in the legend

@@ -7,7 +7,9 @@
 get_data_values(datapoints, config)
 }
 \arguments{
-\item{config}{}
+\item{datapoints}{list of dataframes from \link[UMARvisualisR]{prep_data}}
+
+\item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
 }
 \value{
 vector of numeric values

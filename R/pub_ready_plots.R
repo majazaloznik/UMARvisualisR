@@ -31,7 +31,7 @@ get_x_lims <- function(datapoints, config){
     purrr::map(~dplyr::filter(.x, date >= lubridate::int_start(final_range) &
                          date <= lubridate::int_end(final_range)))
 
-  return(list(range = c(lubridate::int_start(final_range), lubridate::int_end(final_range)),
+  return(list(range = as.Date(c(lubridate::int_start(final_range), lubridate::int_end(final_range))),
               datapoints = datapoints))
 }
 
@@ -121,7 +121,7 @@ base_barplot <- function(datapoints, config, y_axis){
 
 #' Helper funciton to get the number of lines for the top margin and title position
 #'
-#' A bit of an eclectic funciton, but there's no way around it. This funciton
+#' A bit of an eclectic function, but there's no way around it. This funciton
 #' creates a blind plot to get the user dimensions
 #' of the final chart, which lets it wrap the title, which lets it get the number
 #' of lines for the title, which along with the number of lines in the legend
@@ -129,8 +129,8 @@ base_barplot <- function(datapoints, config, y_axis){
 #' Also returns the position of the title in lines and the wrapped title.
 #'
 #' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
+#' @param left_mar number of lines for left margin (usually \link[UMARvisualisR]{left_axis_label_width} + 1
 #' @param title_ps title font size in points defaults 10
-#' @param legend_ps legend font size in points, defaults to 9
 #'
 #' @return top margin in lines, vertical title position in lines and wrapped title
 #' @export
@@ -238,14 +238,16 @@ publication_ready_plot <- function(datapoints, config){
   # get top margins
   top <- get_top_margin_and_title(config, left$y_lab_lines + 1, title_ps = title_ps)
 
-  if(!bar)
-  # empty plot
+  if(!bar){
+    # empty plot
     empty_plot(x_lims, y_axis, left$unit)
+    # draw lines
+    draw_lines(datapoints, config)}
   if(bar)
     # barplot
     x_values <- base_barplot(datapoints, config, y_axis)
   if(bar & line)
-    draw_lines(datapoints, x_values = x_values)
+    draw_lines(datapoints, config, x_values = x_values)
 
 
   # legend
@@ -260,7 +262,21 @@ publication_ready_plot <- function(datapoints, config){
 
 }
 
-draw_lines <- function(datapoints, x_values = NULL){
+#' Draw lines onto plot
+#'
+#' This works for either plotting only lines on a preexisting empty plot
+#' from \link[UMARvisualisR]{empty_plot}, or plotting on top of existing
+#' barplot from \link[UMARvisualisR]{base_barplot} in which case you
+#' have to pass it the bar midpoints as x_values
+#'
+#' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
+#' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
+#' @param x_values vector of midpoints from \link[UMARvisualisR]{base_barplot}
+#'
+#' @return nothing, just draws lines
+#' @export
+#'
+draw_lines <- function(datapoints, config, x_values = NULL){
  if(!missing(x_values)){
    series_types <- vapply(config$series, \(x) x$type, character(1))
    series_colours <- vapply(config$series, \(x) x$colour, character(1))
@@ -273,10 +289,16 @@ draw_lines <- function(datapoints, x_values = NULL){
    x_values <- interpolate_x(x_values$dates, x_values$midpoints, line_datapoints$date)
    for (i in 1:ncol(numeric_cols)) {
      y_values <- dplyr::pull(numeric_cols[,i])
-     lines(x_values[!is.na(y_values)], na.omit(y_values) , col=line_colours[i], type="l", lwd = 2)
+     lines(x_values[!is.na(y_values)], na.omit(y_values),
+           col=line_colours[i], type="l", lwd = 2)
+   }
+ } else {# means there are only only lines
+   line_colours <- vapply(config$series, \(x) x$colour, character(1))
+   for (i in 1:length(datapoints)) {
+     lines(datapoints[[i]]$date, datapoints[[i]]$value ,
+           col=line_colours[i], type="l", lwd = 2)
    }
  }
-
 }
 
 

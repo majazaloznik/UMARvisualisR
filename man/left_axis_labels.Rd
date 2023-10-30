@@ -7,11 +7,13 @@
 left_axis_labels(unit, axis_positions, axis_labels, y_lab_lines)
 }
 \arguments{
+\item{unit}{unit usually from \link[UMARvisualisR]{left_axis_label_width}}
+
+\item{axis_positions}{axis label positions usually from \link[UMARvisualisR]{left_axis_label_width}}
+
+\item{axis_labels}{labels from \link[UMARvisualisR]{left_axis_label_width}}
+
 \item{y_lab_lines}{number of margin lines from \link[UMARvisualisR]{left_axis_label_width}}
-
-\item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
-
-\item{axes_labels}{labels from \link[UMARvisualisR]{left_axis_label_width}}
 }
 \value{
 nothing, draws axis title and labels

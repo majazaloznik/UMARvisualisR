@@ -599,8 +599,9 @@ left_axis_label_width <- function(config, y_axis) {
 
 #' Draw left axis labels
 #'
-#' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
-#' @param axes_labels labels from \link[UMARvisualisR]{left_axis_label_width}
+#' @param unit unit usually from \link[UMARvisualisR]{left_axis_label_width}
+#' @param axis_positions axis label positions usually from \link[UMARvisualisR]{left_axis_label_width}
+#' @param axis_labels labels from \link[UMARvisualisR]{left_axis_label_width}
 #' @param y_lab_lines number of margin lines from \link[UMARvisualisR]{left_axis_label_width}
 #'
 #' @return nothing, draws axis title and labels
@@ -625,8 +626,8 @@ left_axis_labels <- function(unit, axis_positions, axis_labels, y_lab_lines){
 #' sure the ylims are correct if it's a stacked barchart. Christ, i am
 #' really overdoing this shit.
 #'
-#' @param datapoints
-#' @param config
+#' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
+#' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #'
 #' @return vector of numeric values
 #' @export
