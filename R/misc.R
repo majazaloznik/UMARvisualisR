@@ -566,6 +566,7 @@ legend_mz2 <- function(x = par("usr")[[1]],
 #' Changes euros to millions of euros if necessary and calculates how much
 #' space the left margin needs to be. Returns axis title, axis labels, and
 #' number of lines
+#'
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param y_axis output of \link[UMARvisualisR]{find_pretty_ylim}
 #'
@@ -587,7 +588,7 @@ left_axis_label_width <- function(config, y_axis) {
                                  scientific = FALSE),
                           units = "inches")/par("csi")
   current_mar <- par("mar")
-  current_mar[2] <- y_lab_lines + 1
+  current_mar[2] <- y_lab_lines + 2
   par(mar =  current_mar)
   unit <- config$y_axis_label
   mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines"))
@@ -646,4 +647,97 @@ get_data_values <- function(datapoints, config){
 
   if(any(vapply(config$series, \(x) x$type, character(1)) == "bar")) values <- c(values, 0)
   return(values)
+}
+
+
+
+#' Check if timeseries has a complete last year
+#'
+#' @param datapoints_df dataframe with date column
+#'
+#' @return logical
+#' @export
+#'
+last_year_complete_series <- function(datapoints_df) {
+  datapoints_df |>
+    mutate(year = lubridate::year(date),
+           max_year = max(year)) |>
+    group_by(year) |>
+    filter(year == max_year) |>
+    mutate(count = n()) |>
+    filter(count == max(count), date == max(date)) -> last_period
+
+  # check if ends in Q4 or 12th month
+  if(last_period$count == 4 & lubridate::month(last_period$date) >= 10) {
+    complete <- TRUE
+    } else if (last_period$count == 12 ) {
+      complete <- TRUE
+    }  else {complete <- FALSE}
+  return(complete)
+}
+
+
+#' Check if at least one timeseries has a complete last year
+#'
+#' Takes a list of dataframes with a date column and checks
+#' if at least one of the series has a complete final year.
+#'
+#' @param datapoints list od datapoints dataframes
+#'
+#' @return logical
+#' @export
+#'
+last_year_complete <- function(datapoints) {
+  any(sapply(datapoints, last_year_complete_series))
+}
+
+
+
+
+#' Medium year label squishing
+#'
+#' Squishes all but the first year to YY instead of YYYY
+#'
+#' @param sequence numeric sequence of YYYY values of lenght >2
+#'
+#' @return same length sequence of character labels
+#' @export
+#'
+year_squisher_medium <- function(sequence){
+  new_sequence <- as.character(sequence[1])
+  c(new_sequence,substr(sequence[-1],3,4))
+}
+
+#' Extra  year label squishing
+#'
+#' Squishes all but the first year to YY instead of YYYY, but
+#' only keeps every 5th year plust the first and last value.
+#'
+#' @param sequence numeric sequence of YYYY values of lenght >2
+#'
+#' @return same length sequence of character labels
+#' @export
+year_squisher_extra <- function(sequence){
+  middle_seq <- sequence[2:(length(sequence)-1)]
+  middle_seq <- ifelse(middle_seq %% 5 == 0, as.character(middle_seq), "")
+  c(as.character(sequence[1]),
+    substr(c(middle_seq, as.character(sequence[length(sequence)])),3,4)
+  )
+}
+
+#' Year label squishing function
+#'
+#' Squishes year labels using medium squishing - all but the first label
+#' go to YY - or extra squishing: keeping only every 5th one, plus the first
+#' and last value.
+#'
+#' @param sequence numeric sequence of YYYY values of lenght >2
+#' @param extra logical indicator of extra squishing
+#'
+#' @return same length sequence of character labels
+#' @export
+#'
+year_squisher <- function(sequence, extra = FALSE){
+  if (!extra) year_squisher_medium(sequence) else
+    year_squisher_extra(sequence)
 }

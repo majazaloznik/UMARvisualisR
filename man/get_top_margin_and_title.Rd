@@ -4,12 +4,10 @@
 \alias{get_top_margin_and_title}
 \title{Helper funciton to get the number of lines for the top margin and title position}
 \usage{
-get_top_margin_and_title(config, left_mar, title_ps)
+get_top_margin_and_title(config, title_ps)
 }
 \arguments{
 \item{config}{dictionary list from \link[UMARvisualisR]{prep_config}}
-
-\item{left_mar}{number of lines for left margin (usually \link[UMARvisualisR]{left_axis_label_width} + 1}
 
 \item{title_ps}{title font size in points defaults 10}
 }

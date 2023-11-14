@@ -141,18 +141,16 @@ base_barplot <- function(datapoints, config, y_axis){
 #' Also returns the position of the title in lines and the wrapped title.
 #'
 #' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
-#' @param left_mar number of lines for left margin (usually \link[UMARvisualisR]{left_axis_label_width} + 1
 #' @param title_ps title font size in points defaults 10
 #'
 #' @return top margin in lines, vertical title position in lines and wrapped title
 #' @export
-get_top_margin_and_title <- function(config, left_mar, title_ps){
+get_top_margin_and_title <- function(config, title_ps){
   gap <- 0.15
   #blind plot
   plot.new()
   mar <- par("mar")
   mar[1] <- 2.1
-  mar[2] <- left_mar
   mar[4] <- 0.2
   par(mar = mar)
   plot.window(c(0,10), c(0,10))
@@ -248,7 +246,7 @@ publication_ready_plot <- function(datapoints, config){
 
 
   # get top margins
-  top <- get_top_margin_and_title(config, left$y_lab_lines + 1, title_ps = title_ps)
+  top <- get_top_margin_and_title(config, title_ps = title_ps)
 
   if(!bar){
     # empty plot
@@ -269,9 +267,36 @@ publication_ready_plot <- function(datapoints, config){
   par("ps" = title_ps)
   mtext(top[[3]], side = 3,  line = top[[2]], adj = 0, padj = 0, family = "Myriad Pro", font = 2)
 
-  left_axis_labels(left$unit, left$axis_positions, left$axis_labels, left$y_lab_lines)
+  left_axis_labels(left$unit, left$axis_positions, left$axis_labels, left$y_lab_lines + 1)
 
+  # axis tickmarks
+  axis.Date(1,
+            at=seq(min(x_lims), max(x_lims), by="1 year"),
+            col = umar_cols("gridlines"),
+            lwd = 0, lwd.ticks =1, tck=-0.02, labels = FALSE)
 
+  # x axis
+  last_year_complete_log <- last_year_complete(datapoints)
+
+  if(last_year_complete_log) {
+    # shifting year labels by six months
+    x_min_shift <- as.POSIXlt(min(x_lims))
+    x_min_shift$mon <- as.POSIXlt(min(x_lims))$mon+6
+    x_max_shift <- as.POSIXlt(max(x_lims))
+    x_max_shift$mon <- as.POSIXlt(max(x_lims))$mon+6
+    x <- seq(x_min_shift, x_max_shift, by="1 year")
+    x_labels_size <- max(strwidth(format(x, format = "%Y"), units = "user"))
+    coord <- par("usr")
+    x_tick_dist <- (coord[2]-coord[1]) /length(x)
+    x_las <- ifelse(x_labels_size * 1.40 < x_tick_dist, 1, 2)
+    if(x_las == 1) {mgp_2 <- -0.2}
+    if(x_las == 2) {mgp_2 <- 0.3}
+    suppressWarnings(par(mgp=c(3,mgp_2,0)))
+    axis.Date(1,at=seq(x_min_shift, x_max_shift, by="1 year"),
+              col = umar_cols("gridlines"),
+              lwd = 0, tck = 0,  family ="Myriad Pro",
+              las = x_las, padj = 0.5, format = "%Y")
+  }
 }
 
 #' Draw lines onto plot

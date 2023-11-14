@@ -122,4 +122,32 @@ test_that("legend lines work correctly", {
   expect_equal(get_legend_lines(c("s1", "s2", "s3"), 3), 1)
 })
 
+test_that("year_squisher_medium works correctly", {
+  expect_equal(year_squisher_medium(1990:1995), c("1990", "91", "92", "93", "94", "95"))
+  expect_equal(year_squisher_medium(c(2000)), c("2000"))
+})
 
+test_that("year_squisher_extra works correctly", {
+  expect_equal(year_squisher_extra(1990:2000), c("1990", "", "", "", "", "95", "", "", "", "", "00"))
+})
+
+test_that("year_squisher works correctly", {
+  expect_equal(year_squisher(1990:1995, extra = FALSE), year_squisher_medium(1990:1995))
+  expect_equal(year_squisher(1990:2000, extra = TRUE), year_squisher_extra(1990:2000))
+})
+
+test_that("last_year_complete_series works correctly", {
+  # Complete timeseries for a year on a monthly basis
+  df_complete_12 <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2022-12-01"), by = "month"))
+  # Complete timeseries for a year on a quarterly basis
+  df_complete_4Q <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2022-10-01"), by = "quarter"))
+  # Incomplete timeseries (missing December)
+  df_incomplete <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2022-11-01"), by = "month"))
+
+  expect_true(last_year_complete_series(df_complete_12))
+  expect_true(last_year_complete_series(df_complete_4Q))
+  expect_false(last_year_complete_series(df_incomplete))
+  expect_true(last_year_complete(list(df_complete_12, df_incomplete)))
+  expect_false(last_year_complete(list(df_incomplete, df_incomplete)))
+
+})
