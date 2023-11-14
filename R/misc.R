@@ -660,12 +660,12 @@ get_data_values <- function(datapoints, config){
 #'
 last_year_complete_series <- function(datapoints_df) {
   datapoints_df |>
-    mutate(year = lubridate::year(date),
+    dplyr::mutate(year = lubridate::year(date),
            max_year = max(year)) |>
-    group_by(year) |>
-    filter(year == max_year) |>
-    mutate(count = n()) |>
-    filter(count == max(count), date == max(date)) -> last_period
+    dplyr::group_by(year) |>
+    dplyr::filter(year == max_year) |>
+    dplyr::mutate(count = dplyr::n()) |>
+    dplyr::filter(count == max(count), date == max(date)) -> last_period
 
   # check if ends in Q4 or 12th month
   if(last_period$count == 4 & lubridate::month(last_period$date) >= 10) {
