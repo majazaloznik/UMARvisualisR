@@ -309,6 +309,9 @@ check_plot_inputs <- function(df, con){
   if (!check_consistency_or_na(df$desna_y_os)) {
     errors <- c(errors,
                 paste("\nVse vrednosti v polju desna_y_os morajo biti enake."))}
+  if (!check_consistency_or_na(df$x_brez_let)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju x_brez_let morajo biti enake."))}
 
   if (any(duplicated(df$legenda[df$barva!=0 | is.na(df$barva)]))) {
     errors <- c(errors,
@@ -447,6 +450,7 @@ prep_config <- function(df) {
     right_y = NULL,
     stacked = FALSE,
     chart_size = 2,
+    x_sub_annual = FALSE,
     series = list(
       list(series_code = NULL,
            unit = NULL,
@@ -491,6 +495,9 @@ prep_config <- function(df) {
   }
   if (!all(is.na(df$stacked))) {
     config$stacked <- unique_without_na(df$stacked)
+  }
+  if (!all(is.na(df$x_brez_let))) {
+    config$x_sub_annual <- unique_without_na(df$x_brez_let)
   }
   if(length(unique_without_na(df$enota)) == 2) {
     config$dual_y <- TRUE}
