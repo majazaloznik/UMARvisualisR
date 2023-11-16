@@ -3,14 +3,15 @@
 #' takes the maximum range of all the series in the datapoints tables
 #' and then cuts it down by the values of xmin and xmax passed in the
 #' config dictionary. If the intervals don't overlap, uses just the
-#' datapoint range, ignoring the user input.
+#' datapoint range, ignoring the user input. Returns the actual minimum and
+#' maximum in the data
 #'
 #' Returns the range as well as filtered datapoints.
 #'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #'
-#' @return a list with the xmin and xmax values in date format and the filtered datapoints
+#' @return a list with the xmin and xmax values of the data in date format and the filtered datapoints
 #' @export
 get_x_lims <- function(datapoints, config){
   # get max limits from data
@@ -42,8 +43,11 @@ get_x_lims <- function(datapoints, config){
   datapoints <- datapoints |>
     purrr::map(~dplyr::filter(.x, date >= lubridate::int_start(final_range) &
                          date <= lubridate::int_end(final_range)))
+  all_dates <- purrr::map(datapoints, ~ .x$date) |>  unlist()
+  range <- c(min_date = as.Date(min(all_dates), origin = "1970-01-01"),
+       max_date = as.Date(max(all_dates), origin = "1970-01-01"))
 
-  return(list(range = as.Date(c(lubridate::int_start(final_range), lubridate::int_end(final_range))),
+  return(list(range = range,
               datapoints = datapoints))
 }
 
@@ -282,20 +286,26 @@ publication_ready_plot <- function(datapoints, config){
     # shifting year labels by six months
     x_min_shift <- as.POSIXlt(min(x_lims))
     x_min_shift$mon <- as.POSIXlt(min(x_lims))$mon+6
+    x_min_shift <- as.Date(x_min_shift)
     x_max_shift <- as.POSIXlt(max(x_lims))
     x_max_shift$mon <- as.POSIXlt(max(x_lims))$mon+6
-    x <- seq(x_min_shift, x_max_shift, by="1 year")
-    x_labels_size <- max(strwidth(format(x, format = "%Y"), units = "user"))
+    x_max_shift <- as.Date(x_max_shift)
+
+    x_labels <- format(seq(x_min_shift, x_max_shift, by="1 year"), format = "%Y")
+    # check overlapping labels
+    x_labels_size <- max(strwidth(x_labels, units = "user"))
     coord <- par("usr")
-    x_tick_dist <- (coord[2]-coord[1]) /length(x)
-    x_las <- ifelse(x_labels_size * 1.40 < x_tick_dist, 1, 2)
-    if(x_las == 1) {mgp_2 <- -0.2}
-    if(x_las == 2) {mgp_2 <- 0.3}
-    suppressWarnings(par(mgp=c(3,mgp_2,0)))
-    axis.Date(1,at=seq(x_min_shift, x_max_shift, by="1 year"),
+    x_tick_dist <- (coord[2]-coord[1]) /length(x_labels)
+     if(x_labels_size * 1.40 < x_tick_dist) {
+       x_labels <- x_labels} else      {
+         x_labels <- year_squisher(x_labels)}
+
+    suppressWarnings(par(mgp=c(3,-0.2,0)))
+    axis(1, x_labels,
+              at = as.numeric(seq(min(x_min_shift), max(x_max_shift), by="1 year")),
               col = umar_cols("gridlines"),
               lwd = 0, tck = 0,  family ="Myriad Pro",
-              las = x_las, padj = 0.5, format = "%Y")
+              padj = 0.5)
   }
 }
 

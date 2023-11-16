@@ -12,13 +12,14 @@ get_x_lims(datapoints, config)
 \item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
 }
 \value{
-a list with the xmin and xmax values in date format and the filtered datapoints
+a list with the xmin and xmax values of the data in date format and the filtered datapoints
 }
 \description{
 takes the maximum range of all the series in the datapoints tables
 and then cuts it down by the values of xmin and xmax passed in the
 config dictionary. If the intervals don't overlap, uses just the
-datapoint range, ignoring the user input.
+datapoint range, ignoring the user input. Returns the actual minimum and
+maximum in the data
 }
 \details{
 Returns the range as well as filtered datapoints.
