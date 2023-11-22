@@ -1,19 +1,18 @@
-#' Get x limits from data and config and filter datapoiunts
+#' Cut datapoints to x limits from config
 #'
 #' takes the maximum range of all the series in the datapoints tables
 #' and then cuts it down by the values of xmin and xmax passed in the
 #' config dictionary. If the intervals don't overlap, uses just the
-#' datapoint range, ignoring the user input. Returns the actual minimum and
-#' maximum in the data
+#' datapoint range, ignoring the user input.
 #'
-#' Returns the range as well as filtered datapoints.
+#' Returns filtered datapoints.
 #'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #'
 #' @return a list with the xmin and xmax values of the data in date format and the filtered datapoints
 #' @export
-get_x_lims <- function(datapoints, config){
+cut_to_x_range <- function(datapoints, config){
   # get max limits from data
   limits <- unlist(purrr::map(datapoints, \(x) range(x$date, na.rm = TRUE)))
   xmin <- as.Date(min(limits), origin = "1970-01-01")
@@ -43,12 +42,24 @@ get_x_lims <- function(datapoints, config){
   datapoints <- datapoints |>
     purrr::map(~dplyr::filter(.x, date >= lubridate::int_start(final_range) &
                          date <= lubridate::int_end(final_range)))
-  all_dates <- purrr::map(datapoints, ~ .x$date) |>  unlist()
-  range <- c(min_date = as.Date(min(all_dates), origin = "1970-01-01"),
-       max_date = as.Date(max(all_dates), origin = "1970-01-01"))
 
-  return(list(range = range,
-              datapoints = datapoints))
+  return(datapoints)
+}
+
+#' Get x limits from the data
+#'
+#' Used after the data has been cut to user xlims, this returns the
+#' actual first and last date in the datapoints
+#'
+#' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
+#'
+#' @return
+#' @export
+#'
+get_x_lims <- function(datapoints){
+  all_dates <- purrr::map(datapoints, ~ .x$date) |>  unlist()
+  c(min_date = as.Date(min(all_dates), origin = "1970-01-01"),
+    max_date = as.Date(max(all_dates), origin = "1970-01-01"))
 }
 
 #' Plots empty plot with gridlines
@@ -154,8 +165,8 @@ get_top_margin_and_title <- function(config, title_ps){
   #blind plot
   plot.new()
   mar <- par("mar")
-  mar[1] <- 2.1
-  mar[4] <- 0.2
+  mar[1] <- 1.6
+  mar[4] <- 0.7
   par(mar = mar)
   plot.window(c(0,10), c(0,10))
 
@@ -212,6 +223,157 @@ create_legend <- function(config, legend_ps) {
              y.intersp = 0.7)
 }
 
+#' Get x_axis lims and tickmarks
+#'
+#' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
+#' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
+#'
+#' @return named list of tickmarks and x_lims
+#' @export
+#'
+x_axis_lims_tickmarks <- function(datapoints, config) {
+  # get x lims
+  x_lims <- get_x_lims(datapoints)
+
+  last_year_complete_log <- last_year_complete(datapoints)
+  only_annual_log <- only_annual_intervals(datapoints)
+
+  # annual labels
+  if(!config$x_sub_annual){
+
+    # axis tickmarks
+    if(only_annual_log){
+      tickmarks <- seq(x_lims[[1]], x_lims[[2]], by="1 year")
+    } else if(last_year_complete_log) { # non annual data but complete last year
+      tickmarks <- seq(first_day_of_year(x_lims[[1]]),
+                       last_day_of_year(x_lims[[2]]) + 1 , by="1 year")
+    } else { # non annual data and incomplete years
+      tickmarks <- seq(first_day_of_year(x_lims[[1]]),
+                       first_day_of_year(x_lims[[2]]), by="1 year")
+      tickmarks <- c(tickmarks, x_lims[[2]])
+    }
+
+    # axis limits
+    x_lims <- c(min(tickmarks), max(tickmarks))
+
+    mget(c("tickmarks", "x_lims"))
+  }
+}
+#' Get x axis parameters
+#'
+#' Takes the datapoints and config (for user xmin and xmax mainly) and
+#' calculates the ticmkark positions, the label positions, the default
+#' labels (not handling overlapping just yet) and the xlims for the x axis.
+#'
+#' Taking into account if the data is only annual - in which case the tickmarks
+#' and lables align - or monthly/quarterly in which case the labels are between.
+#' Taking into account if the last year is complete or not, which determines
+#' the last tickmark and label etc.
+#'
+#' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
+#' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
+#' @param tickmarks vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}
+#' @param x_lims vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}
+#'
+#' @return list of named x_positions, x_labels, tickmars and x_lims
+#' @export
+#'
+x_axis_label_params <- function(datapoints, config, tickmarks, x_lims) {
+
+  last_year_complete_log <- last_year_complete(datapoints)
+  only_annual_log <- only_annual_intervals(datapoints)
+
+  # annual labels
+  if(!config$x_sub_annual){
+
+
+    # x_positions
+    if(only_annual_log){
+      x_positions <- tickmarks
+    } else if(last_year_complete_log) { # non annual data but complete last year
+      x_positions <- shift_dates_by_six_months(tickmarks)[-length(tickmarks)]
+    } else { # non annual data and incomplete years
+      x_positions <- shift_dates_by_six_months(tickmarks)[1:(length(tickmarks) - 2)]
+      x_positions <- c(x_positions, tickmarks[length(tickmarks)])
+    }
+
+    # labels
+    if(only_annual_log){
+      x_labels <- format(tickmarks, format = "%Y")
+    } else if(last_year_complete_log) { # non annual data but complete last year
+      x_labels <- format(tickmarks, format = "%Y")[-length(tickmarks)]
+    } else { # non annual data and incomplete years
+      x_labels <- format(tickmarks, format = "%Y")[1:(length(tickmarks) - 2)]
+      int <- get_most_recent_interval(datapoints)
+      if(int == "M"){
+        x_labels <- c(x_labels, format(tickmarks[length(tickmarks)], format = "%b%y"))}
+      if(int == "Q"){
+        x_labels <- c(x_labels, quarterly_label(tickmarks[length(tickmarks)]))}
+    }
+    min_gap <- calculate_smallest_gap(x_positions, x_labels)
+
+    if(only_annual_log | last_year_complete_log) { # annual labels only
+      if (min_gap < 0.30) { # squish once
+        x_labels <- year_squisher(x_labels)
+        min_gap <- calculate_smallest_gap(x_positions, x_labels)
+        if (min_gap < 0.30) { # squish only last
+          x_labels[(length(x_labels)-1)] <- NA
+          filtered <- filter_na_labels(x_positions, x_labels)
+          x_positions <- filtered$x_positions
+          x_labels <- filtered$x_labels
+          min_gap <- calculate_smallest_gap(x_positions, x_labels)
+          if (min_gap < 0.30) { # squish again
+            x_labels <- year_squisher(x_labels, extra = TRUE)
+            filtered <- filter_na_labels(x_positions, x_labels)
+            x_positions <- filtered$x_positions
+            x_labels <- filtered$x_labels
+            min_gap <- calculate_smallest_gap(x_positions, x_labels)
+            if (min_gap < 0.30) { # squish only last
+              x_labels[(length(x_labels)-1)] <- NA
+              filtered <- filter_na_labels(x_positions, x_labels)
+              x_positions <- filtered$x_positions
+              x_labels <- filtered$x_labels
+            }
+          }
+        }
+      }
+    }
+    else { # non annual data and incomplete years
+      if (min_gap < 0.30) { # squish once
+        x_labels <- c(year_squisher(x_labels[-length(x_labels)]),
+                      x_labels[length(x_labels)])
+        min_gap <- calculate_smallest_gap(x_positions, x_labels)
+        if (min_gap < 0.30) { # squish only last
+          x_labels[(length(x_labels)-1)] <- NA
+          filtered <- filter_na_labels(x_positions, x_labels)
+          x_positions <- filtered$x_positions
+          x_labels <- filtered$x_labels
+          min_gap <- calculate_smallest_gap(x_positions, x_labels)
+          if (min_gap < 0.30) { # squish again
+            x_labels <- year_squisher(x_labels, extra = TRUE)
+            filtered <- filter_na_labels(x_positions, x_labels)
+            x_positions <- filtered$x_positions
+            x_labels <- filtered$x_labels
+            min_gap <- calculate_smallest_gap(x_positions, x_labels)
+            if (min_gap < 0.30) { # squish only last
+              x_labels[(length(x_labels)-1)] <- NA
+              filtered <- filter_na_labels(x_positions, x_labels)
+              x_positions <- filtered$x_positions
+              x_labels <- filtered$x_labels
+            }
+          }
+        }
+      }
+    }
+
+
+
+  } else { # sub annual labels - not implemented yet
+    print("Grafi z oznakami na x-osi za mesece oz. kvartale \u0161e niso implementirani.")
+  }
+  mget(c( "x_positions", "x_labels", "tickmarks", "x_lims"))
+}
+
 
 #' Umbrella function for publicaiton ready chart
 #'
@@ -231,10 +393,10 @@ publication_ready_plot <- function(datapoints, config){
   if (any(shapes == "bar"))  bar <- TRUE else  bar <- FALSE
   if (any(shapes == "line")) line <- TRUE else  line <- FALSE
 
- # get limits
-  x_lims <- get_x_lims(datapoints, config)
-  datapoints <- x_lims[[2]]
-  x_lims <- x_lims[[1]]
+ # cut data to x limits
+  datapoints <- cut_to_x_range(datapoints, config)
+
+  x_axis <- x_axis_lims_tickmarks(datapoints, config)
 
   if(config$dual_y){
     # split into left and right y-axis
@@ -243,7 +405,6 @@ publication_ready_plot <- function(datapoints, config){
 
   values <- get_data_values(datapoints, config)
   y_axis <- find_pretty_ylim(values)
-
 
   # get left margins
   left <- left_axis_label_width(config, y_axis)
@@ -254,7 +415,7 @@ publication_ready_plot <- function(datapoints, config){
 
   if(!bar){
     # empty plot
-    empty_plot(x_lims, y_axis, left$unit)
+    empty_plot(x_axis$x_lims, y_axis, left$unit)
     # draw lines
     draw_lines(datapoints, config)}
   if(bar)
@@ -263,6 +424,8 @@ publication_ready_plot <- function(datapoints, config){
   if(bar & line)
     draw_lines(datapoints, config, x_values = x_values)
 
+  # get x axis tickmark positions and label positions and limits
+  x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims)
 
   # legend
   create_legend(config, legend_ps = legend_ps)
@@ -271,42 +434,46 @@ publication_ready_plot <- function(datapoints, config){
   par("ps" = title_ps)
   mtext(top[[3]], side = 3,  line = top[[2]], adj = 0, padj = 0, family = "Myriad Pro", font = 2)
 
-  left_axis_labels(left$unit, left$axis_positions, left$axis_labels, left$y_lab_lines + 1)
+  left_axis_labels(left$unit, left$axis_positions, left$axis_labels, left$y_lab_lines)
 
-  # axis tickmarks
+  # # axis tickmarks
   axis.Date(1,
-            at=seq(min(x_lims), max(x_lims), by="1 year"),
+            at = x_axis$tickmarks,
             col = umar_cols("gridlines"),
             lwd = 0, lwd.ticks =1, tck=-0.02, labels = FALSE)
 
-  # x axis
-  last_year_complete_log <- last_year_complete(datapoints)
+  par_mgp(mgp=c(3,-0.2,0))
+  axis(1, x_axis$x_labels,
+       at = x_axis$x_positions,
+       col = umar_cols("gridlines"),
+       lwd = 0, tck = 0,  family ="Myriad Pro",
+       padj = 0.5, gap.axis = 0.25)
 
-  if(last_year_complete_log) {
-    # shifting year labels by six months
-    x_min_shift <- as.POSIXlt(min(x_lims))
-    x_min_shift$mon <- as.POSIXlt(min(x_lims))$mon+6
-    x_min_shift <- as.Date(x_min_shift)
-    x_max_shift <- as.POSIXlt(max(x_lims))
-    x_max_shift$mon <- as.POSIXlt(max(x_lims))$mon+6
-    x_max_shift <- as.Date(x_max_shift)
-
-    x_labels <- format(seq(x_min_shift, x_max_shift, by="1 year"), format = "%Y")
-    # check overlapping labels
-    x_labels_size <- max(strwidth(x_labels, units = "user"))
-    coord <- par("usr")
-    x_tick_dist <- (coord[2]-coord[1]) /length(x_labels)
-     if(x_labels_size * 1.40 < x_tick_dist) {
-       x_labels <- x_labels} else      {
-         x_labels <- year_squisher(x_labels)}
-
-    suppressWarnings(par(mgp=c(3,-0.2,0)))
-    axis(1, x_labels,
-              at = as.numeric(seq(min(x_min_shift), max(x_max_shift), by="1 year")),
-              col = umar_cols("gridlines"),
-              lwd = 0, tck = 0,  family ="Myriad Pro",
-              padj = 0.5)
-  }
+  # if(last_year_complete_log) {
+  #   # shifting year labels by six months
+  #   x_min_shift <- as.POSIXlt(min(x_lims))
+  #   x_min_shift$mon <- as.POSIXlt(min(x_lims))$mon+6
+  #   x_min_shift <- as.Date(x_min_shift)
+  #   x_max_shift <- as.POSIXlt(max(x_lims))
+  #   x_max_shift$mon <- as.POSIXlt(max(x_lims))$mon+6
+  #   x_max_shift <- as.Date(x_max_shift)
+  #
+  #   x_labels <- format(seq(x_min_shift, x_max_shift, by="1 year"), format = "%Y")
+  #   # check overlapping labels
+  #   x_labels_size <- max(strwidth(x_labels, units = "user"))
+  #   coord <- par("usr")
+  #   x_tick_dist <- (coord[2]-coord[1]) /length(x_labels)
+  #    if(x_labels_size * 1.40 < x_tick_dist) {
+  #      x_labels <- x_labels} else      {
+  #        x_labels <- year_squisher(x_labels)}
+  #
+  #   suppressWarnings(par(mgp=c(3,-0.2,0)))
+  #   axis(1, x_labels,
+  #             at = as.numeric(seq(min(x_min_shift), max(x_max_shift), by="1 year")),
+  #             col = umar_cols("gridlines"),
+  #             lwd = 0, tck = 0,  family ="Myriad Pro",
+  #             padj = 0.5)
+  # }
 }
 
 #' Draw lines onto plot

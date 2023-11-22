@@ -582,19 +582,18 @@ left_axis_label_width <- function(config, y_axis) {
   if(config$y_axis_label == "EUR" & y_label_max > 1000000) y_label_max <- y_label_max/1000000
   if(config$y_axis_label == "EUR" & max(axis_labels) > 1000000) {
     config$y_axis_label <- "Mio EUR"
-    axis_labels <- axis_labels/1000000}
+    axis_labels <- axis_labels/1000000
+    y_label_max <- max(abs(axis_labels))}
 
   y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ",",
                                  scientific = FALSE),
-                          units = "inches")/par("csi")
+                          units = "inches")/par("csi") + 0.5
   current_mar <- par("mar")
-  current_mar[2] <- y_lab_lines + 2
+  current_mar[2] <- y_lab_lines + 1
   par(mar =  current_mar)
   unit <- config$y_axis_label
   mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines"))
 }
-
-
 
 
 
@@ -654,14 +653,14 @@ get_data_values <- function(datapoints, config){
 #' Check if timeseries has a complete last year
 #'
 #' @param datapoints_df dataframe with date column
+#' @param max_year year to be checking if it is complete
 #'
 #' @return logical
 #' @export
 #'
-last_year_complete_series <- function(datapoints_df) {
+last_year_complete_series <- function(datapoints_df, max_year) {
   datapoints_df |>
-    dplyr::mutate(year = lubridate::year(date),
-           max_year = max(year)) |>
+    dplyr::mutate(year = lubridate::year(date)) |>
     dplyr::group_by(year) |>
     dplyr::filter(year == max_year) |>
     dplyr::mutate(count = dplyr::n()) |>
@@ -672,7 +671,8 @@ last_year_complete_series <- function(datapoints_df) {
     complete <- TRUE
     } else if (last_period$count == 12 ) {
       complete <- TRUE
-    }  else {complete <- FALSE}
+    }  else if (determine_interval(datapoints_df) == "A"){
+      complete <- TRUE} else {complete <- FALSE}
   return(complete)
 }
 
@@ -688,7 +688,10 @@ last_year_complete_series <- function(datapoints_df) {
 #' @export
 #'
 last_year_complete <- function(datapoints) {
-  any(sapply(datapoints, last_year_complete_series))
+   max_date <- as.Date(max(unlist(purrr::map(datapoints, ~ .x$date))),
+                       origin = "1970-01-01")
+   max_year <- lubridate::year(max_date)
+  any(sapply(datapoints, last_year_complete_series, max_year))
 }
 
 
@@ -719,10 +722,9 @@ year_squisher_medium <- function(sequence){
 #' @export
 year_squisher_extra <- function(sequence){
   middle_seq <- sequence[2:(length(sequence)-1)]
-  middle_seq <- ifelse(middle_seq %% 5 == 0, as.character(middle_seq), "")
-  c(as.character(sequence[1]),
-    substr(c(middle_seq, as.character(sequence[length(sequence)])),3,4)
-  )
+  middle_seq <- ifelse(as.numeric(middle_seq) %% 5 == 0, as.character(middle_seq), NA)
+  c(as.character(sequence[1]), middle_seq, as.character(sequence[length(sequence)]))
+
 }
 
 #' Year label squishing function
@@ -740,4 +742,214 @@ year_squisher_extra <- function(sequence){
 year_squisher <- function(sequence, extra = FALSE){
   if (!extra) year_squisher_medium(sequence) else
     year_squisher_extra(sequence)
+}
+
+
+#' Check if all datapoints have annual data only
+#'
+#' Takes list of dataframes with datapoints and checks that all of them
+#' have annual data only - regardless of the horizontal alignment i.e.
+#' start, middle or end of they year.
+#'
+#' @param datapoints list od datapoints dataframes
+#'
+#' @return logical value indicating truth
+#' @export
+#'
+only_annual_intervals <- function(datapoints) {
+  all(sapply(datapoints, determine_interval) == "A")
+}
+
+
+#' Get first day of the year
+#'
+#' @param date date
+#'
+#' @return date
+#' @export
+#'
+first_day_of_year <- function(date) {
+  lubridate::ymd(paste0(lubridate::year(date), "-01-01"))
+}
+
+#' Get last day of the year
+#'
+#' @param date date
+#'
+#' @return date
+#' @export
+#'
+last_day_of_year <- function(date) {
+  lubridate::ymd(paste0(lubridate::year(date), "-12-31"))
+}
+
+#' Add 6 months to date vector
+#'
+#' @param dates vector of dates
+#'
+#' @return vector of same lenght shifted to the right by 6 months
+#' @export
+#'
+shift_dates_by_six_months <- function(dates) {
+  dates + months(6)
+}
+
+#' Stop par mgp warning
+#'
+#' convenience funciton to stop annoying warning when using differing
+#' signs in the mgp parameters. For some reason cannot be suppressed using
+#' suppressWarnings, but this works
+#'
+#' @param mgp numeric vector of length 3 to set mgp
+#'
+#' @return
+#' @export
+par_mgp <- function(mgp=c(3,-0.2,0)) {
+  old_warn <- options("warn")
+  options(warn = -1)
+  # Set the par parameters
+  par(mgp = mgp)
+  # Restore previous warning options
+  options(old_warn)
+}
+
+#' Determine interval from timeseries dataframe
+#'
+#' function to return A, Q or M based on differences
+#' in the time periods in the dataframe.
+#'
+#' @param df dataframe with date column
+#'
+#' @return A, Q or M - or NA
+#' @export
+#'
+determine_interval <- function(df) {
+  df$date <- sort(as.Date(df$date))
+  date_diffs <- diff(df$date)
+  # Check for annual data
+  if (all(abs(as.numeric(date_diffs, units = "days") - 365) <= 1)) {
+    return("A")
+  }
+  # Check for quarterly data
+  if (all(abs(as.numeric(date_diffs, units = "days") - 91) <= 3)) {
+    return("Q")
+  }
+  # Check for monthly data
+  if (all(abs(as.numeric(date_diffs, units = "days") - 30) <= 3)) {
+    return("M")
+  }
+  return(NA)
+}
+
+#' Get dataframe with most recent datapoint
+#'
+#' Takes list of dataframes and returns the one with the most recent date value
+#'
+#' @param datapoints list of dataframes with date column
+#'
+#' @return single dataframe with date column
+#' @export
+get_most_recent_dataframe <- function(datapoints) {
+  if (length(datapoints) == 0) {
+    stop("The list is empty.")
+  }
+
+  max_dates <- sapply(datapoints, function(df) {
+    if ("date" %in% names(df)) {
+      max(as.Date(df$date))
+    } else {
+      stop("One or more dataframes do not have a 'date' column.")
+    }
+  })
+  # Check if any NA values are present (indicating missing 'date' column)
+  if (any(is.na(max_dates))) {
+    stop("One or more dataframes do not have a 'date' column.")
+  }
+  most_recent_index <- which.max(max_dates)
+
+  datapoints[[most_recent_index]]
+}
+
+#' Get the interval of the most recent dataframe datapoint
+#'
+#' Takes list of dataframes with date column and returns A, Q or M
+#'
+#' @param datapoints list of dataframes with date column
+#'
+#' @return "A", "Q" or "M"
+#' @export
+#'
+
+get_most_recent_interval <- function(datapoints){
+  df <- get_most_recent_dataframe(datapoints)
+  determine_interval(df)
+}
+
+#' Format date into quarterly label
+#'
+#' Q1-23 format
+#'
+#' @param date date
+#'
+#' @return character vector of quarterly labels
+#' @export
+#'
+quarterly_label <- function(date){
+ paste0("Q",  lubridate::quarter(date), "-",  format(date, format = "%y"))
+
+}
+
+
+#' Calculate smallest gap between labels
+#'
+#' takes x positions and labels and calculates the smallest gap in the series.
+#' the unit is the width of the letter "m"
+#'
+#' @param x_positions vector of x positions
+#' @param x_labels  character vector of x labels
+#'
+#' @return size of smallest gap in "m" width
+#' @export
+#'
+calculate_smallest_gap <- function(x_positions, x_labels) {
+  if (length(x_positions) != length(x_labels)) {
+    stop("Length of x_positions and x_labels must be the same")
+  }
+
+  # Calculate the width of the letter "m" in user coordinates
+  m_width <- graphics::strwidth("m", units = "user")
+
+  # Calculate label widths in user coordinates
+  label_widths <- sapply(x_labels, function(label) {
+    graphics::strwidth(label, units = "user")
+  })
+
+  # Calculate gaps between labels
+  gaps <- numeric(length = length(x_labels) - 1)
+  for (i in seq_along(gaps)) {
+    right_edge_prev_label <- x_positions[i] + label_widths[i] / 2
+    left_edge_next_label <- x_positions[i + 1] - label_widths[i + 1] / 2
+    gaps[i] <- (left_edge_next_label - right_edge_prev_label) / m_width
+  }
+
+  # Return smallest gap in terms of "m" width
+  min_gap <- min(gaps)
+  return(min_gap)
+}
+
+#' Filter NA labels and positions
+#'
+#' Taking the equal lenght label and position vector, removes the indices in
+#' both vectors  where the labels are NA.
+#'
+#' @param x_positions vector of label positions
+#' @param x_labels vector of labels
+#'
+#' @return list with both filtered vectors
+#' @export
+filter_na_labels <- function(x_positions, x_labels) {
+  valid_indices <- !is.na(x_labels)
+  x_positions <- x_positions[valid_indices]
+  x_labels <- x_labels[valid_indices]
+  mget(c("x_positions", "x_labels"))
 }

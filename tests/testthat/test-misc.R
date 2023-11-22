@@ -128,7 +128,7 @@ test_that("year_squisher_medium works correctly", {
 })
 
 test_that("year_squisher_extra works correctly", {
-  expect_equal(year_squisher_extra(1990:2000), c("1990", "", "", "", "", "95", "", "", "", "", "00"))
+  expect_equal(year_squisher_extra(1990:2000), c("1990", NA, NA, NA, NA, "1995", NA, NA, NA, NA, "2000"))
 })
 
 test_that("year_squisher works correctly", {
@@ -144,10 +144,69 @@ test_that("last_year_complete_series works correctly", {
   # Incomplete timeseries (missing December)
   df_incomplete <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2022-11-01"), by = "month"))
 
-  expect_true(last_year_complete_series(df_complete_12))
-  expect_true(last_year_complete_series(df_complete_4Q))
-  expect_false(last_year_complete_series(df_incomplete))
+  expect_true(last_year_complete_series(df_complete_12, 2022))
+  expect_true(last_year_complete_series(df_complete_4Q, 2022))
+  expect_false(last_year_complete_series(df_incomplete, 2022))
   expect_true(last_year_complete(list(df_complete_12, df_incomplete)))
   expect_false(last_year_complete(list(df_incomplete, df_incomplete)))
 
 })
+
+# Test for annual data
+test_that("Date intervals are correctly identified", {
+  annual_dates <- seq(as.Date("2000-01-01"), by = "year", length.out = 10)
+  df <- data.frame(date = annual_dates)
+  expect_equal(determine_interval(df), "A")
+  quarterly_dates <- seq(as.Date("2000-01-01"), by = "quarter", length.out = 10)
+  df <- data.frame(date = quarterly_dates)
+  expect_equal(determine_interval(df), "Q")
+  monthly_dates <- seq(as.Date("2000-01-01"), by = "month", length.out = 10)
+  df <- data.frame(date = monthly_dates)
+  expect_equal(determine_interval(df), "M")
+  irregular_dates <- c(as.Date("2000-01-01"), as.Date("2000-02-10"), as.Date("2000-03-15"))
+  df <- data.frame(date = irregular_dates)
+  expect_equal(determine_interval(df), NA)
+})
+
+library(testthat)
+
+
+test_that("Dataframe with most recent date is returned", {
+  df1 <- data.frame(date = as.Date("2020-01-01"))
+  df2 <- data.frame(date = as.Date("2021-01-01"))
+  df3 <- data.frame(date = as.Date("2022-01-01"))
+  datapoints <- list(df1, df2, df3)
+  expect_equal(get_most_recent_dataframe(datapoints), df3)
+  df1 <- data.frame(date = as.Date("2020-01-01"))
+  datapoints <- list(df1)
+  expect_equal(get_most_recent_dataframe(datapoints), df1)
+  datapoints <- list()
+  expect_error(get_most_recent_dataframe(datapoints))
+  df1 <- data.frame(date = as.Date("2020-01-01"))
+  df2 <- data.frame(not_date ="2021-01-01")
+  datapoints <- list(df1, df2)
+  expect_error(get_most_recent_dataframe(datapoints))
+  df1 <- data.frame(date = as.Date("2022-01-01"))
+  df2 <- data.frame(date = as.Date("2022-01-01"))
+  datapoints <- list(df1, df2)
+  expect_equal(get_most_recent_dataframe(datapoints), df1)
+})
+
+
+test_that("Basic functionality of smallest gap caplulations", {
+  plot(1,1)
+  x_positions <- c(0.6, 1, 1.4)
+  x_labels <- c("Label1", "Label2", "Label3")
+  expect_type(calculate_smallest_gap(x_positions, x_labels), "double")
+  x_positions <- c(1, 1.01, 1.02)
+  x_labels <- c("Overlap1", "Overlap2", "Overlap3")
+  expect_true(calculate_smallest_gap(x_positions, x_labels) < 0)
+  x_positions <- c(1, 1.1, 1.2)
+  x_labels <- c("A", "B", "C")
+  gap = calculate_smallest_gap(x_positions, x_labels)
+  expect_true(gap > 0 && is.finite(gap))
+  x_positions <- c(1, 2)
+  x_labels <- c("Mismatch1", "Mismatch2", "Mismatch3")
+  expect_error(calculate_smallest_gap(x_positions, x_labels))
+})
+

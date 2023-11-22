@@ -20,10 +20,9 @@ options(
 # to make devtools available in all interactive sessions
 if (interactive()) {
   suppressMessages(require(devtools))
+  extrafont::loadfonts()
 }
-if (interactive()) {
-  suppressMessages(require(testthat))
-}
+
 #con <- DBI::dbConnect(RPostgres::Postgres(),
 #                      dbname = "sandbox",
 #                      host = "localhost",

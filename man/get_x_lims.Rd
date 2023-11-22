@@ -2,25 +2,14 @@
 % Please edit documentation in R/pub_ready_plots.R
 \name{get_x_lims}
 \alias{get_x_lims}
-\title{Get x limits from data and config and filter datapoiunts}
+\title{Get x limits from the data}
 \usage{
-get_x_lims(datapoints, config)
+get_x_lims(datapoints)
 }
 \arguments{
 \item{datapoints}{list of dataframes from \link[UMARvisualisR]{prep_data}}
-
-\item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
-}
-\value{
-a list with the xmin and xmax values of the data in date format and the filtered datapoints
 }
 \description{
-takes the maximum range of all the series in the datapoints tables
-and then cuts it down by the values of xmin and xmax passed in the
-config dictionary. If the intervals don't overlap, uses just the
-datapoint range, ignoring the user input. Returns the actual minimum and
-maximum in the data
-}
-\details{
-Returns the range as well as filtered datapoints.
+Used after the data has been cut to user xlims, this returns the
+actual first and last date in the datapoints
 }

@@ -4,10 +4,12 @@
 \alias{last_year_complete_series}
 \title{Check if timeseries has a complete last year}
 \usage{
-last_year_complete_series(datapoints_df)
+last_year_complete_series(datapoints_df, max_year)
 }
 \arguments{
 \item{datapoints_df}{dataframe with date column}
+
+\item{max_year}{year to be checking if it is complete}
 }
 \value{
 logical
