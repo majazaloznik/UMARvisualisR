@@ -1,14 +1,16 @@
 rolling_average <- function(df, periods = 3, align = "center"){
   df %>%
-    dplyr::arrange(period) %>%
+    dplyr::arrange(period)  |>
+    dplyr::ungroup() |>
     dplyr::mutate(raw = value,
                   value = zoo::rollmean(value, k = periods,fill= NA,align = align))
 }
 
 yoy_change <- function(df, lag = 12){
-  df %>%
-    dplyr::arrange(period) %>%
-    dplyr::mutate(raw = if(exists('raw', where= df)) raw else value) %>%
+  df  |>
+    dplyr::arrange(period)  |>
+    dplyr::ungroup() |>
+    dplyr::mutate(raw = if(exists('raw', where= df)) raw else value)  |>
     dplyr::mutate(value = value/dplyr::lag(value,n = lag)*100 - 100)
 }
 
