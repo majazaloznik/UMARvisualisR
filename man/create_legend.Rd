@@ -10,6 +10,8 @@ create_legend(config, legend_ps, language = "si")
 \item{config}{dictionary list from \link[UMARvisualisR]{prep_config}}
 
 \item{legend_ps}{legend text size}
+
+\item{language}{either "si" or "en"}
 }
 \value{
 nothing, just draws the legend
