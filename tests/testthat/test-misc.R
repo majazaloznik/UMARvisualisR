@@ -210,3 +210,84 @@ test_that("Basic functionality of smallest gap caplulations", {
   expect_error(calculate_smallest_gap(x_positions, x_labels))
 })
 
+
+
+# Mock data for config and y_axis
+config <- list(y_axis_label = "EUR")
+y_axis <- list(ylim = c(0, 2000000), y_breaks = c(0, 500000, 1000000, 1500000, 2000000))
+
+# Test with EUR values not exceeding a million
+test_that("EUR values under a million", {
+  config$y_axis_label <- "EUR"
+  y_axis$ylim <- c(0, 800000)
+  y_axis$y_breaks <- c(0, 200000, 400000, 600000, 800000)
+  result <- left_axis_label_width(config, y_axis)
+  expect_equal(config$y_axis_label, "EUR")
+  expect_true(all(result$axis_labels < 1000000))
+})
+
+# Test with EUR values exceeding a million
+test_that("EUR values over a million", {
+  config$y_axis_label <- "EUR"
+  y_axis$ylim <- c(0, 2000000)
+  y_axis$y_breaks <- c(0, 500000, 1000000, 1500000, 2000000)
+  result <- left_axis_label_width(config, y_axis)
+  expect_equal(result$unit, "Mio EUR")
+  expect_true(all(result$axis_labels <= 2))
+})
+
+# Test return structure
+test_that("Return structure is correct", {
+  result <- left_axis_label_width(config, y_axis)
+  expect_type(result, "list")
+  expect_true(all(c("unit", "axis_labels", "axis_positions", "y_lab_lines") %in% names(result)))
+})
+
+# Test for non-EUR label handling
+test_that("Non-EUR label handling", {
+  config$y_axis_label <- "USD"
+  y_axis$ylim <- c(0, 2000000)
+  y_axis$y_breaks <- c(0, 500000, 1000000, 1500000, 2000000)
+  result <- left_axis_label_width(config, y_axis)
+  expect_equal(config$y_axis_label, "USD")
+  expect_true(all(result$axis_labels == y_axis$y_breaks))
+})
+
+context("Testing filter_na_labels function")
+
+# Test with no NAs
+test_that("Function works with no NAs", {
+  x_positions <- 1:5
+  x_labels <- letters[1:5]
+  result <- filter_na_labels(x_positions, x_labels)
+  expect_equal(result$x_positions, 1:5)
+  expect_equal(result$x_labels, letters[1:5])
+})
+
+# Test with some NAs
+test_that("Function filters out NAs correctly", {
+  x_positions <- 1:5
+  x_labels <- c("a", NA, "c", NA, "e")
+  result <- filter_na_labels(x_positions, x_labels)
+  expect_equal(result$x_positions, c(1, 3, 5))
+  expect_equal(result$x_labels, c("a", "c", "e"))
+})
+
+# Test with all NAs
+test_that("Function handles all NAs", {
+  x_positions <- 1:5
+  x_labels <- rep(NA, 5)
+  result <- filter_na_labels(x_positions, x_labels)
+  expect_equal(result$x_positions, numeric(0))
+  expect_equal(result$x_labels, logical(0))
+})
+
+# Test with empty vectors
+test_that("Function handles empty vectors", {
+  x_positions <- numeric(0)
+  x_labels <- character(0)
+  result <- filter_na_labels(x_positions, x_labels)
+  expect_equal(result$x_positions, numeric(0))
+  expect_equal(result$x_labels, character(0))
+})
+

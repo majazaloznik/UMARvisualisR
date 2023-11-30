@@ -351,19 +351,6 @@ get_interval_in_months <- function(date_column) {
   round(interval)
 }
 
-#' Strip rows with NA values
-#'
-#' @param df dataframe with date and value column
-#'
-#' @return df with same number of cols
-#' @export
-#'
-strip_na_rows <- function(df){
-  df |>
-    dplyr::mutate(date = get_date_from_period(period_id, position), .keep = "unused") |>
-    dplyr::relocate(date) |>
-    dplyr::ungroup()
-}
 
 
 #' Helper funciton to wrap title to appropriate width
