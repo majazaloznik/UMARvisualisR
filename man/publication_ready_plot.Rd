@@ -4,12 +4,14 @@
 \alias{publication_ready_plot}
 \title{Umbrella function for publicaiton ready chart}
 \usage{
-publication_ready_plot(datapoints, config)
+publication_ready_plot(datapoints, config, language = "si")
 }
 \arguments{
 \item{datapoints}{list of dataframes from \link[UMARvisualisR]{prep_data}}
 
 \item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
+
+\item{language}{"si" or "en"}
 }
 \description{
 Umbrella function for publicaiton ready chart

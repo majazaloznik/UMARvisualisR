@@ -267,8 +267,8 @@ check_plot_inputs <- function(df, con){
 
   if (!xx) {
     df <- df |>
-      dplyr::mutate(xmin = ifelse(all(is.na(xmin)), NA, UMARvisualisR:::unique_without_na(xmin)),
-                    xmax = ifelse(all(is.na(xmax)), NA, UMARvisualisR:::unique_without_na(xmax)))}
+      dplyr::mutate(xmin = ifelse(all(is.na(xmin)), NA, unique_without_na(xmin)),
+                    xmax = ifelse(all(is.na(xmax)), NA, unique_without_na(xmax)))}
 
   if(!xx && !is.na(unique(df$xmin)) && !is.na(unique(df$xmax)) && unique(df$xmin) > unique(df$xmax)){
     errors <- c(errors,
@@ -312,6 +312,9 @@ check_plot_inputs <- function(df, con){
   if (!check_consistency_or_na(df$x_brez_let)) {
     errors <- c(errors,
                 paste("\nVse vrednosti v polju x_brez_let morajo biti enake."))}
+  if (!check_consistency_or_na(df$leva_os_en)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju leva_os_en morajo biti enake."))}
 
   if (any(duplicated(df$legenda[df$barva!=0 | is.na(df$barva)]))) {
     errors <- c(errors,
@@ -352,6 +355,9 @@ check_plot_inputs <- function(df, con){
   if (!all(df$stacked  %in% c(TRUE, FALSE, NA))) {
     errors <- c(errors,
                 paste("\nV polju stacked so dovoljene samo vrednosti TRUE ali FALSE (prazno polje je tudi dovoljeno in pomeni isto kot FALSE)."))}
+  if (!all(df$drseca_najprej  %in% c(TRUE, FALSE, NA))) {
+    errors <- c(errors,
+                paste("\nV polju drseca_najprej so dovoljene samo vrednosti TRUE ali FALSE (prazno polje je tudi dovoljeno in pomeni isto kot FALSE)."))}
 
   if (!check_uniqueness_or_na(df$stacked)) {
     errors <- c(errors,
@@ -451,12 +457,15 @@ prep_config <- function(df) {
     stacked = FALSE,
     chart_size = 2,
     x_sub_annual = FALSE,
+    language = "si",
+    y_axis_label_en = NULL,
     series = list(
       list(series_code = NULL,
            unit = NULL,
            type = "line",
            colour = NA,
-           legend_txt = NULL,
+           legend_txt_si = NULL,
+           legend_txt_en = NULL,
            rolling_period = NA,
            rolling_alignment = "c",
            growth = NA,
@@ -499,6 +508,9 @@ prep_config <- function(df) {
   if (!all(is.na(df$x_brez_let))) {
     config$x_sub_annual <- unique_without_na(df$x_brez_let)
   }
+  if (!all(is.na(df$leva_os_en))) {
+    config$y_axis_label_en <- unique_without_na(df$leva_os_en)
+  }
   if(length(unique_without_na(df$enota)) == 2) {
     config$dual_y <- TRUE}
 
@@ -525,13 +537,15 @@ prep_config <- function(df) {
       unit = df$enota[i],
       type = ifelse(is.na(df$tip[i]), config$series[[1]]$type, df$tip[i]),
       colour = ifelse(colours[i] == 0, "white", umar_cols()[colours[i]]),
-      legend_txt = ifelse(is.na(df$legenda[i]),
+      legend_txt_si = ifelse(is.na(df$legenda[i]),
                           ifelse(colours[i] == 0, "",df$serija[i]), df$legenda[i]),
+      legend_txt_en = ifelse(is.na(df$legenda_en[i]),
+                          ifelse(colours[i] == 0, "",df$serija[i]), df$legenda_en[i]),
       rolling_period = df$drseca_obdobja[i],
       rolling_alignment = alignments[i],
       growth = df$rast[i],
       index_period = df$indeks_obdobje[i],
-      roll_first = TRUE)
+      roll_first = ifelse(is.na(df$drseca_najprej[i]), config$series[[1]]$roll_first, df$drseca_najprej[i]))
     series_list[[i]] <- series_info
   }
   config$series <- series_list
@@ -539,6 +553,20 @@ prep_config <- function(df) {
   config
 }
 
+#' Change axis label for english version
+#'
+#' used inside \link[UMARvisualisR]{publication_ready_plot} to change
+#' y axis label to english version.
+#'
+#' @param config configuration list
+#'
+#' @return updated config list
+#' @export
+#'
+prep_config_en <- function(config){
+  config$y_axis_label <- config$y_axis_label_en
+  config
+}
 
 #' Get the datapoints from the database
 #'
@@ -596,6 +624,23 @@ transform_data <- function(df, series_config) {
       out <- transform_index(df, series_config$index_period)
       df <- out$df
       series_config$index_period <- out$base_period
+    }
+  }
+  if(!series_config$roll_first){
+
+
+    if(!is.na(series_config$growth)){
+      df <- transform_growth(df, series_config$growth)
+    }
+
+    if(!is.na(series_config$index_period)){
+      out <- transform_index(df, series_config$index_period)
+      df <- out$df
+      series_config$index_period <- out$base_period
+    }
+    if(!is.na(series_config$rolling_period)){
+      df <- transform_rolling(df, series_config$rolling_period,
+                              series_config$rolling_alignment)
     }
   }
   list(df = df, series_config = series_config)

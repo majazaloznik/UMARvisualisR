@@ -88,7 +88,7 @@ empty_plot <- function(x_lims, y_axis, y_axis_label){
        ylim = y_axis$ylim,
        xlim = x_lims)
   # emphasised gridline
-  if(grepl("ndeks", y_axis_label)) {
+  if(grepl("nde(ks|x)", y_axis_label)) {
     abline(h = 100, col = umar_cols("emph"), lwd = 1.1)}
   if(in_range_strict(0, y_axis$ylim))  {
     abline(h = 0, col = umar_cols("emph"), lwd = 1.1)}
@@ -194,16 +194,19 @@ get_top_margin_and_title <- function(config, title_ps){
 #'
 #' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param legend_ps legend text size
+#' @param language either "si" or "en"
 #'
 #' @return nothing, just draws the legend
 #' @export
 #'
-create_legend <- function(config, legend_ps) {
+create_legend <- function(config, legend_ps, language = "si") {
   par("ps" = legend_ps)
   par(family = "Myriad Pro")
   lwd <- lty <- series_types <- vapply(config$series, \(x) x$type, character(1))
   line_colours <- bar_colours <- series_colours <- vapply(config$series, \(x) x$colour, character(1))
-  legend_labels <- vapply(config$series, \(x) x$legend_txt, character(1))
+  if(language == "si"){ # switch languages
+  legend_labels <- vapply(config$series, \(x) x$legend_txt_si, character(1))} else {
+    legend_labels <- vapply(config$series, \(x) x$legend_txt_en, character(1))}
   lty[series_types == "line"] <- 1
   lty[series_types != "line"] <- NA
   lwd[series_types == "line"] <- 2
@@ -274,14 +277,18 @@ x_axis_lims_tickmarks <- function(datapoints, config) {
 #' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param tickmarks vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}
 #' @param x_lims vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}
+#' @param language "si" or "en"
 #'
 #' @return list of named x_positions, x_labels, tickmars and x_lims
 #' @export
 #'
-x_axis_label_params <- function(datapoints, config, tickmarks, x_lims) {
+x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, language = "si") {
 
   last_year_complete_log <- last_year_complete(datapoints)
   only_annual_log <- only_annual_intervals(datapoints)
+  old_locale <- Sys.getlocale("LC_TIME")
+  if (language == "si")  Sys.setlocale("LC_TIME", "Slovenian_Slovenia.1250")
+  if (language == "en")  Sys.setlocale("LC_TIME", "English_United Kingdom.1252")
 
   # annual labels
   if(!config$x_sub_annual){
@@ -371,6 +378,7 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims) {
   } else { # sub annual labels - not implemented yet
     print("Grafi z oznakami na x-osi za mesece oz. kvartale \u0161e niso implementirani.")
   }
+  Sys.setlocale("LC_TIME", old_locale)
   mget(c( "x_positions", "x_labels", "tickmarks", "x_lims"))
 }
 
@@ -380,11 +388,13 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims) {
 #'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
+#' @param language "si" or "en"
+#'
 #'
 #' @return
 #' @export
 #'
-publication_ready_plot <- function(datapoints, config){
+publication_ready_plot <- function(datapoints, config, language = "si"){
 
   # params
   title_ps = 9
@@ -402,6 +412,8 @@ publication_ready_plot <- function(datapoints, config){
     # split into left and right y-axis
     list2env(split_by_unit(datapoints, config), envir = .GlobalEnv)
   } else {config$y_axis_label <- config$series[[1]]$unit}
+
+  if(language == "en") config <- prep_config_en(config)
 
   values <- get_data_values(datapoints, config)
   y_axis <- find_pretty_ylim(values)
@@ -425,10 +437,10 @@ publication_ready_plot <- function(datapoints, config){
     draw_lines(datapoints, config, x_values = x_values)
 
   # get x axis tickmark positions and label positions and limits
-  x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims)
+  x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, language)
 
   # legend
-  create_legend(config, legend_ps = legend_ps)
+  create_legend(config, legend_ps = legend_ps, language = language)
 
   # position title
   par("ps" = title_ps)
@@ -449,31 +461,7 @@ publication_ready_plot <- function(datapoints, config){
        lwd = 0, tck = 0,  family ="Myriad Pro",
        padj = 0.5, gap.axis = 0.25)
 
-  # if(last_year_complete_log) {
-  #   # shifting year labels by six months
-  #   x_min_shift <- as.POSIXlt(min(x_lims))
-  #   x_min_shift$mon <- as.POSIXlt(min(x_lims))$mon+6
-  #   x_min_shift <- as.Date(x_min_shift)
-  #   x_max_shift <- as.POSIXlt(max(x_lims))
-  #   x_max_shift$mon <- as.POSIXlt(max(x_lims))$mon+6
-  #   x_max_shift <- as.Date(x_max_shift)
-  #
-  #   x_labels <- format(seq(x_min_shift, x_max_shift, by="1 year"), format = "%Y")
-  #   # check overlapping labels
-  #   x_labels_size <- max(strwidth(x_labels, units = "user"))
-  #   coord <- par("usr")
-  #   x_tick_dist <- (coord[2]-coord[1]) /length(x_labels)
-  #    if(x_labels_size * 1.40 < x_tick_dist) {
-  #      x_labels <- x_labels} else      {
-  #        x_labels <- year_squisher(x_labels)}
-  #
-  #   suppressWarnings(par(mgp=c(3,-0.2,0)))
-  #   axis(1, x_labels,
-  #             at = as.numeric(seq(min(x_min_shift), max(x_max_shift), by="1 year")),
-  #             col = umar_cols("gridlines"),
-  #             lwd = 0, tck = 0,  family ="Myriad Pro",
-  #             padj = 0.5)
-  # }
+
 }
 
 #' Draw lines onto plot

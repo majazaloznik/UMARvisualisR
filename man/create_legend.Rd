@@ -4,7 +4,7 @@
 \alias{create_legend}
 \title{Create legend}
 \usage{
-create_legend(config, legend_ps)
+create_legend(config, legend_ps, language = "si")
 }
 \arguments{
 \item{config}{dictionary list from \link[UMARvisualisR]{prep_config}}
