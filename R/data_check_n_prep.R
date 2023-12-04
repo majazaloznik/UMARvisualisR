@@ -309,12 +309,26 @@ check_plot_inputs <- function(df, con){
   if (!check_consistency_or_na(df$desna_y_os)) {
     errors <- c(errors,
                 paste("\nVse vrednosti v polju desna_y_os morajo biti enake."))}
+
   if (!check_consistency_or_na(df$x_brez_let)) {
     errors <- c(errors,
                 paste("\nVse vrednosti v polju x_brez_let morajo biti enake."))}
+
   if (!check_consistency_or_na(df$leva_os_en)) {
     errors <- c(errors,
                 paste("\nVse vrednosti v polju leva_os_en morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$leva_os_si)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju leva_os_si morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$desna_os_si)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju desna_os_si morajo biti enake."))}
+
+  if (!check_consistency_or_na(df$desna_os_en)) {
+    errors <- c(errors,
+                paste("\nVse vrednosti v polju desna_os_en morajo biti enake."))}
 
   if (any(duplicated(df$legenda[df$barva!=0 | is.na(df$barva)]))) {
     errors <- c(errors,
@@ -358,6 +372,11 @@ check_plot_inputs <- function(df, con){
   if (!all(df$drseca_najprej  %in% c(TRUE, FALSE, NA))) {
     errors <- c(errors,
                 paste("\nV polju drseca_najprej so dovoljene samo vrednosti TRUE ali FALSE (prazno polje je tudi dovoljeno in pomeni isto kot FALSE)."))}
+
+  if (!all(df$mio_eur  %in% c(TRUE, FALSE, NA))) {
+    errors <- c(errors,
+                paste("\nV polju mio_eur so dovoljene samo vrednosti TRUE ali FALSE (prazno polje je tudi dovoljeno in pomeni isto kot TRUE)."))}
+
 
   if (!check_uniqueness_or_na(df$stacked)) {
     errors <- c(errors,
@@ -459,6 +478,9 @@ prep_config <- function(df) {
     x_sub_annual = FALSE,
     language = "si",
     y_axis_label_en = NULL,
+    y_axis_label = NULL,
+    y2_axis_label_en = NULL,
+    y2_axis_label = NULL,
     series = list(
       list(series_code = NULL,
            unit = NULL,
@@ -470,7 +492,8 @@ prep_config <- function(df) {
            rolling_alignment = "c",
            growth = NA,
            index_period = NA,
-           roll_first = TRUE))
+           roll_first = TRUE,
+           mio_eur = TRUE))
   )
   # plot parameters
   if (!all(is.na(df$xmin))) {
@@ -511,6 +534,15 @@ prep_config <- function(df) {
   if (!all(is.na(df$leva_os_en))) {
     config$y_axis_label_en <- unique_without_na(df$leva_os_en)
   }
+  if (!all(is.na(df$leva_os_si))) {
+    config$y_axis_label <- unique_without_na(df$leva_os_si)
+  }
+  if (!all(is.na(df$desna_os_en))) {
+    config$y2_axis_label_en <- unique_without_na(df$desna_os_en)
+  }
+  if (!all(is.na(df$desna_os_si))) {
+    config$y2_axis_label <- unique_without_na(df$desna_os_si)
+  }
   if(length(unique_without_na(df$enota)) == 2) {
     config$dual_y <- TRUE}
 
@@ -545,7 +577,8 @@ prep_config <- function(df) {
       rolling_alignment = alignments[i],
       growth = df$rast[i],
       index_period = df$indeks_obdobje[i],
-      roll_first = ifelse(is.na(df$drseca_najprej[i]), config$series[[1]]$roll_first, df$drseca_najprej[i]))
+      roll_first = ifelse(is.na(df$drseca_najprej[i]), config$series[[1]]$roll_first, df$drseca_najprej[i]),
+      mio_eur = ifelse(is.na(df$mio_eur[i]), config$series[[1]]$mio_eur, df$mio_eur[i]))
     series_list[[i]] <- series_info
   }
   config$series <- series_list
@@ -565,6 +598,7 @@ prep_config <- function(df) {
 #'
 prep_config_en <- function(config){
   config$y_axis_label <- config$y_axis_label_en
+  config$y2_axis_label <- config$y2_axis_label_en
   config
 }
 
@@ -683,8 +717,6 @@ prep_data <- function(df, con) {
 
 #' Function to split the datapoints into left and right axis.
 #'
-#'
-#'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #'
@@ -706,13 +738,11 @@ split_by_unit <- function(datapoints, config){
     })
     config$series <- split_config_series[[1]]
     config_left <- config
-    config_left$y_axis_label <- unique_units[[1]]
     config$series <- if (length(split_config_series) > 1) split_config_series[[2]] else NULL
     config_right <- config
-    config_right$y_axis_label <- unique_units[[2]]
+    config_right$y_axis_label <- config_right$y2_axis_label
   } else {
     config_left <- config
-    config_left$y_axis_label <- unique_units[[1]]
     config_right <- NULL}
 
   return(list(datapoints = datapoints_left, config = config_left,

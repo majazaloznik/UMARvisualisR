@@ -566,11 +566,12 @@ left_axis_label_width <- function(config, y_axis) {
   y_label_max <- max(y_axis$ylim)
   axis_labels <- y_axis$y_breaks
   axis_positions <- y_axis$y_breaks
-  if(config$y_axis_label == "EUR" & y_label_max > 1000000) y_label_max <- y_label_max/1000000
-  if(config$y_axis_label == "EUR" & max(axis_labels) > 1000000) {
-    config$y_axis_label <- "Mio EUR"
+  unit <- unique(unlist(purrr::map(config$series, ~ .x$unit)))
+  mio_eur <- unique(unlist(purrr::map(config$series, ~ .x$mio_eur)))
+  if(unit == "EUR" & mio_eur) {
     axis_labels <- axis_labels/1000000
-    y_label_max <- max(abs(axis_labels))}
+    y_label_max <- max(abs(axis_labels))
+    unit <- "Mio EUR"}
 
   y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ",",
                                  scientific = FALSE),
@@ -578,8 +579,7 @@ left_axis_label_width <- function(config, y_axis) {
   current_mar <- par("mar")
   current_mar[2] <- y_lab_lines + 1
   par(mar =  current_mar)
-  unit <- config$y_axis_label
-  mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines"))
+  mget(c("unit",  "axis_labels", "axis_positions", "y_lab_lines"))
 }
 
 

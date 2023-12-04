@@ -411,7 +411,7 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
   if(config$dual_y){
     # split into left and right y-axis
     list2env(split_by_unit(datapoints, config), envir = .GlobalEnv)
-  } else {config$y_axis_label <- config$series[[1]]$unit}
+  }
 
   if(language == "en") config <- prep_config_en(config)
 
@@ -420,7 +420,11 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
 
   # get left margins
   left <- left_axis_label_width(config, y_axis)
-
+  if(language == "en" & is.null(config$y_axis_label)){
+    config$y_axis_label <- unit_lookup |>
+      dplyr::filter(name == tolower(left$unit)) |>
+      dplyr::pull(name_en)}
+  if (is.null(config$y_axis_label)) config$y_axis_label <- left$unit
 
   # get top margins
   top <- get_top_margin_and_title(config, title_ps = title_ps)
@@ -446,7 +450,7 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
   par("ps" = title_ps)
   mtext(top[[3]], side = 3,  line = top[[2]], adj = 0, padj = 0, family = "Myriad Pro", font = 2)
 
-  left_axis_labels(left$unit, left$axis_positions, left$axis_labels, left$y_lab_lines)
+  left_axis_labels(config$y_axis_label, left$axis_positions, left$axis_labels, left$y_lab_lines)
 
   # # axis tickmarks
   axis.Date(1,
