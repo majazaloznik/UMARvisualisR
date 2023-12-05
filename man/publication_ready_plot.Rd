@@ -13,6 +13,9 @@ publication_ready_plot(datapoints, config, language = "si")
 
 \item{language}{"si" or "en"}
 }
+\value{
+nothing, plots to open device
+}
 \description{
 Umbrella function for publicaiton ready chart
 }

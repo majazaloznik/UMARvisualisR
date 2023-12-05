@@ -9,6 +9,9 @@ get_x_lims(datapoints)
 \arguments{
 \item{datapoints}{list of dataframes from \link[UMARvisualisR]{prep_data}}
 }
+\value{
+date range
+}
 \description{
 Used after the data has been cut to user xlims, this returns the
 actual first and last date in the datapoints

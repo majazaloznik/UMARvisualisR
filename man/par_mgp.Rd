@@ -9,6 +9,9 @@ par_mgp(mgp = c(3, -0.2, 0))
 \arguments{
 \item{mgp}{numeric vector of length 3 to set mgp}
 }
+\value{
+nothing, changes mgp parameter
+}
 \description{
 convenience funciton to stop annoying warning when using differing
 signs in the mgp parameters. For some reason cannot be suppressed using

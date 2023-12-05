@@ -53,7 +53,7 @@ cut_to_x_range <- function(datapoints, config){
 #'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
 #'
-#' @return
+#' @return date range
 #' @export
 #'
 get_x_lims <- function(datapoints){
@@ -391,7 +391,7 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, language 
 #' @param language "si" or "en"
 #'
 #'
-#' @return
+#' @return nothing, plots to open device
 #' @export
 #'
 publication_ready_plot <- function(datapoints, config, language = "si"){

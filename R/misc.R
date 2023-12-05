@@ -789,7 +789,7 @@ shift_dates_by_six_months <- function(dates) {
 #'
 #' @param mgp numeric vector of length 3 to set mgp
 #'
-#' @return
+#' @return nothing, changes mgp parameter
 #' @export
 par_mgp <- function(mgp=c(3,-0.2,0)) {
   old_warn <- options("warn")

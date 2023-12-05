@@ -218,7 +218,8 @@ y_axis <- list(ylim = c(0, 2000000), y_breaks = c(0, 500000, 1000000, 1500000, 2
 
 # Test with EUR values not exceeding a million
 test_that("EUR values under a million", {
-  config$y_axis_label <- "EUR"
+  config$series[[1]]$unit <- "EUR"
+  config$series[[1]]$mio_eur <- TRUE
   y_axis$ylim <- c(0, 800000)
   y_axis$y_breaks <- c(0, 200000, 400000, 600000, 800000)
   result <- left_axis_label_width(config, y_axis)
@@ -228,7 +229,8 @@ test_that("EUR values under a million", {
 
 # Test with EUR values exceeding a million
 test_that("EUR values over a million", {
-  config$y_axis_label <- "EUR"
+  config$series[[1]]$unit <- "EUR"
+  config$series[[1]]$mio_eur <- TRUE
   y_axis$ylim <- c(0, 2000000)
   y_axis$y_breaks <- c(0, 500000, 1000000, 1500000, 2000000)
   result <- left_axis_label_width(config, y_axis)
@@ -238,6 +240,8 @@ test_that("EUR values over a million", {
 
 # Test return structure
 test_that("Return structure is correct", {
+  config$series[[1]]$unit <- "EUR"
+  config$series[[1]]$mio_eur <- TRUE
   result <- left_axis_label_width(config, y_axis)
   expect_type(result, "list")
   expect_true(all(c("unit", "axis_labels", "axis_positions", "y_lab_lines") %in% names(result)))
@@ -245,11 +249,12 @@ test_that("Return structure is correct", {
 
 # Test for non-EUR label handling
 test_that("Non-EUR label handling", {
-  config$y_axis_label <- "USD"
+  config$series[[1]]$unit <- "USD"
+  config$series[[1]]$mio_eur <- TRUE
   y_axis$ylim <- c(0, 2000000)
   y_axis$y_breaks <- c(0, 500000, 1000000, 1500000, 2000000)
   result <- left_axis_label_width(config, y_axis)
-  expect_equal(config$y_axis_label, "USD")
+  expect_equal(result$unit, "USD")
   expect_true(all(result$axis_labels == y_axis$y_breaks))
 })
 
