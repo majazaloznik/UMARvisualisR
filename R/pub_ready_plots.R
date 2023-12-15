@@ -177,10 +177,10 @@ get_top_margin_and_title <- function(config, title_ps){
   title_lines <- title[[2]]
   wrapped_title <- title[[1]]
 
-  lines <- (legend_lines + 0.3) * 0.7 - 0.3 + gap +
+  lines <- (legend_lines + 0.3) * 0.8 - 0.3 + gap +
     title_lines * title_ps/12
 
-  title_pos <- (legend_lines + 0.3) * 0.7 - 0.3 + gap
+  title_pos <- (legend_lines + 0.3) * 0.8 - 0.3 + gap
   current_mar <- par("mar")
   current_mar[3] <- lines
   par(mar =  current_mar)
@@ -223,7 +223,7 @@ create_legend <- function(config, legend_ps, language = "si") {
              xjust = 0,
              yjust = 0,
              x.intersp = 0.2,
-             y.intersp = 0.7)
+             y.intersp = 0.8)
 }
 
 #' Get x_axis lims and tickmarks
@@ -277,12 +277,14 @@ x_axis_lims_tickmarks <- function(datapoints, config) {
 #' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param tickmarks vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}
 #' @param x_lims vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}
+#' @param bar logical indicating it's a barplot
+#' @param x_values midpoints and params for interpolating
 #' @param language "si" or "en"
 #'
 #' @return list of named x_positions, x_labels, tickmars and x_lims
 #' @export
 #'
-x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, language = "si") {
+x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_values, language = "si") {
 
   last_year_complete_log <- last_year_complete(datapoints)
   only_annual_log <- only_annual_intervals(datapoints)
@@ -304,6 +306,7 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, language 
       x_positions <- c(x_positions, tickmarks[length(tickmarks)])
     }
 
+
     # labels
     if(only_annual_log){
       x_labels <- format(tickmarks, format = "%Y")
@@ -317,25 +320,29 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, language 
       if(int == "Q"){
         x_labels <- c(x_labels, quarterly_label(tickmarks[length(tickmarks)]))}
     }
+    if(bar){
+      tickmarks <- interpolate_x(x_values$dates, x_values$midpoints, tickmarks)
+      x_positions <- interpolate_x(x_values$dates, x_values$midpoints, x_positions)
+    }
     min_gap <- calculate_smallest_gap(x_positions, x_labels)
 
     if(only_annual_log | last_year_complete_log) { # annual labels only
-      if (min_gap < 0.30) { # squish once
+      if (min_gap < 0.1) { # squish once
         x_labels <- year_squisher(x_labels)
         min_gap <- calculate_smallest_gap(x_positions, x_labels)
-        if (min_gap < 0.30) { # squish only last
+        if (min_gap < 0.10) { # squish only last
           x_labels[(length(x_labels)-1)] <- NA
           filtered <- filter_na_labels(x_positions, x_labels)
           x_positions <- filtered$x_positions
           x_labels <- filtered$x_labels
           min_gap <- calculate_smallest_gap(x_positions, x_labels)
-          if (min_gap < 0.30) { # squish again
+          if (min_gap < 0.10) { # squish again
             x_labels <- year_squisher(x_labels, extra = TRUE)
             filtered <- filter_na_labels(x_positions, x_labels)
             x_positions <- filtered$x_positions
             x_labels <- filtered$x_labels
             min_gap <- calculate_smallest_gap(x_positions, x_labels)
-            if (min_gap < 0.30) { # squish only last
+            if (min_gap < 0.10) { # squish only last
               x_labels[(length(x_labels)-1)] <- NA
               filtered <- filter_na_labels(x_positions, x_labels)
               x_positions <- filtered$x_positions
@@ -346,23 +353,23 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, language 
       }
     }
     else { # non annual data and incomplete years
-      if (min_gap < 0.30) { # squish once
+      if (min_gap < 0.1) { # squish once
         x_labels <- c(year_squisher(x_labels[-length(x_labels)]),
                       x_labels[length(x_labels)])
         min_gap <- calculate_smallest_gap(x_positions, x_labels)
-        if (min_gap < 0.30) { # squish only last
+        if (min_gap < 0.1) { # squish only last
           x_labels[(length(x_labels)-1)] <- NA
           filtered <- filter_na_labels(x_positions, x_labels)
           x_positions <- filtered$x_positions
           x_labels <- filtered$x_labels
           min_gap <- calculate_smallest_gap(x_positions, x_labels)
-          if (min_gap < 0.30) { # squish again
+          if (min_gap < 0.1) { # squish again
             x_labels <- year_squisher(x_labels, extra = TRUE)
             filtered <- filter_na_labels(x_positions, x_labels)
             x_positions <- filtered$x_positions
             x_labels <- filtered$x_labels
             min_gap <- calculate_smallest_gap(x_positions, x_labels)
-            if (min_gap < 0.30) { # squish only last
+            if (min_gap < 0.1) { # squish only last
               x_labels[(length(x_labels)-1)] <- NA
               filtered <- filter_na_labels(x_positions, x_labels)
               x_positions <- filtered$x_positions
@@ -372,9 +379,6 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, language 
         }
       }
     }
-
-
-
   } else { # sub annual labels - not implemented yet
     print("Grafi z oznakami na x-osi za mesece oz. kvartale \u0161e niso implementirani.")
   }
@@ -396,9 +400,9 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, language 
 #'
 publication_ready_plot <- function(datapoints, config, language = "si"){
 
-  # params
-  title_ps = 9
-  legend_ps = 8
+  # set params
+  title_ps = 10
+  legend_ps = 10
   shapes <- vapply(config$series, \(x) x$type, character(1))
   if (any(shapes == "bar"))  bar <- TRUE else  bar <- FALSE
   if (any(shapes == "line")) line <- TRUE else  line <- FALSE
@@ -408,13 +412,15 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
 
   x_axis <- x_axis_lims_tickmarks(datapoints, config)
 
+  # split into left and right y-axis - right not working yet though
   if(config$dual_y){
-    # split into left and right y-axis
     list2env(split_by_unit(datapoints, config), envir = .GlobalEnv)
   }
 
+  # set labels in config to english if needed (default is slovenian)
   if(language == "en") config <- prep_config_en(config)
 
+  # get y limits and breaks
   values <- get_data_values(datapoints, config)
   y_axis <- find_pretty_ylim(values)
 
@@ -429,19 +435,21 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
   # get top margins
   top <- get_top_margin_and_title(config, title_ps = title_ps)
 
+  # draw empty plots and lines and bars
   if(!bar){
     # empty plot
     empty_plot(x_axis$x_lims, y_axis, left$unit)
     # draw lines
-    draw_lines(datapoints, config)}
+    draw_lines(datapoints, config)
+    x_values <- NULL}
   if(bar)
-    # barplot
+    # draw barplot and get out new x axis values
     x_values <- base_barplot(datapoints, config, y_axis)
-  if(bar & line)
+  if(bar & line) # add lines
     draw_lines(datapoints, config, x_values = x_values)
 
   # get x axis tickmark positions and label positions and limits
-  x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, language)
+  x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar, x_values, language)
 
   # legend
   create_legend(config, legend_ps = legend_ps, language = language)
@@ -450,14 +458,22 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
   par("ps" = title_ps)
   mtext(top[[3]], side = 3,  line = top[[2]], adj = 0, padj = 0, family = "Myriad Pro", font = 2)
 
+  par("ps" = 9) # for axis titles and labels
   left_axis_labels(config$y_axis_label, left$axis_positions, left$axis_labels, left$y_lab_lines)
 
-  # # axis tickmarks
-  axis.Date(1,
-            at = x_axis$tickmarks,
-            col = umar_cols("gridlines"),
-            lwd = 0, lwd.ticks =1, tck=-0.02, labels = FALSE)
-
+  # switch to x coordinates and draw x axis tickmarks
+  if(bar){
+    axis(1,
+         at = x_axis$tickmarks,
+         col = umar_cols("gridlines"),
+         lwd = 0, lwd.ticks =1, tck=-0.02, labels = FALSE)
+  } else {
+    axis.Date(1,
+              at = x_axis$tickmarks,
+              col = umar_cols("gridlines"),
+              lwd = 0, lwd.ticks =1, tck=-0.02, labels = FALSE)
+  }
+ # draw x_axis
   par_mgp(mgp=c(3,-0.2,0))
   axis(1, x_axis$x_labels,
        at = x_axis$x_positions,
@@ -508,6 +524,20 @@ draw_lines <- function(datapoints, config, x_values = NULL){
 }
 
 
+#' Linear interpolation for x axis transformation
+#'
+#' used to transform a numeric axis to a date axis and scale other
+#' date vectors to the axis coordinates. assumes the input dates and
+#' values are on a line i.e. only takes the first and last values into
+#' account
+#'
+#' @param original_dates  date vector same length as x_values
+#' @param x_values numeric vector, same length as orinal dates
+#' @param new_dates date vector
+#'
+#' @return interpolated x values of new dates
+#' @export
+#'
 interpolate_x <- function(original_dates, x_values, new_dates) {
   # Convert dates to numeric (number of days since the first date)
   original_days <- as.numeric(difftime(original_dates, original_dates[1], units = "days"))
@@ -523,88 +553,3 @@ interpolate_x <- function(original_dates, x_values, new_dates) {
 
   return(interpolated_x_values)
 }
-
-#
-#
-#
-#   # plot main line (and raw background if exists - but only for univariate)
-#
-#   mapply(function(x, y) lines(x$period, x$value,
-#                               col = y, lwd = 2), data_points, umar_cols()[1:length(data_points)])
-#
-#   # axis tickmarks
-#   axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
-#             col = umar_cols("gridlines"),
-#             lwd = 0, lwd.ticks =1.1, tck=-0.02, labels = FALSE)
-#
-#   # shifting year labels by six months
-#   ss <- as.POSIXlt(min(xlim))
-#   ss$mon <- as.POSIXlt(min(xlim))$mon+6
-#   ee <- as.POSIXlt(max(xlim))
-#   ee$mon <- as.POSIXlt(max(xlim))$mon+6
-#
-#   # rotate labels if you can
-#   x <- seq(ss, ee, by="1 year")
-#   x_labels_size <- max(strwidth(format(x, format = "%Y"), units = "user"))
-#   coord <- par("usr")
-#   x_tick_dist <- (coord[2]-coord[1]) /length(x)
-#   x_las <- ifelse(x_labels_size * 1.40 < x_tick_dist, 1, 2)
-#   if(x_las == 1) {mgp_2 <- -0.2}
-#   if(x_las == 2) {mgp_2 <- 0.3}
-#   suppressWarnings(par(mgp=c(3,mgp_2,0)))
-#   interval <- get_interval(data_points)
-#   if(interval == "A"){
-#     axis.Date(1,at=seq(min(xlim), max(xlim), by="1 year"),
-#               col = umar_cols("gridlines"),
-#               lwd = 0, tck = 0,  family ="Myriad Pro",
-#               las = x_las, padj = 0.5, format = "%Y")
-#   } else {
-#     axis.Date(1,at=seq(ss, ee, by="1 year"),
-#               col = umar_cols("gridlines"),
-#               lwd = 0, tck = 0,  family ="Myriad Pro",
-#               las = x_las, padj = 0.5, format = "%Y")
-#   }
-#
-#
-#
-#
-#   # titles and labels
-#
-#   par(ps=9)
-#   mtext(unit, side = 2,
-#         line = y_lab_lines+0.1, family ="Myriad Pro")
-#
-#   op <- par(family = "Myriad Pro")
-#   if(length(data_points)> 1) {
-#     par(ps=9)
-#     legend_row_height <- xyinch(par("cin"))[[2]]
-#     left_legend_space <- xyinch(par("cin"), warn.log = FALSE)[[1]]
-#     net_legend_height <- half_legend * legend_row_height
-#     lh <- diff(grconvertY(0:1, 'inches', 'user')) * par('cin')[2] * par('cex') * par('lheight')
-#     short_legend_labels <- substr(legend_labels, 1, 45)
-#     shortened <- nchar(legend_labels)!= nchar(short_legend_labels)
-#     short_legend_labels <- paste(short_legend_labels,
-#                                  ifelse(shortened, "...", ""))
-#
-#     legend(coord[[1]] + (coord[[2]]-coord[[1]]) *0 - left_legend_space, coord[[4]] ,
-#            short_legend_labels,
-#            lty = 1,
-#            lwd = 1.5,
-#            bg=NA,
-#            col = umar_cols()[1:length(legend_labels)],
-#            ncol = 2,
-#            cex = 1,
-#            bty = "n",
-#            inset=c(0, 0), xpd = TRUE,
-#            xjust = 0,
-#            yjust = 0,
-#            x.intersp = 0.5,
-#            y.intersp = 0.8)
-#     par(ps = 8)
-#     mtext("Vir: SURS", side = 1, line = 2 ,
-#           family ="Myriad Pro",  adj = 0)
-#   }
-# }
-#
-
-

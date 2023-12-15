@@ -595,7 +595,6 @@ left_axis_label_width <- function(config, y_axis) {
 #' @export
 left_axis_labels <- function(unit, axis_positions, axis_labels, y_lab_lines){
   par(mgp=c(3,0.5,0), xpd = FALSE)
-  par(ps = 8)
   axis(2, at = axis_positions,
        labels = format(axis_labels, big.mark = ".", decimal.mark = ",",
                        scientific = FALSE),
@@ -774,7 +773,7 @@ last_day_of_year <- function(date) {
 #'
 #' @param dates vector of dates
 #'
-#' @return vector of same lenght shifted to the right by 6 months
+#' @return vector of same length shifted to the right by 6 months
 #' @export
 #'
 shift_dates_by_six_months <- function(dates) {

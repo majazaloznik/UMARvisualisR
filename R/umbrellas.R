@@ -120,14 +120,24 @@ publication_ready_plot_pipeline <- function(input_file){
   # output file names
   output_si <- paste0(output_path, base_filename, "_si", ".pdf")
   output_en <- paste0(output_path, base_filename, "_en", ".pdf")
+  output_si_png <- paste0(output_path, base_filename, "_si", ".png")
+  output_en_png <- paste0(output_path, base_filename, "_en", ".png")
 
   # output slovenian chart
   pdf_output(output_si, size)
   publication_ready_plot(datapoints, config)
   dev.off()
 
+  png_output(output_si_png, size)
+  publication_ready_plot(datapoints, config)
+  dev.off()
+
   #output english chart
   pdf_output(output_en, size)
+  publication_ready_plot(datapoints, config, "en")
+  dev.off()
+
+  png_output(output_en_png, size)
   publication_ready_plot(datapoints, config, "en")
   dev.off()
 }

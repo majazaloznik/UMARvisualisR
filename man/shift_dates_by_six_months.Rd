@@ -10,7 +10,7 @@ shift_dates_by_six_months(dates)
 \item{dates}{vector of dates}
 }
 \value{
-vector of same lenght shifted to the right by 6 months
+vector of same length shifted to the right by 6 months
 }
 \description{
 Add 6 months to date vector

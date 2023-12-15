@@ -4,7 +4,15 @@
 \alias{x_axis_label_params}
 \title{Get x axis parameters}
 \usage{
-x_axis_label_params(datapoints, config, tickmarks, x_lims, language = "si")
+x_axis_label_params(
+  datapoints,
+  config,
+  tickmarks,
+  x_lims,
+  bar,
+  x_values,
+  language = "si"
+)
 }
 \arguments{
 \item{datapoints}{list of dataframes from \link[UMARvisualisR]{prep_data}}
@@ -14,6 +22,10 @@ x_axis_label_params(datapoints, config, tickmarks, x_lims, language = "si")
 \item{tickmarks}{vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}}
 
 \item{x_lims}{vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}}
+
+\item{bar}{logical indicating it's a barplot}
+
+\item{x_values}{midpoints and params for interpolating}
 
 \item{language}{"si" or "en"}
 }
