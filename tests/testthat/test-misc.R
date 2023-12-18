@@ -9,6 +9,7 @@ test_that("range finding works ", {
   expect_equal(first_up("iN"), "IN")
   expect_equal(find_pretty_ylim(c(1, 3, 10))$ylim, c(0, 12))
   expect_equal(find_pretty_ylim(c(1, 3, 10))$y_breaks, c(0, 2,4,6,8,10, 12))
+  expect_equal(find_pretty_ylim(c(1, 2, 3))$ylim, c(0.5, 3.5))
   expect_equal(0, nrow(apply_xlims(data.frame(period = as.Date("2010/01/01"),
                                               period_id = as.Date("2010/01/01"),
                                               value = 1))))
@@ -143,10 +144,13 @@ test_that("last_year_complete_series works correctly", {
   df_complete_4Q <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2022-10-01"), by = "quarter"))
   # Incomplete timeseries (missing December)
   df_incomplete <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2022-11-01"), by = "month"))
+  # annual
+  df_complete_A <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2024-10-01"), by = "year"))
 
   expect_true(last_year_complete_series(df_complete_12, 2022))
   expect_true(last_year_complete_series(df_complete_4Q, 2022))
   expect_false(last_year_complete_series(df_incomplete, 2022))
+  expect_true(last_year_complete_series(df_complete_A, 2024))
   expect_true(last_year_complete(list(df_complete_12, df_incomplete)))
   expect_false(last_year_complete(list(df_incomplete, df_incomplete)))
 
@@ -166,15 +170,28 @@ test_that("Date intervals are correctly identified", {
   irregular_dates <- c(as.Date("2000-01-01"), as.Date("2000-02-10"), as.Date("2000-03-15"))
   df <- data.frame(date = irregular_dates)
   expect_equal(determine_interval(df), NA)
+  list_a_only <- list(data.frame(date = seq(as.Date("2022-01-01"), as.Date("2024-10-01"), by = "year")),
+                      data.frame(date = seq(as.Date("2019-06-01"), as.Date("2024-06-01"), by = "year")))
+  list_a_not <- list(data.frame(date = seq(as.Date("2022-01-01"), as.Date("2024-10-01"), by = "quarter")),
+                     data.frame(date = seq(as.Date("2019-06-01"), as.Date("2024-06-01"), by = "year")))
+  expect_true(only_annual_intervals(list_a_only))
+  expect_false(only_annual_intervals(list_a_not))
 })
 
-library(testthat)
-
+test_that("first and alst day of year are returned correctly", {
+  expect_equal(first_day_of_year("2023-03-01"), as.Date("2023-01-01"))
+  expect_equal(last_day_of_year("2023-03-01"), as.Date("2023-12-31"))
+  expect_equal(shift_dates_by_six_months(as.Date("2023-03-01")), as.Date("2023-09-01"))
+  curr_par <- par("mgp")
+  par_mgp(c(1,2,3))
+  expect_equal(par("mgp"), curr_par)
+})
 
 test_that("Dataframe with most recent date is returned", {
   df1 <- data.frame(date = as.Date("2020-01-01"))
   df2 <- data.frame(date = as.Date("2021-01-01"))
   df3 <- data.frame(date = as.Date("2022-01-01"))
+  df4 <- data.frame(datum = as.Date("2022-01-01"))
   datapoints <- list(df1, df2, df3)
   expect_equal(get_most_recent_dataframe(datapoints), df3)
   df1 <- data.frame(date = as.Date("2020-01-01"))
@@ -190,7 +207,15 @@ test_that("Dataframe with most recent date is returned", {
   df2 <- data.frame(date = as.Date("2022-01-01"))
   datapoints <- list(df1, df2)
   expect_equal(get_most_recent_dataframe(datapoints), df1)
-})
+  df1 <- data.frame(date = as.Date(c("2022-01-01", "2022-02-01")))
+  df2 <- data.frame(date = as.Date(c("2022-01-01", "2022-04-01")))
+  datapoints <- list(df1, df2)
+  expect_equal(get_most_recent_interval(datapoints), "Q")
+  datapoints <- list(df1, df4)
+  expect_error(get_most_recent_dataframe(datapoints))
+  expect_equal(quarterly_label(as.Date(c("2022-01-01", "2022-04-01"))), c("Q1-22", "Q2-22"))
+  })
+
 
 
 test_that("Basic functionality of smallest gap caplulations", {
@@ -258,8 +283,6 @@ test_that("Non-EUR label handling", {
   expect_true(all(result$axis_labels == y_axis$y_breaks))
 })
 
-context("Testing filter_na_labels function")
-
 # Test with no NAs
 test_that("Function works with no NAs", {
   x_positions <- 1:5
@@ -295,4 +318,30 @@ test_that("Function handles empty vectors", {
   expect_equal(result$x_positions, numeric(0))
   expect_equal(result$x_labels, character(0))
 })
+
+test_that("legend works ", {
+  p <- function() {
+    plot(1,1)
+    legend_mz2(legend = "test123")}
+  vdiffr::expect_doppelganger("legend test", p)
+})
+
+test_that("y axis labeling works ", {
+  p <- function() {
+    plot(1,1)
+    left_axis_labels("axis title", c(0.9, 1.1),  c(0.9, 1.1), 1)}
+  vdiffr::expect_doppelganger("y axis test", p)
+})
+
+test_that("get data values works for stacked bar", {
+  config <- list(stacked = TRUE,
+                 series = list(list( type = "bar"), list( type = "bar")))
+  datapoints <- list(data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
+                              value = c(2,3,4,5)),
+                   data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
+                              value = c(2,3,4,5)))
+  expect_equal(get_data_values(datapoints, config), c(2,3,4,5,2,3,4,5,4,6,8,10,0))
+})
+
+
 

@@ -429,7 +429,7 @@ get_legend_lines <- function(elements, columns){
 legend_mz2 <- function(x = par("usr")[[1]],
                        y =  par("usr")[[4]], legend,
                        fill = NULL, col = NULL, lty = NULL, lwd = NULL,
-                       xjust = 0, yjust = 1, x.intersp = 0.2, y.intersp = 0.7,
+                       xjust = 0, yjust = 0, x.intersp = 0.2, y.intersp = 0.8,
                        text.col = "black", text.font = NULL, ncol = 1,
                        family = "Myriad Pro") {
 
