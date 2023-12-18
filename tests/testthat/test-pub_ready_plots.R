@@ -31,7 +31,39 @@ dittodb::with_mock_db({
     top <- get_top_margin_and_title(config, 10)
     expect_true(top[[1]]> 3.3 & top[[1]] < 3.4)
     expect_equal(top[[2]], 1.69)
-
   })
+  test_that("empty plot is drawn correctly", {
+  p <- function() empty_plot(c(10, 100), list(ylim = c(-10, 110), y_breaks = seq(-10, 110, 10)), "Index")
+  vdiffr::expect_doppelganger("empty_plot", p)
+  })
+
+  test_that("bar plot is drawn correctly", {
+    config <- list(series = list(list(type="bar", colour = umar_cols()[1], legend_txt_si = "serija 1",
+                                      legend_txt_en = "series 1"),
+                                 list(type="bar", colour = umar_cols()[2],  legend_txt_si = "serija 2",
+                                 legend_txt_en = "series 2")),
+                   y_axis_label = "leva os",
+                   stacked = TRUE)
+    datapoints <- list(data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
+                                  value = c(2,3,4,5)),
+                       data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
+                                  value = c(2,3,4,5)))
+    y_axis <- find_pretty_ylim(get_data_values(datapoints, config))
+    p <- function() base_barplot(datapoints, config,y_axis)
+    vdiffr::expect_doppelganger("bar_plot", p)
+
+    config$legend_columns <- 2
+    p <- function() {
+      base_barplot(datapoints, config,y_axis)
+      create_legend(config, 10)}
+    vdiffr::expect_doppelganger("bar_plot w legend 1", p)
+
+    config$legend_columns <- 1
+    p <- function() {
+      base_barplot(datapoints, config,y_axis)
+      create_legend(config, 10, "en")}
+    vdiffr::expect_doppelganger("bar_plot w legend en", p)
+  })
+
 
 })
