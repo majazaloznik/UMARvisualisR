@@ -182,9 +182,9 @@ test_that("first and alst day of year are returned correctly", {
   expect_equal(first_day_of_year("2023-03-01"), as.Date("2023-01-01"))
   expect_equal(last_day_of_year("2023-03-01"), as.Date("2023-12-31"))
   expect_equal(shift_dates_by_six_months(as.Date("2023-03-01")), as.Date("2023-09-01"))
-  curr_par <- par("mgp")
+  curr_warn <- options("warn")
   par_mgp(c(1,2,3))
-  expect_equal(par("mgp"), curr_par)
+  expect_equal(options("warn"), curr_warn)
 })
 
 test_that("Dataframe with most recent date is returned", {
