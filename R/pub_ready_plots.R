@@ -253,7 +253,8 @@ x_axis_lims_tickmarks <- function(datapoints, config) {
     } else { # non annual data and incomplete years
       tickmarks <- seq(first_day_of_year(x_lims[[1]]),
                        first_day_of_year(x_lims[[2]]), by="1 year")
-      tickmarks <- c(tickmarks, x_lims[[2]])
+      if(tickmarks[length(tickmarks)] != x_lims[[2]]) { # unless it's the same
+      tickmarks <- c(tickmarks, x_lims[[2]])}
     }
 
     # axis limits

@@ -15,5 +15,5 @@ last_year_complete_series(datapoints_df, max_year)
 logical
 }
 \description{
-Check if timeseries has a complete last year
+But not if the max year is larger, then doesn't matter
 }

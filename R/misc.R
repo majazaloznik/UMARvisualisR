@@ -638,6 +638,7 @@ get_data_values <- function(datapoints, config){
 
 #' Check if timeseries has a complete last year
 #'
+#' But not if the max year is larger, then doesn't matter
 #' @param datapoints_df dataframe with date column
 #' @param max_year year to be checking if it is complete
 #'
@@ -645,20 +646,25 @@ get_data_values <- function(datapoints, config){
 #' @export
 #'
 last_year_complete_series <- function(datapoints_df, max_year) {
-  datapoints_df |>
+  curr_max_year <-   datapoints_df |>
     dplyr::mutate(year = lubridate::year(date)) |>
-    dplyr::group_by(year) |>
-    dplyr::filter(year == max_year) |>
-    dplyr::mutate(count = dplyr::n()) |>
-    dplyr::filter(count == max(count), date == max(date)) -> last_period
+    dplyr::summarise(max = max(year)) |> dplyr::pull(max)
+  if(curr_max_year < max_year){# irrelevant previous year
+    complete <- NULL} else {
+      datapoints_df |>
+        dplyr::mutate(year = lubridate::year(date)) |>
+        dplyr::group_by(year) |>
+        dplyr::filter(year == max_year) |>
+        dplyr::mutate(count = dplyr::n()) |>
+        dplyr::filter(count == max(count), date == max(date)) -> last_period
 
-  # check if ends in Q4 or 12th month
-  if(last_period$count == 4 & lubridate::month(last_period$date) >= 10) {
-    complete <- TRUE
-    } else if (last_period$count == 12 ) {
-      complete <- TRUE
-    }  else if (determine_interval(datapoints_df) == "A"){
-      complete <- TRUE} else {complete <- FALSE}
+      # check if ends in Q4 or 12th month
+      if(last_period$count == 4 & lubridate::month(last_period$date) >= 10) {
+        complete <- TRUE
+      } else if (last_period$count == 12 ) {
+        complete <- TRUE
+      }  else if (determine_interval(datapoints_df) == "A"){
+        complete <- TRUE} else {complete <- FALSE}}
   return(complete)
 }
 
@@ -677,7 +683,7 @@ last_year_complete <- function(datapoints) {
    max_date <- as.Date(max(unlist(purrr::map(datapoints, ~ .x$date))),
                        origin = "1970-01-01")
    max_year <- lubridate::year(max_date)
-  any(sapply(datapoints, last_year_complete_series, max_year))
+  any(unlist(sapply(datapoints, last_year_complete_series, max_year)))
 }
 
 

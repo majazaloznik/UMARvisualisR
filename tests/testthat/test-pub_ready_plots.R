@@ -52,6 +52,11 @@ dittodb::with_mock_db({
     p <- function() base_barplot(datapoints, config,y_axis)
     vdiffr::expect_doppelganger("bar_plot", p)
 
+    config$stacked <- FALSE
+    p <- function() base_barplot(datapoints, config,y_axis)
+    vdiffr::expect_doppelganger("bar_plot grouped", p)
+
+    config$stacked <- TRUE
     config$legend_columns <- 2
     p <- function() {
       base_barplot(datapoints, config,y_axis)
@@ -63,7 +68,70 @@ dittodb::with_mock_db({
       base_barplot(datapoints, config,y_axis)
       create_legend(config, 10, "en")}
     vdiffr::expect_doppelganger("bar_plot w legend en", p)
+
+    # stacked with 100 and 0 emph and negative
+    config$stacked <- TRUE
+    config$y_axis_label <- "Indeks"
+    datapoints <- list(data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
+                                  value = c(52,63,74,-5)),
+                       data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
+                                  value = c(22,33,44,-2)))
+    y_axis <- find_pretty_ylim(get_data_values(datapoints, config))
+    p <- function() base_barplot(datapoints, config,y_axis)
+    vdiffr::expect_doppelganger("bar_plot w index", p)
   })
 
+  test_that("x axis tickmarks", {
+    config <- list(series = list(list(type="bar", colour = umar_cols()[1], legend_txt_si = "serija 1",
+                                      legend_txt_en = "series 1"),
+                                 list(type="bar", colour = umar_cols()[2],  legend_txt_si = "serija 2",
+                                      legend_txt_en = "series 2")),
+                   y_axis_label = "leva os",
+                   stacked = TRUE)
+    datapoints <- list(data.frame(date = c("2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01"),
+                                  value = c(52,63,74,-5)),
+                       data.frame(date = c("2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01"),
+                                  value = c(22,33,44,-2)))
+    config$x_sub_annual <- FALSE
+    out <- x_axis_lims_tickmarks(datapoints, config)
+    expect_equal(out$tickmarks, as.Date(c( "2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01")))
+
+    datapoints <- list(data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01"),
+                                  value = c(52,63,74,-5)),
+                       data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01"),
+                                  value = c(22,33,44,-2)))
+    out <- x_axis_lims_tickmarks(datapoints, config)
+    expect_equal(out$tickmarks, as.Date(c("2020-01-01", "2021-01-01")))
+    datapoints <- list(data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01", "2021-01-01"),
+                                  value = c(52,63,74,-5, 2)),
+                       data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01", "2021-01-01"),
+                                  value = c(22,33,44,-2, 2)))
+    out <- x_axis_lims_tickmarks(datapoints, config)
+    expect_equal(out$tickmarks, as.Date(c("2020-01-01", "2021-01-01")))
+    # different lengths
+    datapoints <- list(data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01", "2021-01-01"),
+                                  value = c(52,63,74,-5, 2)),
+                       data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01"),
+                                  value = c(22,33,44,-2)))
+    out <- x_axis_lims_tickmarks(datapoints, config)
+    expect_equal(out$tickmarks, as.Date(c("2020-01-01", "2021-01-01")))
+
+  })
+  test_that("x axis params", {
+  config <- list(series = list(list(type="bar", colour = umar_cols()[1], legend_txt_si = "serija 1",
+                                    legend_txt_en = "series 1"),
+                               list(type="bar", colour = umar_cols()[2],  legend_txt_si = "serija 2",
+                                    legend_txt_en = "series 2")),
+                 y_axis_label = "leva os",
+                 x_sub_annual = FALSE,
+                 stacked = TRUE)
+  datapoints <- list(data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
+                                value = c(2,3,4,5)),
+                     data.frame(date = c("2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01"),
+                                value = c(2,3,4,5)))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  result <- x_axis_label_params(datapoints, config, out$tickmarks, out$x_lims, bar = FALSE, x_values = NULL, language = "si")
+  expect_equal(result$x_labels, c("2019", "2020",  "2021", "2022", "apr.23"))
+  })
 
 })

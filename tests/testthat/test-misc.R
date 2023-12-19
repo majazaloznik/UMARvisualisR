@@ -144,12 +144,14 @@ test_that("last_year_complete_series works correctly", {
   df_complete_4Q <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2022-10-01"), by = "quarter"))
   # Incomplete timeseries (missing December)
   df_incomplete <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2022-11-01"), by = "month"))
+
   # annual
   df_complete_A <- data.frame(date = seq(as.Date("2022-01-01"), as.Date("2024-10-01"), by = "year"))
 
   expect_true(last_year_complete_series(df_complete_12, 2022))
   expect_true(last_year_complete_series(df_complete_4Q, 2022))
   expect_false(last_year_complete_series(df_incomplete, 2022))
+  expect_true(is.null(last_year_complete_series(df_incomplete, 2023)))
   expect_true(last_year_complete_series(df_complete_A, 2024))
   expect_true(last_year_complete(list(df_complete_12, df_incomplete)))
   expect_false(last_year_complete(list(df_incomplete, df_incomplete)))
