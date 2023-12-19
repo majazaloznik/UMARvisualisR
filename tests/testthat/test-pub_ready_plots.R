@@ -125,13 +125,13 @@ dittodb::with_mock_db({
                  y_axis_label = "leva os",
                  x_sub_annual = FALSE,
                  stacked = TRUE)
-  datapoints <- list(data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
+  datapoints <- list(data.frame(date = c("2022-07-01", "2022-10-01", "2023-01-01", "2023-04-01"),
                                 value = c(2,3,4,5)),
                      data.frame(date = c("2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01"),
                                 value = c(2,3,4,5)))
   out <- x_axis_lims_tickmarks(datapoints, config)
   result <- x_axis_label_params(datapoints, config, out$tickmarks, out$x_lims, bar = FALSE, x_values = NULL, language = "si")
-  expect_equal(result$x_labels, c("2019", "2020",  "2021", "2022", "apr.23"))
+  expect_equal(result$x_labels, c("2019", "2020",  "2021", "2022", "Q2-23"))
   })
 
 })
