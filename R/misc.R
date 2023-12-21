@@ -945,3 +945,35 @@ filter_na_labels <- function(x_positions, x_labels) {
   x_labels <- x_labels[valid_indices]
   mget(c("x_positions", "x_labels"))
 }
+
+
+
+#' Open plot for testing
+#'
+#' @param width width in px
+#' @param height height in px
+#'
+#' @return
+#' @keywords internal
+start_controlled_plot <- function(width = 800, height = 600) {
+  temp_file <- tempfile(fileext = ".png")
+  png("test.png", width = width, height = height)
+  plot.new()
+  invisible(temp_file)
+}
+
+
+#' Close plot for testing
+#'
+#' Use temp_file <- start_controlled_plot() and then close and unlink with this
+#'
+#' @param temp_file
+#'
+#' @return
+#' @keywords internal
+# Custom function to close the plot device
+end_controlled_plot <- function(temp_file) {
+  dev.off()
+  # Optionally, delete the temporary file after closing the device
+  unlink(temp_file)
+}
