@@ -57,11 +57,12 @@ prep_single_line <- function(vintage, con, interval=NULL,
 #' @param df input dataframe with at least the following columns: series_code, unit
 #' interval_id, rolling_average_alignment, rolling_average_periods, year-on-year
 #' @param con PostgreSQL connection object created by the RPostgres package.
+#' @param schema character schema name, default is "platform"
 #'
 #' @return input df, possibly with updated main titles.
 #' @export
 #'
-multi_checks <- function(df, con){
+multi_checks <- function(df, con, schema = "platform"){
   if(nrow(df) > 8)  warning(
     paste("Graf \u0161tevilka", unique(df$chart_no),
           "\n Maksimalno \u0161tevilo serij na enem grafu je 8."))
@@ -80,7 +81,7 @@ multi_checks <- function(df, con){
   if(!all_equal(df$year_on_year)) stop(
     paste("Graf \u0161tevilka", unique(df$chart_no),
           "\n Medletno spremembo na ve\u010dlinijskem grafu je mogo\u010d uporabiti za vse serije ali za nobeno."))
-  df <- multi_titles(df, con)
+  df <- multi_titles(df, con, schema)
 }
 
 
@@ -92,17 +93,18 @@ multi_checks <- function(df, con){
 #' @param df input dataframe with at least the following columns: series_code, unit_name
 #' interval_id, rolling_average_alignment, rolling_average_periods, year_on_year
 #' @param con PostgreSQL connection object created by the RPostgres package.
+#' @param schema character schema name, default is "platform"
 
 #' @return input df, possibly with updated main titles.
 #' @export
 #'
-multi_titles <- function(df, con){
+multi_titles <- function(df, con, schema = "platform"){
   if(!all_equal(df$table_name))  {
     warning(paste("Graf \u0161tevika", unique(df$chart_no),
                   "\n Vse izbrane serije morajo imeti enak naslov tabele, razen, \u010de imajo vse isto ime in razli\u010dna imena tabel."))
     df$table_name <-  paste("Graf \u0161tevika", unique(df$chart_no))
   }
-  if(all_equal(df$series_code) & is.na(unique(df$table_name))) df$table_name <- UMARaccessR::get_table_name_from_series(df$id[1], con)
+  if(all_equal(df$series_code) & is.na(unique(df$table_name))) df$table_name <- UMARaccessR::sql_get_table_name_from_series(con, df$id[1], schema)
   if(is.na(unique(df$table_name))) df$table_name <-  paste("Graf \u0161tevika", unique(df$chart_no))
   df
 }
@@ -172,12 +174,13 @@ get_legend_labels_from_df <- function(df, original_table_names = NULL) {
 #' @param df dataframe described above
 #' @param con PostgreSQL connection object created by the RPostgres package.
 #' @param date_valid validity of vintages, NULL gives most recent.
+#' @param schema character schema name, default is "platform"
 #'
 #' @return A list of lentgh seven described above.
 #' @export
 #'
 
-prep_multi_line <- function(df, con, date_valid = NULL){
+prep_multi_line <- function(df, con, date_valid = NULL, schema = "platform") {
   if ("chart_no" %in% names(df)) warning(paste0("Pripravljam podatke za graf \u0161t. ",
                                                 unique(df$chart_no), "."))
   original_table_names <- df$table_name
@@ -198,9 +201,9 @@ prep_multi_line <- function(df, con, date_valid = NULL){
       legend_labels <- NA}
   df <- df %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(vintage_id = UMARaccessR::get_vintage_from_series_code(series_code, con, date_valid)$id,
-                  updated = UMARaccessR::get_date_published_from_vintage(vintage_id, con)$published)
-  data_points <- purrr::map(df$vintage_id, UMARaccessR::get_data_points_from_vintage, con)
+    dplyr::mutate(vintage_id = UMARaccessR::sql_get_vintage_from_series_code(con, series_code, date_valid, schema),
+                  updated = UMARaccessR::sql_get_date_published_from_vintage(vintage_id, con, schema))
+  data_points <- purrr::map(df$vintage_id, ~ UMARaccessR::sql_get_data_points_from_vintage(con, .x, schema))
   data_points <- purrr::map(data_points, add_date_from_period_id)
   # transformations:
   input_data <- list(data_points = data_points,
@@ -235,11 +238,12 @@ prep_multi_line <- function(df, con, date_valid = NULL){
 #'
 #' @param df input dataframe with at least the following columns: serija, enota
 #' @param con database connection
+#' @param schema character schema name, default is "platform"
 #'
 #' @return input df, possibly with updated main titles.
 #' @export
 #'
-check_plot_inputs <- function(df, con){
+check_plot_inputs <- function(df, con, schema = "platform") {
   errors  <- c()
   if(is.null(df)){
     stop("\nV tabeli ni nobene serije.")}
@@ -342,7 +346,7 @@ check_plot_inputs <- function(df, con){
                 paste("\nSerije se ne smejo podvajati, razen \u010de imajo razli\u010dne transformacije."))}
 
   # update units
-  df <- update_units(df, con)
+  df <- update_units(df, con, schema)
 
   # check units
   if (length(unique_without_na(df$enota)) > 2) {
@@ -609,17 +613,18 @@ prep_config_en <- function(config){
 #'
 #' @param config configuration list
 #' @param con connection to database
+#' @param schema character schema name, default is "platform"
 #'
 #' @return list with a df for each series
 #' @export
 #'
-get_data <- function(config, con) {
+get_data <- function(config, con, schema = "platform") {
 
   series_codes <- vapply(config$series, \(x) x$series_code, character(1))
 
-  vintage_id <- purrr::map_int(series_codes, ~UMARaccessR::get_vintage_from_series_code(.x, con, config$date_valid)$id)
+  vintage_id <- purrr::map_int(series_codes, ~UMARaccessR::sql_get_vintage_from_series_code(con, .x, config$date_valid, schema))
 
-  data_points <- purrr::map(vintage_id, UMARaccessR::get_data_points_from_vintage, con)
+  data_points <- purrr::map(vintage_id, ~UMARaccessR::sql_get_data_points_from_vintage(con, .x, schema))
 
   purrr::map(data_points, replace_period_id_column, config$horizontal_alignment)
 
@@ -690,17 +695,18 @@ transform_data <- function(df, series_config) {
 #'
 #' @param df input dataframe with at least the following columns: serija, enota
 #' @param con database connection
+#' @param schema character schema name, default is "platform"
 #'
 #' @return list of dataframes and config list
 #' @export
 #'
-prep_data <- function(df, con) {
+prep_data <- function(df, con, schema = "platform") {
 
-  df <- check_plot_inputs(df, con)
+  df <- check_plot_inputs(df, con, schema)
 
   config <-  prep_config(df)
 
-  datapoints <- get_data(config, con)
+  datapoints <- get_data(config, con, schema)
 
   results <- purrr::map2(datapoints, config$series, transform_data)
 

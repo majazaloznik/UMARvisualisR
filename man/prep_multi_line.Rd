@@ -4,7 +4,7 @@
 \alias{prep_multi_line}
 \title{Prepare data needed for multi (or single) line chart}
 \usage{
-prep_multi_line(df, con, date_valid = NULL)
+prep_multi_line(df, con, date_valid = NULL, schema = "platform")
 }
 \arguments{
 \item{df}{dataframe described above}
@@ -12,6 +12,8 @@ prep_multi_line(df, con, date_valid = NULL)
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
 
 \item{date_valid}{validity of vintages, NULL gives most recent.}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 A list of lentgh seven described above.

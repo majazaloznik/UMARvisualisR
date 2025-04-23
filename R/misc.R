@@ -267,20 +267,31 @@ check_uniqueness_or_na <- function(column) {
 #'
 #' @param df with at a minimum the columns serija, enota, indeks_let and rast
 #' @param con database connection
+#' @param schema schema name, defaults to platform
 #'
 #' @return df with updated
 #' @export
-update_units <- function(df, con){
- df |>
-    dplyr::mutate(enota = ifelse(!is.na(indeks_obdobje), paste0("Indeks (",
-                                                                indeks_obdobje, " = 100)"),
-                                 ifelse(!is.na(rast), "%",
-                                        enota))) |>
+update_units <- function(df, con, schema = "platform"){
+  df |>
+    dplyr::mutate(enota = ifelse(!is.na(indeks_obdobje),
+                                 paste0("Indeks (", indeks_obdobje, " = 100)"),
+                                 ifelse(!is.na(rast), "%", enota))) |>
     dplyr::rowwise() |>
-    dplyr::mutate(enota = ifelse(is.na(enota), UMARaccessR::get_unit_from_series(
-      UMARaccessR::get_series_id_from_series_code(serija, con), con), enota)) |>
+    dplyr::mutate(series_id = {
+      result <- UMARaccessR::sql_get_series_id_from_series_code(serija, con, schema)
+      if(is.data.frame(result) && "id" %in% names(result)) result$id else NA_integer_
+    }) |>
+    dplyr::mutate(enota = {
+      if(is.na(enota) && !is.na(series_id)) {
+        unit_result <- UMARaccessR::sql_get_unit_from_series(con, series_id, schema)
+        if(!is.null(unit_result)) unit_result else NA_character_
+      } else {
+        enota
+      }
+    })|>
     dplyr::mutate(enota = dplyr::if_else(enota == "eur", "EUR",
-                                  dplyr::if_else(enota == "mio eur", "Mio EUR", first_up(enota))))
+                                  dplyr::if_else(enota == "mio eur",
+                                                 "Mio EUR", first_up(enota))))
 }
 
 
@@ -953,7 +964,7 @@ filter_na_labels <- function(x_positions, x_labels) {
 #' @param width width in px
 #' @param height height in px
 #'
-#' @return
+#' @return nothing, opens a png device
 #' @keywords internal
 start_controlled_plot <- function(width = 800, height = 600) {
   temp_file <- tempfile(fileext = ".png")
@@ -969,7 +980,7 @@ start_controlled_plot <- function(width = 800, height = 600) {
 #'
 #' @param temp_file
 #'
-#' @return
+#' @return nothing, closes the png device
 #' @keywords internal
 # Custom function to close the plot device
 end_controlled_plot <- function(temp_file) {

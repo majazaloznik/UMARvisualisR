@@ -4,12 +4,14 @@
 \alias{check_plot_inputs}
 \title{Check input data for multi-line chart}
 \usage{
-check_plot_inputs(df, con)
+check_plot_inputs(df, con, schema = "platform")
 }
 \arguments{
 \item{df}{input dataframe with at least the following columns: serija, enota}
 
 \item{con}{database connection}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 input df, possibly with updated main titles.

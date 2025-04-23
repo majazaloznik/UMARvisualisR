@@ -4,12 +4,14 @@
 \alias{update_units}
 \title{Updates units in publication chart input table}
 \usage{
-update_units(df, con)
+update_units(df, con, schema = "platform")
 }
 \arguments{
 \item{df}{with at a minimum the columns serija, enota, indeks_let and rast}
 
 \item{con}{database connection}
+
+\item{schema}{schema name, defaults to platform}
 }
 \value{
 df with updated

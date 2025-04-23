@@ -4,12 +4,14 @@
 \alias{prep_data}
 \title{Whole data prep pipeline for plotting publicaiton ready charts}
 \usage{
-prep_data(df, con)
+prep_data(df, con, schema = "platform")
 }
 \arguments{
 \item{df}{input dataframe with at least the following columns: serija, enota}
 
 \item{con}{database connection}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 list of dataframes and config list

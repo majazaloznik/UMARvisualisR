@@ -8,8 +8,8 @@ dittodb::with_mock_db({
   DBI::dbExecute(con, "set search_path to test_platform")
 
   test_that("x-axis limits are calculated correctly", {
-    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")
-    results <- prep_data(x, con)
+    x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet22")[1:2,]
+    results <- prep_data(x, con, "test_platform")
     datapoints <- cut_to_x_range(results$datapoints, results$config)
     xlims <- get_x_lims(datapoints)
     expect_equal(xlims, structure(c(min_date = 14625, max_date = 19539), class = "Date"))
@@ -18,10 +18,10 @@ dittodb::with_mock_db({
     xlims <- get_x_lims(datapoints)
     expect_equal(xlims, structure(c(min_date = 14625, max_date = 18977), class = "Date"))
     x <- openxlsx::read.xlsx(test_path("testdata", "pub_test_df.xlsx"), sheet = "Sheet26")
-    results <- prep_data(x, con)
+    results <- prep_data(x, con, "test_platform")
     datapoints <- cut_to_x_range(results$datapoints, results$config)
     xlims <- get_x_lims(datapoints)
-    expect_equal(xlims, structure(c(min_date = 13194, max_date = 19403), class = "Date"))
+    expect_equal(xlims, structure(c(min_date = 13194, max_date = 20043), class = "Date"))
   })
 
   test_that("top margins are calculated correctly", {

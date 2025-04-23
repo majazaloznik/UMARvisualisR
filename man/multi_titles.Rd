@@ -4,13 +4,15 @@
 \alias{multi_titles}
 \title{Check titles in input for multi-line chart}
 \usage{
-multi_titles(df, con)
+multi_titles(df, con, schema = "platform")
 }
 \arguments{
 \item{df}{input dataframe with at least the following columns: series_code, unit_name
 interval_id, rolling_average_alignment, rolling_average_periods, year_on_year}
 
 \item{con}{PostgreSQL connection object created by the RPostgres package.}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 input df, possibly with updated main titles.

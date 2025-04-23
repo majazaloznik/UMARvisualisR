@@ -50,16 +50,11 @@ test_that("range finding works ", {
 
 
 dittodb::with_mock_db({
-  con <- DBI::dbConnect(RPostgres::Postgres(),
-                        dbname = "platform",
-                        host = "localhost",
-                        port = 5432,
-                        user = "mzaloznik",
-                        password = Sys.getenv("PG_local_MAJA_PSW"))
-  DBI::dbExecute(con, "set search_path to test_platform")
+  con <- make_test_connection()
+
   test_that("unit update works", {
     df <- read_csv_guess_encoding(testthat::test_path("testdata", "test_report_input4.csv"))
-    x <- update_units(df, con)
+    x <- update_units(df, con, "test_platform")
     expect_equal(x$enota, c("Indeks (2015 = 100)", "Indeks (2015 = 100)",
                             "Odstotne točke", "%", "%", "%" ))
   })

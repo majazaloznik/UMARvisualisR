@@ -4,12 +4,14 @@
 \alias{get_data}
 \title{Get the datapoints from the database}
 \usage{
-get_data(config, con)
+get_data(config, con, schema = "platform")
 }
 \arguments{
 \item{config}{configuration list}
 
 \item{con}{connection to database}
+
+\item{schema}{character schema name, default is "platform"}
 }
 \value{
 list with a df for each series
