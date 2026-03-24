@@ -27,7 +27,6 @@ Imports:
     dplyr (>= 1.0.9),
     dygraphs (>= 1.1.1.6),
     lubridate (>= 1.8.0),
-    magrittr (>= 2.0.3),
     openxlsx (>= 4.2.5),
     purrr (>= 1.0.0),
     readr (>= 2.1.2),

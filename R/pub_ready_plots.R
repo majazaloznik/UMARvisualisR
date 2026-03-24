@@ -81,7 +81,7 @@ empty_plot <- function(x_lims, y_axis, y_axis_label){
        axes = FALSE,
        main = "",
        cex.main = 1,
-       family ="Myriad Pro",
+       family = umar_font(),
        panel.first={grid(nx = NA, ny = length(y_axis$y_breaks) - 1,
                          col = umar_cols("gridlines"), lty = 1, lwd = 1.1)},
        yaxs="i",
@@ -201,7 +201,7 @@ get_top_margin_and_title <- function(config, title_ps){
 #'
 create_legend <- function(config, legend_ps, language = "si") {
   par("ps" = legend_ps)
-  par(family = "Myriad Pro")
+  par(family = umar_font())
   lwd <- lty <- series_types <- vapply(config$series, \(x) x$type, character(1))
   line_colours <- bar_colours <- series_colours <- vapply(config$series, \(x) x$colour, character(1))
   if(language == "si"){ # switch languages
@@ -457,7 +457,7 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
 
   # position title
   par("ps" = title_ps)
-  mtext(top[[3]], side = 3,  line = top[[2]], adj = 0, padj = 0, family = "Myriad Pro", font = 2)
+  mtext(top[[3]], side = 3,  line = top[[2]], adj = 0, padj = 0, family = umar_font(), font = 2)
 
   par("ps" = 9) # for axis titles and labels
   left_axis_labels(config$y_axis_label, left$axis_positions, left$axis_labels, left$y_lab_lines)
@@ -479,7 +479,7 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
   axis(1, x_axis$x_labels,
        at = x_axis$x_positions,
        col = umar_cols("gridlines"),
-       lwd = 0, tck = 0,  family ="Myriad Pro",
+       lwd = 0, tck = 0,  family = umar_font(),
        padj = 0.5, gap.axis = 0.25)
 
 

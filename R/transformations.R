@@ -12,8 +12,8 @@
 #'
 transform_rolling <- function(df, periods = 3, align = "c"){
   if(is.na(align)) align <- "c"
-  df %>%
-    dplyr::arrange(date) %>%
+  df  |>
+    dplyr::arrange(date)  |>
     dplyr::mutate(value = zoo::rollmean(value, k = periods,fill= NA, align = align))
 }
 
@@ -98,7 +98,7 @@ transform_index <- function(df, base_period){
   if (grepl("^\\d{4}M\\d{2}$", base_period)) {
     base_start <- lubridate::ym(base_period)
     base_end <- base_start + months(1)
-    base_value <- df %>%
+    base_value <- df  |>
       dplyr::filter(date >= base_start & date < base_end) |>
       dplyr::pull(value)
     if (is.na(base_value) || is.nan(base_value) || length(base_value) == 0) {

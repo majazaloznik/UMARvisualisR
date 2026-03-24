@@ -73,7 +73,7 @@ find_pretty_ylim <- function(values){
 #' @export
 #'
 remove_head_tail_NAs <- function(df){
-  df %>% dplyr::arrange(period) -> df
+  df |>  dplyr::arrange(period) -> df
   nisna <- apply(!is.na(dplyr::select(df, -period, -period_id)), 1, any)
   df[min(which(nisna)):max(which(nisna)),]
 }
@@ -94,7 +94,7 @@ apply_xlims <- function(df, xmin = "2011-01-01", xmax =NULL){
   xmin <- as.Date(xmin)
  if(is.null(xmax)) xmax <- max(df$period)
  df <- remove_head_tail_NAs(df)
- df %>%
+ df  |>
    dplyr::filter(period >= xmin & period <= xmax) -> df
  df
 }
@@ -173,13 +173,13 @@ get_interval <- function(string) {
 #' @export
 #'
 add_date_from_period_id <- function(df){
-  df %>%
+  df  |>
     dplyr::rowwise() |>
     dplyr::mutate(interval = get_interval(period_id)) |>
     dplyr::mutate(period = dplyr::if_else(interval ==  "M", lubridate::ym(period_id, quiet = TRUE),
                                           dplyr::if_else(interval == "Q", lubridate::yq(period_id, quiet = TRUE),
                                                          dplyr::if_else(interval == "A", lubridate::ymd(period_id, truncated = 2L, quiet = TRUE),
-                                                                        as.Date(NA))))) %>%
+                                                                        as.Date(NA))))) |>
     dplyr::select(-interval)
 }
 
@@ -376,7 +376,7 @@ get_interval_in_months <- function(date_column) {
 #'
 #' @return title but wiht line breaks where needed
 #' @export
-wrap_title <- function(title, max_width = NULL, cex = 1, family = "Myriad Pro", font = 1) {
+wrap_title <- function(title, max_width = NULL, cex = 1, family = umar_font(), font = 1) {
   if (is.null(title) || identical(title, "") || is.na(title)) {
     return(list(title = NULL, num_lines = 0))
   }
@@ -442,7 +442,7 @@ legend_mz2 <- function(x = par("usr")[[1]],
                        fill = NULL, col = NULL, lty = NULL, lwd = NULL,
                        xjust = 0, yjust = 0, x.intersp = 0.2, y.intersp = 0.8,
                        text.col = "black", text.font = NULL, ncol = 1,
-                       family = "Myriad Pro") {
+                       family = umar_font()) {
 
   # check what are we doing
   mfill <- !missing(fill) && !all(is.na(fill))
@@ -610,9 +610,9 @@ left_axis_labels <- function(unit, axis_positions, axis_labels, y_lab_lines){
        labels = format(axis_labels, big.mark = ".", decimal.mark = ",",
                        scientific = FALSE),
        col = umar_cols("gridlines"), lwd = 0,  tck = 0.0,
-       las = 2,  family ="Myriad Pro")
+       las = 2,  family =umar_font())
   mtext(unit, side = 2,
-        line = y_lab_lines + 0.1, family ="Myriad Pro")
+        line = y_lab_lines + 0.1, family =umar_font())
 }
 
 
@@ -987,4 +987,23 @@ end_controlled_plot <- function(temp_file) {
   dev.off()
   # Optionally, delete the temporary file after closing the device
   unlink(temp_file)
+}
+
+
+#' Umar colour palette function
+#'
+#' Returns colour(s) from the Umar corporate graphical identity palette.
+#' Colour names are rdeca, roza, siva, temno modra, turkizna, zelena, vijolicna,
+#' sinja, gridlines and emph. The last two are grays for gridlines, axes and the like
+#' and for emphasising the 100/0 gridline.
+#'
+#' @param ... optional colour names.
+#'
+#' @return hex value of relevant colour(s)
+#' @export
+umar_cols <- function(...) {
+  cols <- c(...)
+  if (is.null(cols))
+    return (umar_colours)
+  umar_colours[cols]
 }

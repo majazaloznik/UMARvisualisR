@@ -205,7 +205,7 @@ dittodb::with_mock_db({
   axis(1, result$x_labels,
        at = result$x_positions,
        col = umar_cols("gridlines"),
-       lwd = 0, tck = 0,  family ="Myriad Pro",
+       lwd = 0, tck = 0,  family = umar_font(),
        padj = 0.5, gap.axis = 0.25)
   expect_equal(result$x_labels, c(as.character(2010:2022), "Q1-24"))
   end_controlled_plot(temp_file)

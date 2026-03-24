@@ -19,7 +19,7 @@ legend_mz2(
   text.col = "black",
   text.font = NULL,
   ncol = 1,
-  family = "Myriad Pro"
+  family = umar_font()
 )
 }
 \arguments{

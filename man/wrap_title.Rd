@@ -4,7 +4,7 @@
 \alias{wrap_title}
 \title{Helper funciton to wrap title to appropriate width}
 \usage{
-wrap_title(title, max_width = NULL, cex = 1, family = "Myriad Pro", font = 1)
+wrap_title(title, max_width = NULL, cex = 1, family = umar_font(), font = 1)
 }
 \arguments{
 \item{title}{character}
