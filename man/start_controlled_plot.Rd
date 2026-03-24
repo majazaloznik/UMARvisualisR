@@ -11,6 +11,9 @@ start_controlled_plot(width = 800, height = 600)
 
 \item{height}{height in px}
 }
+\value{
+nothing, opens a png device
+}
 \description{
 Open plot for testing
 }

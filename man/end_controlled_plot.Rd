@@ -9,6 +9,9 @@ end_controlled_plot(temp_file)
 \arguments{
 \item{temp_file}{}
 }
+\value{
+nothing, closes the png device
+}
 \description{
 Use temp_file <- start_controlled_plot() and then close and unlink with this
 }

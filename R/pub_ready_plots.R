@@ -554,3 +554,43 @@ interpolate_x <- function(original_dates, x_values, new_dates) {
 
   return(interpolated_x_values)
 }
+
+#' Barplot that can handle negative values
+#'
+#' A rework of the base barplot funciton that allows for negative
+#' values to be properly plotted i.e. from zero downwards.
+#' SOme extra lines to handle the fact that you might want to
+#' pass the add argument to it as well. Does not play nice with
+#' panel.first, but i don't need it to really, so i left that to the reader
+#' as an exercise :)
+#'
+#' @param data_matrix vector or matrix of heights of the bars
+#' @param ... to be passed to barplot
+#'
+#' @return nothing, just plots
+#' @export
+#'
+my_special_barplot <- function(data_matrix, ...){
+
+  # Extract the add argument
+  args_list <- list(...)
+  add_arg <- ifelse("add" %in% names(args_list), args_list$add, FALSE)
+
+  # Separate positive and negative data
+  positive_data <- pmax(data_matrix, 0)
+  negative_data <- pmin(data_matrix, 0)
+
+  # Calculate endpoints
+  positive_endpoints <- (apply(positive_data, 2, cumsum))
+  negative_endpoints <- (apply(negative_data, 2, cumsum))
+
+  # Draw bars
+  barplot(positive_data, ...)
+  if (!add_arg) {
+    # If original call did not have add = TRUE
+    barplot(negative_data, add = TRUE, ...)
+  } else {
+    # If original call had add = TRUE it's already in ...
+    barplot(negative_data, ...)
+  }
+}
