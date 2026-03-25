@@ -10,8 +10,8 @@
 #' @return dataframe with transformed values.
 #' @export
 #'
-transform_rolling <- function(df, periods = 3, align = "c"){
-  if(is.na(align)) align <- "c"
+transform_rolling <- function(df, periods = 3, align = "r"){
+  if(is.na(align)) align <- "r"
   df  |>
     dplyr::arrange(date)  |>
     dplyr::mutate(value = zoo::rollmean(value, k = periods,fill= NA, align = align))

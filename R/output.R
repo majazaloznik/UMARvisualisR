@@ -48,7 +48,8 @@ png_output <- function(filename, size = "normal") {
 
   new_filename <- check_and_rename_pdf(filename)
 
-  png(filename, width = width * 300, height = height * 300, res = 300, pointsize = 12)
+  png(filename, width = width * 300, height = height * 300, res = 300, pointsize = 12,
+      type = "cairo")
 
 }
 

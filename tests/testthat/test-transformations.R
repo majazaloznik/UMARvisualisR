@@ -12,13 +12,13 @@ dittodb::with_mock_db({
     df <- check_plot_inputs(x, con, "test_platform")
     config <- prep_config(df)
     datapoints <- get_data(config, con, "test_platform")
-    expect_equal(transform_rolling(datapoints[[1]])[6, 2][[1]], 615899291, tolerance = 1e-8)
+    expect_equal(transform_rolling(datapoints[[1]])[6, 2][[1]], 534085485, tolerance = 1e-8)
     expect_equal(transform_rolling(datapoints[[1]], 3, "r")[7, 2][[1]], 615899291, tolerance = 1e-8)
     expect_equal(transform_rolling(datapoints[[1]], 3, "l")[5, 2][[1]], 615899291, tolerance = 1e-8)
     df <- data.frame(date = as.Date(c('2023-01-01', '2023-01-02', '2023-01-03')),
                      value = c(1, 5, 3))
     result <- transform_rolling(df, periods = 3)
-    expect_true(result$value[2] >= min(df$value) && result$value[2] <= max(df$value))
+    expect_true(result$value[3] >= min(df$value) && result$value[3] <= max(df$value))
     expect_error(transform_rolling(df, periods = 3, "lkj"))
     df <- data.frame(date = as.Date(c('2023-01-01', '2023-01-02', '2023-01-03')),
                      value = c("M", 5, 3))

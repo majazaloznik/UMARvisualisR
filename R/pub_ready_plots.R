@@ -507,11 +507,11 @@ draw_lines <- function(datapoints, config, x_values = NULL){
    line_datapoints <- datapoints[series_types == "line"]
    line_datapoints <- purrr::reduce(line_datapoints, ~dplyr::full_join(.x, .y, by = "date")) |>
      dplyr::arrange(date)
-   numeric_cols <- line_datapoints[, sapply(line_datapoints, is.numeric)]
+   numeric_cols <- line_datapoints[, sapply(line_datapoints, is.numeric), drop = FALSE]
 
    x_values <- interpolate_x(x_values$dates, x_values$midpoints, line_datapoints$date)
    for (i in 1:ncol(numeric_cols)) {
-     y_values <- dplyr::pull(numeric_cols[,i])
+     y_values <- numeric_cols[[i]]
      lines(x_values[!is.na(y_values)], na.omit(y_values),
            col=line_colours[i], type="l", lwd = 2)
    }

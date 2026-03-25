@@ -4,7 +4,7 @@
 \alias{transform_rolling}
 \title{New function for rolling average transformations}
 \usage{
-transform_rolling(df, periods = 3, align = "c")
+transform_rolling(df, periods = 3, align = "r")
 }
 \arguments{
 \item{df}{dataframe with date and value columns}

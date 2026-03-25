@@ -35,7 +35,8 @@ in_range_strict <- function (x, r) {
 #' @return a character string with first letter capitalized.
 #' @export
 first_up <- function(x) {
-  stringr::str_replace(x, "^\\w{1}", toupper)
+  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+  x
 }
 
 #' Find pretty y-axis limits
