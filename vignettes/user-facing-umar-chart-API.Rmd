@@ -43,7 +43,6 @@ Odpri [stran z Aptos fonti](https://www.microsoft.com/en-us/download/details.asp
 
 # Osnovna uporaba
 
-Tole so iz SiStat-a neki četrtletni podatki o BDP za demonstracijo
 
 Tole so iz SiStat-a neki četrtletni podatki o BDP za demonstracijo:
 ```{r, eval=FALSE}
@@ -54,22 +53,19 @@ raw_data <- read.csv("https://pxweb.stat.si:443/SiStatData/sq/28805",
 raw_data <- readRDS("gdp_data.rds")
 ```
 
-```{r}
-df1 <- raw_data[c(1,4)]
-head(df1)
-```
 
 Default graf potem izgleda takole:
 ```{r}
+df1 <- raw_data[c(1,4)]
 prep_chart(df1) |> 
   view_chart()
 ```
  
-Tale koda pa ga bo shranila kot `graf1.pdf`:
+Tale koda pa ga bi shranila kot `graf1.pdf`:
 
 ```
 prep_chart(df1) |> 
-  save_chart("graf1")
+  save_chart("graf1.pdf")
 ```
 
 
@@ -78,7 +74,7 @@ prep_chart(df1) |>
 
 # Input podatki
 
-Funkcija `prep_chart()` ima prvi argument `data`, ki mora biti en sam `data.frame`. Podatki v njem pa so lahko:
+Funkcija `prep_chart()` ima prvi (in edini obvezen) argument `data`, ki mora biti en sam `data.frame`. Podatki v njem pa so lahko:
 
 1. v *wide* formatu (torej en stolpec z obdobjem in en ali več stolpcev z vrednostmi)
 2. v *long* formatu (torej en stolpec z obdobjem, en stolpec s kategorijami in en stolpec z vrednostmi). 
@@ -270,7 +266,7 @@ Takole recimo prejšnji graf shraniš v pdf velikosti 22 x 8 cm:
 
 ```{r, eval = FALSE}
 chart5 |> 
-  save_chart("zglajen_in_indeksiran.pdf", size = 3)
+  save_chart("zglajen_in_indeksiran", size = 3)
 ```
 
 # Še par malenkosti
@@ -278,7 +274,7 @@ chart5 |>
 ## 
 ## Umar barve
 
-Tale funkcija je lahko še kje drugje uporabna, zato jo posebej dokumentiram: `umar_cols()`. V bistvu je samo named vektor z našimi barvami in s posebno print metodo (to probaj pri sebi, ker v vinjeti ne deluje lepo):
+Tale funkcija je lahko še kje drugje uporabna, zato jo posebej dokumentiram: `umar_cols()`. V bistvu je samo named vektor z našimi barvami in s posebno print metodo (to probaj pri sebi, da vidiš kako se izpišejo barve!):
 
 ```{r}
 umar_cols()
@@ -313,10 +309,10 @@ Seznam idej in planov, not in any particular order:
 
 - dvojne y-osi...
 - možnost dodatnih velikosti po želji
-- možnost izvajanja transformacij na posameznih serijah
+- možnost izvajanja transformacij na posameznih serijah ločeno
 - možnost ponovne uporabe iste serije (da je lahko enkrat zglajena in enkrat originalna recimo)
 - integracija v shiny app, da lahko ne-R-sodelavci direkt uploadajo svoje podatke in dobijo ven lep graf. (in potem seveda še dodajajo serije iz baze, ampak otompotom).
-- ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli
+- ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli, zaenkrat to pade na Mojco
 - dodat več formatov še za prezentacije recimo
 - drseče sredine centrirane, če bo želja/potreba
 - mogoče opcija, da si shraniš tudi celo kodo za graf, ki jo lahko po potrebi tweakaš, čeprav to je kar messy in vprašanje, če je res potreba
