@@ -80,9 +80,9 @@ prep_chart <- function(data,
 
   # --- validate stacked ---
   if (stacked && !any(type == "bar")) {
-    stop("stacked = TRUE requires at least one 'bar' series.")
+    warning("stacked = TRUE ignored: no 'bar' series present.")
+    stacked <- FALSE
   }
-
   # --- validate emphasis ---
   if (!is.null(emphasis) && !isFALSE(emphasis)) {
     if (!is.numeric(emphasis)) stop("emphasis must be NULL, FALSE, or a numeric vector.")
@@ -96,7 +96,12 @@ prep_chart <- function(data,
   if (!is.null(growth)) {
     if (!growth %in% c("YOY", "QOQ", "MOM"))
       stop("growth must be 'YOY', 'QOQ', or 'MOM'.")
+    if (growth == "QOQ" && determine_interval(parsed$datapoints[[1]]) != "Q")
+      stop("QOQ growth requires quarterly data.")
+    if (growth == "MOM" && determine_interval(parsed$datapoints[[1]]) != "M")
+      stop("MOM growth requires monthly data.")
   }
+
   if (!is.null(index)) {
     if (!grepl("^\\d{4}(Q\\d|M\\d{2})?$", index))
       stop("index must be a year ('2015'), quarter ('2023Q1'), or month ('2023M06').")
@@ -125,6 +130,7 @@ prep_chart <- function(data,
     if (is.null(y_axis)) y_axis <- paste0("Indeks (", index, " = 100)")
   }
 
+  parsed$datapoints <- center_dates(parsed$datapoints)
   # --- build legend ---
   if (is.null(legend)) {
     legend <- parsed$series_names
@@ -341,7 +347,6 @@ colourise <- function(text, hex) {
 #' @return dataframe with period column converted to Date (if found)
 #' @keywords internal
 convert_period_column <- function(data) {
-  # only act if no Date column exists already
   if (!is.null(find_date_column(data))) return(data)
 
   char_cols <- names(data)[vapply(data, is.character, logical(1))]
@@ -350,10 +355,8 @@ convert_period_column <- function(data) {
     if (length(vals) == 0) next
     interval <- get_interval(vals[1])
     if (is.na(interval)) next
-    # all values must match the same pattern
     intervals <- vapply(vals, get_interval, character(1))
     if (!all(intervals == interval, na.rm = TRUE)) next
-    # convert
     data[[col]] <- switch(interval,
                           M = lubridate::ym(data[[col]], quiet = TRUE),
                           Q = lubridate::yq(data[[col]], quiet = TRUE),
@@ -362,4 +365,22 @@ convert_period_column <- function(data) {
     return(data)
   }
   data
+}
+
+
+#' Shift dates to mid-period for proper chart alignment
+#' @param datapoints list of date+value dataframes
+#' @return datapoints with centered dates
+#' @keywords internal
+center_dates <- function(datapoints) {
+  interval <- determine_interval(datapoints[[1]])
+  if (is.na(interval) || interval == "A") return(datapoints)
+  lapply(datapoints, function(df) {
+    if (interval == "M") {
+      df$date <- df$date + 15L
+    } else if (interval == "Q") {
+      df$date <- df$date + 45L
+    }
+    df
+  })
 }

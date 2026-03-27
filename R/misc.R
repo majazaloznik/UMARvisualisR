@@ -990,11 +990,10 @@ end_controlled_plot <- function(temp_file) {
   unlink(temp_file)
 }
 
-
-#' Umar colour palette function
+#' UMAR colour palette function
 #'
-#' Returns colour(s) from the Umar corporate graphical identity palette.
-#' Colour names are rdeca, roza, siva, temno modra, turkizna, zelena, vijolicna,
+#' Returns colour(s) from the UMAR corporate graphical identity palette.
+#' Colour names are rdeca, roza, siva, temno_modra, turkizna, zelena, vijolicna,
 #' sinja, gridlines and emph. The last two are grays for gridlines, axes and the like
 #' and for emphasising the 100/0 gridline.
 #'
@@ -1004,7 +1003,20 @@ end_controlled_plot <- function(temp_file) {
 #' @export
 umar_cols <- function(...) {
   cols <- c(...)
-  if (is.null(cols))
-    return (umar_colours)
-  umar_colours[cols]
+  if (is.null(cols)) {
+    out <- umar_colours
+  } else {
+    out <- umar_colours[cols]
+  }
+  structure(out, class = c("umar_palette", "character"))
+}
+
+#' @export
+print.umar_palette <- function(x, ...) {
+  for (i in seq_along(x)) {
+    cat(colourise(x[i], x[i]))
+    if (!is.null(names(x))) cat(" ", names(x)[i])
+    cat("\n")
+  }
+  invisible(x)
 }

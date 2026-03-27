@@ -179,7 +179,7 @@ get_top_margin_and_title <- function(config, title_ps){
 
   lines <- (legend_lines + 0.3) * 0.8 - 0.3 + gap +
     title_lines * title_ps/12
-
+  lines <- max(lines, 0.5)
   title_pos <- (legend_lines + 0.3) * 0.8 - 0.3 + gap
   current_mar <- par("mar")
   current_mar[3] <- lines

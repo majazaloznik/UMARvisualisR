@@ -1,0 +1,330 @@
+---
+title: "User facing Umar chart API with UMARvisualisR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{user-facing-umar-chart-API}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.keep = "last",
+  fig.width = 4.33,
+  fig.height = 3.54
+)
+library(UMARvisualisR)
+umar_font("sans")
+```
+
+# Setup
+
+Pred prvo uporabo je treba 
+
+1. namestiti UMARvisualisR knjižnico
+2. namestiti Aptos font
+
+## Namestitev UMARvisualisR knjižnice
+
+```
+# install.packages("devtools")
+devtools::install_github("majazaloznik/UMARvisualisR")
+```
+Potem je knjižnica na voljo za uporabo:
+
+```
+library(UMARvisualisR)
+```
+## Namestitev Aptos fonta
+
+Odpri [stran z Aptos fonti](https://www.microsoft.com/en-us/download/details.aspx?id=106087) in klikni "Download" in si prenesi zip datoteko. Odzippaj in označi vse .ttf datoteke, desno klikni nanje in izberi "Install". Mogoče dobiš opozorilo, da je kater font že nameščen, kar je vseeno, lahko ga prepišeš ali ne.
+
+# Osnovna uporaba
+
+Tole so iz SiStat-a neki četrtletni podatki o BDP za demonstracijo
+
+Tole so iz SiStat-a neki četrtletni podatki o BDP za demonstracijo:
+```{r, eval=FALSE}
+raw_data <- read.csv("https://pxweb.stat.si:443/SiStatData/sq/28805", 
+                     fileEncoding = "Windows-1250", na.strings = "...")
+```
+```{r, echo=FALSE}
+raw_data <- readRDS("gdp_data.rds")
+```
+
+```{r}
+df1 <- raw_data[c(1,4)]
+head(df1)
+```
+
+Default graf potem izgleda takole:
+```{r}
+prep_chart(df1) |> 
+  view_chart()
+```
+ 
+Tale koda pa ga bo shranila kot `graf1.pdf`:
+
+```
+prep_chart(df1) |> 
+  save_chart("graf1")
+```
+
+
+ 
+ 
+
+# Input podatki
+
+Funkcija `prep_chart()` ima prvi argument `data`, ki mora biti en sam `data.frame`. Podatki v njem pa so lahko:
+
+1. v *wide* formatu (torej en stolpec z obdobjem in en ali več stolpcev z vrednostmi)
+2. v *long* formatu (torej en stolpec z obdobjem, en stolpec s kategorijami in en stolpec z vrednostmi). 
+
+V vsakem primeru mora torej imeti stolpec z obdobjem, čeprav je vseeno kako se imenuje dokler je v enem od naslednjih formatov:
+
+1. `Date` format
+2. oznaka meseca v formatu `2023M02`
+3. oznaka četrtletja v formatu `2023Q2`
+4. samo letnica v formatu `2024`
+
+# Priprava grafa
+
+Funkcija `prep_chart()` rabi samo `data` argument, ostali so opcijski
+
+### `type`
+
+Default je `"line"`. Alternativa je `"bar"`. Če hočeš kombinirati oba tipa, potem moraš napisati vektor v dolžini števila prikazanih spremenljivk, recimo `c("line", "bar", "line")`.
+
+### `title`
+
+Naslov, ki se izpiše na vrhu grafa. Default je prazen.
+
+### `y_axis`
+
+Oznaka y-osi, default je prazen. V primeru, da je `y_axis` enak "Indeks", se avtomatično izriše poudarjen gridline na y=100, drugače ga moraš dodati sam (glej `emphasis`)
+
+### `legend`
+
+Če pustiš `NULL`, se za oznake v legedni uporabijo imena stolpcev (v wide formatu) oz. kategorij (v long formatu). Sicer pa napiši vektor v dolžini števila spremenljivk. 
+
+### `colours`
+
+Če pustiš `NULL`, se po defaultu uporabijo UMAR barve po naslednjem vrstnem redu:
+
+```{r, fig.height=2, fig.width=4.33, echo = FALSE}
+show_palette <- function() {
+  cols <- umar_cols()
+  n <- length(cols)
+  par(mar = c(0.5, 0.5, 0.5, 0.5))
+  plot(NULL, xlim = c(0, n), ylim = c(0, 1), axes = FALSE, xlab = "", ylab = "")
+  rect(seq_len(n) - 1, 0, seq_len(n), 1, col = cols, border = NA)
+  text(seq_len(n) - 0.5, 0.5, paste(1:n, names(cols)), cex = 1, srt = 90)
+}
+show_palette()
+```
+
+Ta vrstni red lahko uporabiš tudi, da sam določiš barve, recimo `colours = c(6,3,1)`. 
+
+Načeloma lahko tudi direkt uporabiš HEX barve, recimo `colours = "#A10305"`, čeprav to potem ni po našem CGP-ju, ampak ta možnost obstaja. 
+
+### `xmin` in `xmax` 
+
+Default razpon x-osi je celoten razpon podatkov, ki ga lahko tudi skrajšaš, ponavadi z xmin, ki mora biti v obliki `xmin = "2015-01-01"`
+
+### `stacked`
+
+Če je katerakoli od serij tipa `"bar"`, potem daš tukaj lahko `stacked = TRUE`, da dobiš naložene stolpce.
+
+### `emphasis`
+
+Poudarjanje vzporednih gridline-ov lahko kontroliraš z recimo  `emphasis = 100`. Po defaultu se vedno poudari nula, in pa tudi 100-tka, če je `y-axis = "Indeks"`.
+
+### `legend_columns`
+
+Defualt je 2, gre za število stolpcev legende. Recimo, če so zelo dolge oznake, lahko daš `legend_columns = 1`.
+
+## Transformacije
+
+Obstaja tudi enostavna funkcionalnost za transformiranje serij, ki deluje *na vse serije naenkrat*. Možno je dodati drsečo sredino (`rolling`), medletne, četrtletne in mesečne rasti (`growth`) in izračunati indeks z določeno osnovo (`index`):
+
+### `rolling`
+
+Izbereš število obdobij, recimo `rolling = 3` bi izračunal drsečo sredino za zadnja tri obdobja (karkoli so). Drseče sredine so vse desno poravnane, ker v glavnem samo to uporabljamo, če bo potreba, lahko dodamo tudi "c".
+
+### `growth`
+
+Možne so tri opcije: 
+
+1. `"YOY"` izračuna medletno rast - ne glede na to ali so podatki mesečni, četrtletni ali letni.
+2. `"QOQ"` izračuna rast glede na prejšnje četrtletje - deluje samo, če so podatki četrtletni.
+3. `"MOM"` izračuna rast glede na prejšnji mesec - deluje samo, če so podatki mesečni.
+
+
+### `index`
+
+Izračuna indeks glede na bazno obdobje, ki je lahko v eni od treh oblik:
+
+1. letnica: `index = 2015`, deluje na letnih, četrtletnih in mesečnih podatkih
+2. četrtletje `index = 2015Q1`, deluje samo na četrtletnih podatkih
+3. mesec: `index = 2015M01`, deluje samo na mesečnih podatkih
+
+# Primeri bolj kompleksnih grafov
+
+## Več serij - linijski
+
+Več linij, dodane oznake za legendo in y os, izbira barv:
+```{r}
+prep_chart(raw_data[c(1,4:5, 8:9)],
+           title = "Več serij - linijski",
+           y_axis = "Mio EUR",
+           legend = paste("Serija", 1:4),
+           colours = c(1,6,2,5),
+           xmin = as.Date("2020-01-01"))|> 
+  view_chart()
+```
+
+## Več serij - stolpični + medletna rast 
+
+Stolpični (ne naložen) z medletno rastjo. 
+```{r}
+prep_chart(raw_data[c(1,4:5)],
+           title = "Več serij - stolpični + medletna rast",
+           type = "bar",
+           y_axis = "Medletna rast, v %",
+           legend = paste("Serija", 1:2),
+           colours = c(1,5),
+           xmin = as.Date("2020-01-01"),
+           growth = "YOY")|> 
+  view_chart()
+```
+
+## Kombiniran in naložen 
+```{r}
+prep_chart(raw_data[c(1,3,2, 6)],
+           title = "Več serij - kombiniran in naložen",
+           type = c("bar","bar", "line"),
+           stacked = TRUE,
+           y_axis = "Mio EUR",
+           legend = paste("Serija", 1:3),
+           colours = c(3,4,1),
+           xmin = as.Date("2020-01-01"))|> 
+  view_chart()
+
+```
+
+## Zglajen in indeksiran, dolga legenda
+```{r, fig.width = 5.33, fig.height = 3.54}
+chart5 <-  prep_chart(raw_data[c(1,4:5, 8:9)],
+           title = "Zglajen in indeksiran",
+           y_axis = "4-četrtletna drseča sredina, indeks (100=2023Q1)",
+           legend = c("Zelo zelo dolgo ime prve spremenljivke, indeksirane na 2023Q1",
+                      "Zelo zelo dolgo ime druge spremenljivke, indeksirane na 2023Q1",
+                      "Zelo dolgo ime tretje spremenljivke, indeksirane na 2023Q1",
+                      "Dolgo ime četrte spremenljivke, indeksirane na 2023Q1"),
+           legend_columns = 1,
+           colours = c(3,4,1, 8),
+           index = "2023Q1", 
+           rolling = 4,
+           emphasis = 100,
+           xmin = as.Date("2020-01-01"))
+chart5 |> 
+  view_chart()
+
+```
+
+
+# Ogled grafa
+
+Funkcija `prep_chart()` pripravi konfiguracijo, ki jo lahko shraniš v objekt (glej kodo za prejšnji graf):
+
+```{r}
+chart5
+```
+ali pa neposredno "pipe-aš" v `view_chart()` kot v prejšnjih primerih. 
+
+```
+prep_chart(...) |> 
+  view_chart()
+```
+
+NB: ogledovanje v viewjer-ju (verjetno Rstudia) je malo manj pod našo kontrolo, zato je možno da tam kdaj ne delajo čšž-ji ali pa je font napačen. Za popoln nadzor je potrebno shranjevanje.
+
+# Shranjevanje grafa
+
+Ko si zadovoljen z grafom, ga lahko shraniš s pomočjo funkcije `save_chart()`. Shranjuješ lahko v pdf ali v png format. Načeloma je pdf boljši, ker je vektorski, zato je to tudi default. 
+
+`save_chart()` ima tri argumente:
+
+1. `filename` je obvezen argument. Lahko je s končnico ali brez, v slednjem primeru se bo dodala glede na vrednost argumenta `format`
+2. `format` možna sta `pdf` in `png`. Default je `pdf`. Se ignorira, če je že v `filename`-u. 
+3. `size` ima tri možnosti: 
+
+ - `1` (small) 7 x 9cm
+ - `2` (normal) 11 x 9 cm in 
+ - `3` (large) 22 x 8cm
+
+Takole recimo prejšnji graf shraniš v pdf velikosti 22 x 8 cm:
+
+```{r, eval = FALSE}
+chart5 |> 
+  save_chart("zglajen_in_indeksiran.pdf", size = 3)
+```
+
+# Še par malenkosti
+
+## 
+## Umar barve
+
+Tale funkcija je lahko še kje drugje uporabna, zato jo posebej dokumentiram: `umar_cols()`. V bistvu je samo named vektor z našimi barvami in s posebno print metodo (to probaj pri sebi, ker v vinjeti ne deluje lepo):
+
+```{r}
+umar_cols()
+```
+
+Lahko jo uporabljaš tudi drugje, tako da uporabiš indeks barv ali pa njihovo ime
+```{r, fig.keep='all',  fig.width=5.33, fig.height=3, fig.show='hold', out.width='45%', fig.align='default'}
+barplot(1:3, col = umar_cols(1:3))
+barplot(1:3, col = c(umar_cols("rdeca"),
+                     umar_cols("sinja"),
+                     umar_cols("zelena")))
+```
+
+
+
+## težave s čšž-ji
+
+Če se ti čudno izpisujejo čšžji, potem poglej kaj ti pokaže `l10n_info()`, ali je 
+```
+$`UTF-8`
+[1] TRUE
+```
+V R verziji 4.2 in kasnejših je že native UTF-8 suport, ampak mora biti aktivna. Če ti kaže false, potem si v `.Renviron` dodaj spodnjo vrstico, restartaj R in probaj še enkrat. 
+```
+LC_CTYPE=English_United Kingdom.utf8
+```
+
+
+# ToDo list
+
+Seznam idej in planov, not in any particular order:
+
+- dvojne y-osi...
+- možnost dodatnih velikosti po želji
+- možnost izvajanja transformacij na posameznih serijah
+- možnost ponovne uporabe iste serije (da je lahko enkrat zglajena in enkrat originalna recimo)
+- integracija v shiny app, da lahko ne-R-sodelavci direkt uploadajo svoje podatke in dobijo ven lep graf. (in potem seveda še dodajajo serije iz baze, ampak otompotom).
+- ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli
+- dodat več formatov še za prezentacije recimo
+- drseče sredine centrirane, če bo želja/potreba
+- mogoče opcija, da si shraniš tudi celo kodo za graf, ki jo lahko po potrebi tweakaš, čeprav to je kar messy in vprašanje, če je res potreba
+
+# Za beta testerje
+
+- potrudila sem se čim bolj informativne errorje napisati, ampak sigurno kdaj nisem ali pa sem kaj spregedala. Zato prosim javi situacije, kjer ni bilo jasno v čem je problem. 
+- novost je grozno zakompliciran sistem označevanja oznak na x-osi. Don't fight it :) Malo je skopiran od ecomonista in prilagojen našim zahtevam, predvsem, da se vedno oznaka zadnjega obdobja, razen, če je kompletno leto. Igraj se malo, da vidiš kaj se zgodi. 
+- probaj skratka čim več inputov in čim več variant in javi, če karkoli ne dela tako, kot misliš da bi moralo, pa seveda kakršne koli pie in the sky želje ti padejo na pamet :)
+
+

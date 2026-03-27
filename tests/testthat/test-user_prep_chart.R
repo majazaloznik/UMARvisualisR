@@ -173,8 +173,8 @@ test_that("stacked works with all bars", {
 
 test_that("stacked with no bars errors", {
   df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
-  expect_error(prep_chart(df, type = "line", stacked = TRUE),
-               "stacked = TRUE requires at least one")
+  expect_warning(prep_chart(df, type = "line", stacked = TRUE),
+               "stacked ")
 })
 
 test_that("stacked with mixed types works", {
