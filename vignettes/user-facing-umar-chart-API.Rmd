@@ -78,13 +78,18 @@ Funkcija `prep_chart()` ima prvi (in edini obvezen) argument `data`, ki mora bit
 
 1. v *wide* formatu (torej en stolpec z obdobjem in en ali več stolpcev z vrednostmi)
 2. v *long* formatu (torej en stolpec z obdobjem, en stolpec s kategorijami in en stolpec z vrednostmi). 
+3. v *long+* formatu, kjer je več stolpcev s kategorijami - v tem primeru bo funkcija sama združila vse stolpce s kategorijami v enega.
 
-V vsakem primeru mora torej imeti stolpec z obdobjem, čeprav je vseeno kako se imenuje dokler je v enem od naslednjih formatov:
+Če je v `data` več serij, bo funkcija avtomatično vzela samo prvih 8. 
+
+V vsakem primeru mora torej imeti stolpec z obdobjem, čeprav je vseeno kako se imenuje, dokler je v enem od naslednjih formatov:
 
 1. `Date` format
 2. oznaka meseca v formatu `2023M02`
 3. oznaka četrtletja v formatu `2023Q2`
 4. samo letnica v formatu `2024`
+
+Če je stolpcev z obdobjem več, bo uporabljen prvi. 
 
 # Priprava grafa
 
