@@ -167,7 +167,7 @@ get_top_margin_and_title <- function(config, title_ps){
   dev_size <- dev.size("in")
   real_dev <- dev.cur()
   tmp <- tempfile(fileext = ".pdf")
-  grDevices::pdf(tmp, width = dev_size[1], height = dev_size[2])
+  grDevices::cairo_pdf(tmp, width = dev_size[1], height = dev_size[2])
   tmp_dev <- dev.cur()
 
   plot.new()
