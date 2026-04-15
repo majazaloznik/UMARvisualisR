@@ -48,11 +48,28 @@ prep_chart <- function(data,
                        growth = NULL,
                        index = NULL) {
 
+  # --- defactor ---
+  data[] <- lapply(data, function(x) if (is.factor(x)) as.character(x) else x)
+
   # --- convert period strings to Date if needed ---
   data <- convert_period_column(data)
 
+  # --- drop extra date columns ---
+  date_cols <- names(data)[vapply(data, inherits, logical(1), "Date")]
+  if (length(date_cols) > 1) {
+    warning("Multiple Date columns found. Keeping '", date_cols[1],
+            "', dropping: ", paste(date_cols[-1], collapse = ", "))
+    data <- data[, setdiff(names(data), date_cols[-1]), drop = FALSE]
+  }
+
+  # --- collapse multiple category columns ---
+  data <- collapse_categories(data)
+
   # --- detect and validate format ---
   format <- detect_format(data)
+
+  # --- check duplicates ---
+  check_duplicates(data)
 
   # convert long to wide
   if (format == "long") {
@@ -67,6 +84,12 @@ prep_chart <- function(data,
   # --- validate type ---
   type <- validate_type(type, n_series)
 
+  if (n_series > 8) {
+    warning("Maximum 8 series supported. Keeping the first 8.")
+    parsed$datapoints <- parsed$datapoints[1:8]
+    parsed$series_names <- parsed$series_names[1:8]
+    n_series <- 8
+  }
   # --- validate colours ---
   colours <- validate_colours(colours, n_series)
 
@@ -383,4 +406,56 @@ center_dates <- function(datapoints) {
     }
     df
   })
+}
+
+#' Collapse multiple character columns into one
+#' @keywords internal
+collapse_categories <- function(data) {
+  date_col <- find_date_column(data)
+  if (is.null(date_col)) {
+    # try period columns too
+    char_cols <- names(data)[vapply(data, is.character, logical(1))]
+    num_cols <- names(data)[vapply(data, is.numeric, logical(1))]
+  } else {
+    remaining <- data[, setdiff(names(data), date_col), drop = FALSE]
+    char_cols <- names(remaining)[vapply(remaining, is.character, logical(1))]
+    num_cols <- names(remaining)[vapply(remaining, is.numeric, logical(1))]
+  }
+  if (length(char_cols) > 1 && length(num_cols) == 1) {
+    data$category <- do.call(paste, c(data[char_cols], sep = " - "))
+    data <- data[, c(if (!is.null(date_col)) date_col,
+                     setdiff(names(data), c(date_col, char_cols, "category")),
+                     "category"), drop = FALSE]
+    # keep: date, numeric, combined category
+    data <- data[, c(if (!is.null(date_col)) date_col, num_cols, "category")]
+    message("Multiple category columns collapsed into one: ",
+            paste(char_cols, collapse = ", "))
+  }
+  data
+}
+
+
+#' Check for duplicate date-value pairs per series
+#' @keywords internal
+check_duplicates <- function(data) {
+  fmt <- detect_format(data)
+  if (fmt == "long") {
+    date_col <- find_date_column(data)
+    remaining <- data[, setdiff(names(data), date_col), drop = FALSE]
+    group_col <- names(remaining)[vapply(remaining, function(x) {
+      is.character(x) || is.factor(x)
+    }, logical(1))]
+    dupes <- duplicated(data[, c(date_col, group_col)])
+    if (any(dupes)) {
+      first_dupe <- data[which(dupes)[1], ]
+      stop("Duplicate rows found. First duplicate: ",
+           first_dupe[[date_col]], " / ", first_dupe[[group_col]],
+           ". Ensure each series has one value per period.")
+    }
+  } else {
+    date_col <- find_date_column(data)
+    if (any(duplicated(data[[date_col]]))) {
+      stop("Duplicate dates found. Ensure each date appears only once in wide format.")
+    }
+  }
 }

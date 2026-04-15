@@ -10,6 +10,9 @@
 view_chart <- function(chart) {
   if (!inherits(chart, "umar_chart")) stop("chart must be a 'umar_chart' object from prep_chart().")
 
+  op <- par(no.readonly = TRUE)
+  on.exit(par(op), add = TRUE)
+
   # --- map to internal config format ---
   config <- to_internal_config(chart)
   datapoints <- chart$datapoints
@@ -68,7 +71,7 @@ view_chart <- function(chart) {
         family = umar_font(), font = 2)
 
   # --- y axis labels ---
-  par("ps" = 9)
+  par("ps" = 10)
   left_axis_labels(config$y_axis_label, left$axis_positions,
                    left$axis_labels, left$y_lab_lines)
 
@@ -86,6 +89,9 @@ view_chart <- function(chart) {
   axis(1, x_axis$x_labels, at = x_axis$x_positions,
        col = umar_cols("gridlines"), lwd = 0, tck = 0,
        family = umar_font(), padj = 0.5, gap.axis = 0.25)
+
+  # --- axis break indicator ---
+  draw_axis_break(y_axis$ylim, bar)
 
   invisible(chart)
 }
@@ -147,3 +153,30 @@ draw_emphasis <- function(emphasis, y_axis_label, y_lims) {
 #' Null-coalescing operator
 #' @noRd
 `%||%` <- function(x, y) if (is.null(x)) y else y
+
+#' Draw axis break indicator over bottom y-axis label
+#' @param y_lims numeric(2) y-axis limits
+#' @param bar logical, is it a bar chart
+#' @keywords internal
+draw_axis_break <- function(y_lims, bar) {
+  if (bar || y_lims[1] == 0) return(invisible())
+
+  usr <- par("usr")
+  y_center <- y_lims[1]
+  zz_h <- diff(y_lims) * 0.012
+
+  # position at the y-axis labels (in the margin)
+  label_x <- grconvertX(0, from = "nfc", to = "user")
+  step_w <- (usr[1] - label_x) * 0.08
+
+  # white rectangle — stop short of the axis line
+  rect(label_x, y_center - zz_h * 2.5,
+       usr[1] - step_w, y_center + zz_h * 2.5,
+       col = "white", border = NA, xpd = TRUE)
+
+  # stepped break: top-left → right → down → right
+  mid_x <- (label_x + usr[1]) / 2 + (usr[1] - label_x) * 0.15
+  x_pts <- c(mid_x - step_w, mid_x, mid_x, mid_x + step_w)
+  y_pts <- c(y_center + zz_h, y_center + zz_h, y_center - zz_h, y_center - zz_h)
+  lines(x_pts, y_pts, col = "black", lwd = 0.9, xpd = TRUE)
+}

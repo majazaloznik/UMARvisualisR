@@ -161,8 +161,15 @@ base_barplot <- function(datapoints, config, y_axis){
 #' @return top margin in lines, vertical title position in lines and wrapped title
 #' @export
 get_top_margin_and_title <- function(config, title_ps){
-  gap <- 0.15
-  #blind plot
+  gap <- 0.2
+
+  # measure on temp device
+  dev_size <- dev.size("in")
+  real_dev <- dev.cur()
+  tmp <- tempfile(fileext = ".pdf")
+  grDevices::pdf(tmp, width = dev_size[1], height = dev_size[2])
+  tmp_dev <- dev.cur()
+
   plot.new()
   mar <- par("mar")
   mar[1] <- 1.6
@@ -170,20 +177,28 @@ get_top_margin_and_title <- function(config, title_ps){
   par(mar = mar)
   plot.window(c(0,10), c(0,10))
 
-    # get top margins
   legend_lines <- get_legend_lines(config$series, config$legend_columns)
   par("ps" = title_ps)
   title <- wrap_title(config$title, font = 2)
   title_lines <- title[[2]]
   wrapped_title <- title[[1]]
 
-  lines <- (legend_lines + 0.3) * 0.8 - 0.3 + gap +
+  dev.off(tmp_dev)
+  unlink(tmp)
+  dev.set(real_dev)
+
+  # back on real device — set margins
+  lines <- (legend_lines + 0.5) * 0.8 - 0.3 + gap +
     title_lines * title_ps/12
   lines <- max(lines, 0.5)
-  title_pos <- (legend_lines + 0.3) * 0.8 - 0.3 + gap
+  title_pos <- (legend_lines + 0.5) * 0.8 - 0.3 + gap
+
   current_mar <- par("mar")
   current_mar[3] <- lines
-  par(mar =  current_mar)
+  current_mar[1] <- 1.6
+  current_mar[4] <- 0.7
+  par(mar = current_mar)
+
   return(list(lines, title_pos, wrapped_title))
 }
 
@@ -213,7 +228,7 @@ create_legend <- function(config, legend_ps, language = "si") {
   lwd[series_types != "line"] <- NA
   line_colours[series_types != "line"] <- NA
   bar_colours[series_types == "line"] <- NA
-  legend_mz2(par("usr")[[1]] , par("usr")[[4]] ,
+  legend_mz2(par("usr")[[1]] , par("usr")[[4]] + diff(par("usr")[3:4]) * 0.02,
              legend_labels,
              lty = as.numeric(lty),
              lwd = lwd,
@@ -270,7 +285,7 @@ x_axis_lims_tickmarks <- function(datapoints, config) {
 #' labels (not handling overlapping just yet) and the xlims for the x axis.
 #'
 #' Taking into account if the data is only annual - in which case the tickmarks
-#' and lables align - or monthly/quarterly in which case the labels are between.
+#' and labels align - or monthly/quarterly in which case the labels are between.
 #' Taking into account if the last year is complete or not, which determines
 #' the last tickmark and label etc.
 #'
@@ -317,7 +332,7 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_va
       x_labels <- format(tickmarks, format = "%Y")[1:(length(tickmarks) - 2)]
       int <- get_most_recent_interval(datapoints)
       if(int == "M"){
-        x_labels <- c(x_labels, format(tickmarks[length(tickmarks)], format = "%b%y"))}
+        x_labels <- c(x_labels, format(tickmarks[length(tickmarks)], format = "%b %y"))}
       if(int == "Q"){
         x_labels <- c(x_labels, quarterly_label(tickmarks[length(tickmarks)]))}
     }

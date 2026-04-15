@@ -39,7 +39,7 @@ labels (not handling overlapping just yet) and the xlims for the x axis.
 }
 \details{
 Taking into account if the data is only annual - in which case the tickmarks
-and lables align - or monthly/quarterly in which case the labels are between.
+and labels align - or monthly/quarterly in which case the labels are between.
 Taking into account if the last year is complete or not, which determines
 the last tickmark and label etc.
 }
