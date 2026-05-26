@@ -30,6 +30,8 @@
 #' @param growth "YOY", "MOM" or "QOQ"
 #' @param index base_period either a year in YYYY format or quarter in 2023Q2 format
 #' or month in 2023M03 format
+#' @param ylim numeric(2) manual y-axis limits, e.g. c(90, 120).
+#' NULL (default) auto-detects. Ignored for bar charts (must include 0).
 #'
 #' @return An object of class "umar_chart" containing the data and config.
 #' @export
@@ -46,7 +48,8 @@ prep_chart <- function(data,
                        legend_columns = 2,
                        rolling = NULL,
                        growth = NULL,
-                       index = NULL) {
+                       index = NULL,
+                       ylim = NULL) {
 
   # --- defactor ---
   data[] <- lapply(data, function(x) if (is.factor(x)) as.character(x) else x)
@@ -133,6 +136,15 @@ prep_chart <- function(data,
     stop("growth and index are mutually exclusive.")
   }
 
+  # --- validate ylim ---
+  if (!is.null(ylim)) {
+    if (!is.numeric(ylim) || length(ylim) != 2) stop("ylim must be numeric(2).")
+    if (ylim[1] >= ylim[2]) stop("ylim[1] must be less than ylim[2].")
+    if (any(type == "bar") && ylim[1] > 0) {
+      warning("ylim[1] forced to 0 for bar charts.")
+      ylim[1] <- 0
+    }
+  }
   # --- dual y axis: not yet ---
   # reserved for future use
 
@@ -174,7 +186,8 @@ prep_chart <- function(data,
     legend_columns = legend_columns,
     rolling = rolling,
     growth = growth,
-    index = index
+    index = index,
+    ylim = ylim
   )
 
   series <- lapply(seq_len(n_series), function(i) {

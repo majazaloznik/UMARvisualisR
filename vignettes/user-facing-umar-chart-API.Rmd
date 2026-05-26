@@ -44,7 +44,7 @@ Odpri [stran z Aptos fonti](https://www.microsoft.com/en-us/download/details.asp
 # Osnovna uporaba
 
 
-Tole so iz SiStat-a neki četrtletni podatki o BDP za demonstracijo:
+Tole so iz SiStat-a neki **četrtletni** podatki o BDP za demonstracijo:
 ```{r, eval=FALSE}
 raw_data <- read.csv("https://pxweb.stat.si:443/SiStatData/sq/28805", 
                      fileEncoding = "Windows-1250", na.strings = "...")
@@ -56,7 +56,7 @@ raw_data <- readRDS("gdp_data.rds")
 
 Default graf potem izgleda takole:
 ```{r}
-df1 <- raw_data[c(1,4)]
+df1 <- raw_data[c(1,4)] # prvi stolpec so obdobja, četrti pa podatki
 prep_chart(df1) |> 
   view_chart()
 ```
@@ -80,6 +80,8 @@ Funkcija `prep_chart()` ima prvi (in edini obvezen) argument `data`, ki mora bit
 2. v *long* formatu (torej en stolpec z obdobjem, en stolpec s kategorijami in en stolpec z vrednostmi). 
 3. v *long+* formatu, kjer je več stolpcev s kategorijami - v tem primeru bo funkcija sama združila vse stolpce s kategorijami v enega.
 
+**Preden začneš risati graf, ustrezno pripravi input podatke! To pomeni predvsem filtriraj, da so notri samo podatki, ki jih želiš vizualizirati.**
+
 Če je v `data` več serij, bo funkcija avtomatično vzela samo prvih 8. 
 
 V vsakem primeru mora torej imeti stolpec z obdobjem, čeprav je vseeno kako se imenuje, dokler je v enem od naslednjih formatov:
@@ -89,7 +91,9 @@ V vsakem primeru mora torej imeti stolpec z obdobjem, čeprav je vseeno kako se 
 3. oznaka četrtletja v formatu `2023Q2`
 4. samo letnica v formatu `2024`
 
-Če je stolpcev z obdobjem več, bo uporabljen prvi. 
+**Knjižnica lahko poleg mesečnih, kvartalnih ali letnih podatkov načeloma prikazuje tudi druge datume (recimo dnevne ali tedenske).**
+
+Če je stolpcev z slučajno obdobjem več, bo uporabljen prvi. 
 
 # Priprava grafa
 
@@ -172,13 +176,21 @@ Izračuna indeks glede na bazno obdobje, ki je lahko v eni od treh oblik:
 2. četrtletje `index = 2015Q1`, deluje samo na četrtletnih podatkih
 3. mesec: `index = 2015M01`, deluje samo na mesečnih podatkih
 
+### `ylim`
+
+Ročna določitev y-osi namesto avtomatične, npr. kadar hočeš prikazati več grafov vzporedno z isto y-osjo. Vektor z dvema številkama, kjer je prva manjša od druge:
+
+1. `ylim = c(80, 120)`
+2. default je `NULL`, kar pomeni, da funkcija sama določi "lepe" limite. 
+
+
 # Primeri bolj kompleksnih grafov
 
 ## Več serij - linijski
 
 Več linij, dodane oznake za legendo in y os, izbira barv:
 ```{r}
-prep_chart(raw_data[c(1,4:5, 8:9)],
+prep_chart(raw_data[c(1,4:5, 8:9)], # poleg obdobja so izbrani še štirje stolpci s podatki
            title = "Več serij - linijski",
            y_axis = "Mio EUR",
            legend = paste("Serija", 1:4),
@@ -189,7 +201,7 @@ prep_chart(raw_data[c(1,4:5, 8:9)],
 
 ## Več serij - stolpični + medletna rast 
 
-Stolpični (ne naložen) z medletno rastjo. 
+Stolpični (ne naložen) z medletno rastjo - gre za četrtletne podatke. 
 ```{r}
 prep_chart(raw_data[c(1,4:5)],
            title = "Več serij - stolpični + medletna rast",
@@ -220,7 +232,7 @@ prep_chart(raw_data[c(1,3,2, 6)],
 ```{r, fig.width = 5.33, fig.height = 3.54}
 chart5 <-  prep_chart(raw_data[c(1,4:5, 8:9)],
            title = "Zglajen in indeksiran",
-           y_axis = "4-četrtletna drseča sredina, indeks (100=2023Q1)",
+           y_axis = "4Q drseča sredina, indeks (100=2023Q1)",
            legend = c("Zelo zelo dolgo ime prve spremenljivke, indeksirane na 2023Q1",
                       "Zelo zelo dolgo ime druge spremenljivke, indeksirane na 2023Q1",
                       "Zelo dolgo ime tretje spremenljivke, indeksirane na 2023Q1",
@@ -261,7 +273,7 @@ Ko si zadovoljen z grafom, ga lahko shraniš s pomočjo funkcije `save_chart()`.
 
 1. `filename` je obvezen argument. Lahko je s končnico ali brez, v slednjem primeru se bo dodala glede na vrednost argumenta `format`
 2. `format` možna sta `pdf` in `png`. Default je `pdf`. Se ignorira, če je že v `filename`-u. 
-3. `size` ima tri možnosti: 
+3. `size` ima tri možnosti (po našem CGP-ju): 
 
  - `1` (small) 7 x 9cm
  - `2` (normal) 11 x 9 cm in 
@@ -312,15 +324,18 @@ LC_CTYPE=English_United Kingdom.utf8
 
 Seznam idej in planov, not in any particular order:
 
+- ~~možnost fixiranja y-osi (kadar hočeš več grafov vzporedno z isto y-osjo).~~
 - dvojne y-osi...
 - možnost dodatnih velikosti po želji
 - možnost izvajanja transformacij na posameznih serijah ločeno
 - možnost ponovne uporabe iste serije (da je lahko enkrat zglajena in enkrat originalna recimo)
 - integracija v shiny app, da lahko ne-R-sodelavci direkt uploadajo svoje podatke in dobijo ven lep graf. (in potem seveda še dodajajo serije iz baze, ampak otompotom).
-- ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli, zaenkrat to pade na Mojco
+- ~~ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli, zaenkrat to pade na Mojco~~
+- možnost agregiranja M->Q, M->A, Q->A, z izbrano funkcijo (sum, mean)
 - dodat več formatov še za prezentacije recimo
 - drseče sredine centrirane, če bo želja/potreba
 - mogoče opcija, da si shraniš tudi celo kodo za graf, ki jo lahko po potrebi tweakaš, čeprav to je kar messy in vprašanje, če je res potreba
+- ~~možnost prikaza podatkov, ki niso M, Q ali A.~~
 
 # Za beta testerje
 

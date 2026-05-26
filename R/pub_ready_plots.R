@@ -18,7 +18,7 @@ cut_to_x_range <- function(datapoints, config){
   xmin <- as.Date(min(limits), origin = "1970-01-01")
   xmax <- as.Date(max(limits), origin = "1970-01-01")
   data_range <- lubridate::interval(as.Date(min(limits), origin = "1970-01-01"),
-                      as.Date(max(limits), origin = "1970-01-01"))
+                                    as.Date(max(limits), origin = "1970-01-01"))
   # cut them down by config args
   user_range <- lubridate::interval(as.Date(config$xmin), as.Date(config$xmax))
   # Check if config$xmin and config$xmax are provided
@@ -41,7 +41,7 @@ cut_to_x_range <- function(datapoints, config){
   }
   datapoints <- datapoints |>
     purrr::map(~dplyr::filter(.x, date >= lubridate::int_start(final_range) &
-                         date <= lubridate::int_end(final_range)))
+                                date <= lubridate::int_end(final_range)))
 
   return(datapoints)
 }
@@ -139,8 +139,8 @@ base_barplot <- function(datapoints, config, y_axis){
 
   # plot over gridlines
   my_special_barplot(bar_datapoints, beside = beside,
-          axes = FALSE, ylim = y_axis$ylim, col = bar_colours, border = NA,
-          space = spacing, xpd = FALSE, add = TRUE)
+                     axes = FALSE, ylim = y_axis$ylim, col = bar_colours, border = NA,
+                     space = spacing, xpd = FALSE, add = TRUE)
   box(col = umar_cols("gridlines"), lwd = 1.1)
 
   mget(c("midpoints", "dates"))
@@ -161,7 +161,7 @@ base_barplot <- function(datapoints, config, y_axis){
 #' @return top margin in lines, vertical title position in lines and wrapped title
 #' @export
 get_top_margin_and_title <- function(config, title_ps){
-  gap <- 0.2
+  gap <- 0.15
 
   # measure on temp device
   dev_size <- dev.size("in")
@@ -220,15 +220,15 @@ create_legend <- function(config, legend_ps, language = "si") {
   lwd <- lty <- series_types <- vapply(config$series, \(x) x$type, character(1))
   line_colours <- bar_colours <- series_colours <- vapply(config$series, \(x) x$colour, character(1))
   if(language == "si"){ # switch languages
-  legend_labels <- vapply(config$series, \(x) x$legend_txt_si, character(1))} else {
-    legend_labels <- vapply(config$series, \(x) x$legend_txt_en, character(1))}
+    legend_labels <- vapply(config$series, \(x) x$legend_txt_si, character(1))} else {
+      legend_labels <- vapply(config$series, \(x) x$legend_txt_en, character(1))}
   lty[series_types == "line"] <- 1
   lty[series_types != "line"] <- NA
   lwd[series_types == "line"] <- 2
   lwd[series_types != "line"] <- NA
   line_colours[series_types != "line"] <- NA
   bar_colours[series_types == "line"] <- NA
-  legend_mz2(par("usr")[[1]] , par("usr")[[4]] + diff(par("usr")[3:4]) * 0.02,
+  legend_mz2(par("usr")[[1]] , par("usr")[[4]] + diff(par("usr")[3:4]) * 0.01,
              legend_labels,
              lty = as.numeric(lty),
              lwd = lwd,
@@ -250,34 +250,64 @@ create_legend <- function(config, legend_ps, language = "si") {
 #' @export
 #'
 x_axis_lims_tickmarks <- function(datapoints, config) {
-  # get x lims
   x_lims <- get_x_lims(datapoints)
 
   last_year_complete_log <- last_year_complete(datapoints)
   only_annual_log <- only_annual_intervals(datapoints)
+  span_days <- as.numeric(difftime(x_lims[[2]], x_lims[[1]], units = "days"))
+  interval <- determine_interval(datapoints[[1]])
 
-  # annual labels
-  if(!config$x_sub_annual){
-
-    # axis tickmarks
-    if(only_annual_log){
-      tickmarks <- seq(x_lims[[1]], x_lims[[2]], by="1 year")
-    } else if(last_year_complete_log) { # non annual data but complete last year
+  if (!config$x_sub_annual && span_days > 730) {
+    # --- ANNUAL tickmarks (existing logic, unchanged) ---
+    if (only_annual_log) {
+      tickmarks <- seq(x_lims[[1]], x_lims[[2]], by = "1 year")
+    } else if (last_year_complete_log) {
       tickmarks <- seq(first_day_of_year(x_lims[[1]]),
-                       last_day_of_year(x_lims[[2]]) + 1 , by="1 year")
-    } else { # non annual data and incomplete years
+                       last_day_of_year(x_lims[[2]]) + 1, by = "1 year")
+    } else {
       tickmarks <- seq(first_day_of_year(x_lims[[1]]),
-                       first_day_of_year(x_lims[[2]]), by="1 year")
-      if(tickmarks[length(tickmarks)] != x_lims[[2]]) { # unless it's the same
-      tickmarks <- c(tickmarks, x_lims[[2]])}
+                       first_day_of_year(x_lims[[2]]), by = "1 year")
+      if (tickmarks[length(tickmarks)] != x_lims[[2]]) {
+        tickmarks <- c(tickmarks, x_lims[[2]])
+      }
     }
-
-    # axis limits
     x_lims <- c(min(tickmarks), max(tickmarks))
-
-    mget(c("tickmarks", "x_lims"))
+    interval_type <- "annual"
+  } else if (!is.na(interval) && interval == "Q" && span_days <= 730) {
+    # --- QUARTERLY tickmarks ---
+    tick_start <- lubridate::floor_date(x_lims[[1]], "quarter")
+    tick_end <- lubridate::ceiling_date(x_lims[[2]], "quarter")
+    tickmarks <- seq(tick_start, tick_end, by = "3 months")
+    x_lims <- c(min(tickmarks), max(tickmarks))
+    interval_type <- "quarterly"
+  } else if (span_days > 60) {
+    tick_start <- lubridate::floor_date(x_lims[[1]], "month")
+    tickmarks <- seq(tick_start, x_lims[[2]], by = "1 month")
+    # add final tickmark at actual data endpoint if past last month start
+    if (tickmarks[length(tickmarks)] < x_lims[[2]]) {
+      tickmarks <- c(tickmarks, x_lims[[2]])
+    }
+    x_lims <- c(min(tickmarks), max(tickmarks))
+    interval_type <- "monthly"
+  } else {
+    # daily — tickmarks at sensible intervals
+    if (span_days > 28) {
+      tick_by <- "1 week"
+    } else if (span_days > 14) {
+      tick_by <- "3 days"
+    } else {
+      tick_by <- "1 day"
+    }
+    tickmarks <- seq(x_lims[[1]], x_lims[[2]], by = tick_by)
+    if (tickmarks[length(tickmarks)] < x_lims[[2]]) {
+      tickmarks <- c(tickmarks, x_lims[[2]])
+    }
+    x_lims <- c(min(tickmarks), max(tickmarks))
+    interval_type <- "daily"
   }
+  mget(c("tickmarks", "x_lims", "interval_type"))
 }
+
 #' Get x axis parameters
 #'
 #' Takes the datapoints and config (for user xmin and xmax mainly) and
@@ -295,113 +325,201 @@ x_axis_lims_tickmarks <- function(datapoints, config) {
 #' @param x_lims vector from from \link[UMARvisualisR]{x_axis_lims_tickmarks}
 #' @param bar logical indicating it's a barplot
 #' @param x_values midpoints and params for interpolating
-#' @param language "si" or "en"
+#' @param language "si" or "en"z
+#' @param interval_type - annual (default) or monthly, from  \link[UMARvisualisR]{x_axis_lims_tickmarks}
 #'
 #' @return list of named x_positions, x_labels, tickmars and x_lims
 #' @export
 #'
-x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_values, language = "si") {
+x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_values,
+                                language = "si", interval_type = "annual") {
 
-  last_year_complete_log <- last_year_complete(datapoints)
-  only_annual_log <- only_annual_intervals(datapoints)
   old_locale <- Sys.getlocale("LC_TIME")
-  if (language == "si")  Sys.setlocale("LC_TIME", "Slovenian_Slovenia.1250")
-  if (language == "en")  Sys.setlocale("LC_TIME", "English_United Kingdom.1252")
+  if (language == "si") Sys.setlocale("LC_TIME", "Slovenian_Slovenia.1250")
+  if (language == "en") Sys.setlocale("LC_TIME", "English_United Kingdom.1252")
 
-  # annual labels
-  if(!config$x_sub_annual){
-
-
-    # x_positions
-    if(only_annual_log){
-      x_positions <- tickmarks
-    } else if(last_year_complete_log) { # non annual data but complete last year
-      x_positions <- shift_dates_by_six_months(tickmarks)[-length(tickmarks)]
-    } else { # non annual data and incomplete years
-      x_positions <- shift_dates_by_six_months(tickmarks)[1:(length(tickmarks) - 2)]
-      x_positions <- c(x_positions, tickmarks[length(tickmarks)])
+  if (interval_type == "daily") {
+    x_positions <- tickmarks
+    x_labels <- format(tickmarks, format = "%d.")
+    # first label and any month change gets month + year
+    months <- lubridate::month(x_positions)
+    for (i in seq_along(x_labels)) {
+      if (i == 1 || months[i] != months[i - 1]) {
+        x_labels[i] <- format(x_positions[i], format = "%d. %b %y")
+      }
     }
 
-
-    # labels
-    if(only_annual_log){
-      x_labels <- format(tickmarks, format = "%Y")
-    } else if(last_year_complete_log) { # non annual data but complete last year
-      x_labels <- format(tickmarks, format = "%Y")[-length(tickmarks)]
-    } else { # non annual data and incomplete years
-      x_labels <- format(tickmarks, format = "%Y")[1:(length(tickmarks) - 2)]
-      int <- get_most_recent_interval(datapoints)
-      if(int == "M"){
-        x_labels <- c(x_labels, format(tickmarks[length(tickmarks)], format = "%b %y"))}
-      if(int == "Q"){
-        x_labels <- c(x_labels, quarterly_label(tickmarks[length(tickmarks)]))}
-    }
-    if(bar){
+    if (bar) {
       tickmarks <- interpolate_x(x_values$dates, x_values$midpoints, tickmarks)
       x_positions <- interpolate_x(x_values$dates, x_values$midpoints, x_positions)
     }
+  } else if (interval_type == "quarterly") {
+    # labels between tickmarks
+    x_positions <- tickmarks[-length(tickmarks)] + diff(tickmarks) / 2
+    x_labels <- quarterly_label(x_positions)
+
+    if (bar) {
+      tickmarks <- interpolate_x(x_values$dates, x_values$midpoints, tickmarks)
+      x_positions <- interpolate_x(x_values$dates, x_values$midpoints, x_positions)
+    }
+
     min_gap <- calculate_smallest_gap(x_positions, x_labels)
+    if (min_gap < 0.1) {
+      # keep every other, always keep first and last
+      keep <- rep(c(TRUE, FALSE), length.out = length(x_labels))
+      keep[1] <- TRUE
+      keep[length(keep)] <- TRUE
+      x_labels[!keep] <- NA
+      filtered <- filter_na_labels(x_positions, x_labels)
+      x_positions <- filtered$x_positions
+      x_labels <- filtered$x_labels
+    }
+  } else if (interval_type == "monthly") {
+    # --- MONTHLY labels ---
+    x_positions <- tickmarks[-length(tickmarks)] + diff(tickmarks) / 2
+    x_labels <- format(x_positions, format = "%b")
 
-    if(only_annual_log | last_year_complete_log) { # annual labels only
-      if (min_gap < 0.1) { # squish once
-        x_labels <- year_squisher(x_labels)
-        min_gap <- calculate_smallest_gap(x_positions, x_labels)
-        if (min_gap < 0.10) { # squish only last
-          x_labels[(length(x_labels)-1)] <- NA
-          filtered <- filter_na_labels(x_positions, x_labels)
-          x_positions <- filtered$x_positions
-          x_labels <- filtered$x_labels
+    # add year to January and first label
+    months <- lubridate::month(x_positions)
+    years <- lubridate::year(x_positions)
+    for (i in seq_along(x_labels)) {
+      if (i == 1 || months[i] == 1 || years[i] != years[i - 1]) {
+        x_labels[i] <- format(x_positions[i], format = "%b %y")
+      }
+    }
+
+    if (bar) {
+      tickmarks <- interpolate_x(x_values$dates, x_values$midpoints, tickmarks)
+      x_positions <- interpolate_x(x_values$dates, x_values$midpoints, x_positions)
+    }
+
+    # squish if too tight
+    min_gap <- calculate_smallest_gap(x_positions, x_labels)
+    if (min_gap < 0.1) {
+      keep <- rep(TRUE, length(x_labels))
+      keep[seq(2, length(keep), by = 2)] <- FALSE
+      keep[1] <- TRUE
+      keep[length(keep)] <- TRUE
+      keep[months == 1] <- TRUE
+      x_labels[!keep] <- NA
+      filtered <- filter_na_labels(x_positions, x_labels)
+      x_positions <- filtered$x_positions
+      x_labels <- filtered$x_labels
+      min_gap <- calculate_smallest_gap(x_positions, x_labels)
+      if (min_gap < 0.1) {
+        # keep only January and first/last
+        keep2 <- rep(FALSE, length(x_labels))
+        keep2[1] <- TRUE
+        keep2[length(keep2)] <- TRUE
+        months2 <- lubridate::month(x_positions)
+        keep2[months2 == 1] <- TRUE
+        x_labels[!keep2] <- NA
+        filtered <- filter_na_labels(x_positions, x_labels)
+        x_positions <- filtered$x_positions
+        x_labels <- filtered$x_labels
+      }
+    }
+
+  } else {
+    # --- ANNUAL labels ---
+    last_year_complete_log <- last_year_complete(datapoints)
+    only_annual_log <- only_annual_intervals(datapoints)
+
+    if (!config$x_sub_annual) {
+
+      # x_positions
+      if (only_annual_log) {
+        x_positions <- tickmarks
+      } else if (last_year_complete_log) {
+        x_positions <- shift_dates_by_six_months(tickmarks)[-length(tickmarks)]
+      } else {
+        x_positions <- shift_dates_by_six_months(tickmarks)[1:(length(tickmarks) - 2)]
+        x_positions <- c(x_positions, tickmarks[length(tickmarks)])
+      }
+
+      # labels
+      if (only_annual_log) {
+        x_labels <- format(tickmarks, format = "%Y")
+      } else if (last_year_complete_log) {
+        x_labels <- format(tickmarks, format = "%Y")[-length(tickmarks)]
+      } else {
+        x_labels <- format(tickmarks, format = "%Y")[1:(length(tickmarks) - 2)]
+        int <- get_most_recent_interval(datapoints)
+        if (!is.na(int) && int == "M") {
+          x_labels <- c(x_labels, format(tickmarks[length(tickmarks)], format = "%b %y"))
+        } else if (!is.na(int) && int == "Q") {
+          x_labels <- c(x_labels, quarterly_label(tickmarks[length(tickmarks)]))
+        } else {
+          x_labels <- c(x_labels, format(tickmarks[length(tickmarks)], format = "%b %y"))
+        }
+      }
+
+      if (bar) {
+        tickmarks <- interpolate_x(x_values$dates, x_values$midpoints, tickmarks)
+        x_positions <- interpolate_x(x_values$dates, x_values$midpoints, x_positions)
+      }
+      min_gap <- calculate_smallest_gap(x_positions, x_labels)
+
+      if (only_annual_log | last_year_complete_log) {
+        if (min_gap < 0.1) {
+          x_labels <- year_squisher(x_labels)
           min_gap <- calculate_smallest_gap(x_positions, x_labels)
-          if (min_gap < 0.10) { # squish again
-            x_labels <- year_squisher(x_labels, extra = TRUE)
+          if (min_gap < 0.10) {
+            x_labels[(length(x_labels) - 1)] <- NA
             filtered <- filter_na_labels(x_positions, x_labels)
             x_positions <- filtered$x_positions
             x_labels <- filtered$x_labels
             min_gap <- calculate_smallest_gap(x_positions, x_labels)
-            if (min_gap < 0.10) { # squish only last
-              x_labels[(length(x_labels)-1)] <- NA
+            if (min_gap < 0.10) {
+              x_labels <- year_squisher(x_labels, extra = TRUE)
               filtered <- filter_na_labels(x_positions, x_labels)
               x_positions <- filtered$x_positions
               x_labels <- filtered$x_labels
+              min_gap <- calculate_smallest_gap(x_positions, x_labels)
+              if (min_gap < 0.10) {
+                x_labels[(length(x_labels) - 1)] <- NA
+                filtered <- filter_na_labels(x_positions, x_labels)
+                x_positions <- filtered$x_positions
+                x_labels <- filtered$x_labels
+              }
             }
           }
         }
-      }
-    }
-    else { # non annual data and incomplete years
-      if (min_gap < 0.1) { # squish once
-        x_labels <- c(year_squisher(x_labels[-length(x_labels)]),
-                      x_labels[length(x_labels)])
-        min_gap <- calculate_smallest_gap(x_positions, x_labels)
-        if (min_gap < 0.1) { # squish only last
-          x_labels[(length(x_labels)-1)] <- NA
-          filtered <- filter_na_labels(x_positions, x_labels)
-          x_positions <- filtered$x_positions
-          x_labels <- filtered$x_labels
+      } else {
+        if (min_gap < 0.1) {
+          x_labels <- c(year_squisher(x_labels[-length(x_labels)]),
+                        x_labels[length(x_labels)])
           min_gap <- calculate_smallest_gap(x_positions, x_labels)
-          if (min_gap < 0.1) { # squish again
-            x_labels <- year_squisher(x_labels, extra = TRUE)
+          if (min_gap < 0.1) {
+            x_labels[(length(x_labels) - 1)] <- NA
             filtered <- filter_na_labels(x_positions, x_labels)
             x_positions <- filtered$x_positions
             x_labels <- filtered$x_labels
             min_gap <- calculate_smallest_gap(x_positions, x_labels)
-            if (min_gap < 0.1) { # squish only last
-              x_labels[(length(x_labels)-1)] <- NA
+            if (min_gap < 0.1) {
+              x_labels <- year_squisher(x_labels, extra = TRUE)
               filtered <- filter_na_labels(x_positions, x_labels)
               x_positions <- filtered$x_positions
               x_labels <- filtered$x_labels
+              min_gap <- calculate_smallest_gap(x_positions, x_labels)
+              if (min_gap < 0.1) {
+                x_labels[(length(x_labels) - 1)] <- NA
+                filtered <- filter_na_labels(x_positions, x_labels)
+                x_positions <- filtered$x_positions
+                x_labels <- filtered$x_labels
+              }
             }
           }
         }
       }
+    } else {
+      print("Grafi z oznakami na x-osi za mesece oz. kvartale \u0161e niso implementirani.")
     }
-  } else { # sub annual labels - not implemented yet
-    print("Grafi z oznakami na x-osi za mesece oz. kvartale \u0161e niso implementirani.")
   }
-  Sys.setlocale("LC_TIME", old_locale)
-  mget(c( "x_positions", "x_labels", "tickmarks", "x_lims"))
-}
 
+  Sys.setlocale("LC_TIME", old_locale)
+  mget(c("x_positions", "x_labels", "tickmarks", "x_lims"))
+}
 
 #' Umbrella function for publicaiton ready chart
 #'
@@ -423,7 +541,7 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
   if (any(shapes == "bar"))  bar <- TRUE else  bar <- FALSE
   if (any(shapes == "line")) line <- TRUE else  line <- FALSE
 
- # cut data to x limits
+  # cut data to x limits
   datapoints <- cut_to_x_range(datapoints, config)
 
   x_axis <- x_axis_lims_tickmarks(datapoints, config)
@@ -465,7 +583,8 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
     draw_lines(datapoints, config, x_values = x_values)
 
   # get x axis tickmark positions and label positions and limits
-  x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar, x_values, language)
+  x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar, x_values, language,
+                                x_axis$interval_type)
 
   # legend
   create_legend(config, legend_ps = legend_ps, language = language)
@@ -489,7 +608,7 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
               col = umar_cols("gridlines"),
               lwd = 0, lwd.ticks =1, tck=-0.02, labels = FALSE)
   }
- # draw x_axis
+  # draw x_axis
   par_mgp(mgp=c(3,-0.2,0))
   axis(1, x_axis$x_labels,
        at = x_axis$x_positions,
@@ -515,28 +634,28 @@ publication_ready_plot <- function(datapoints, config, language = "si"){
 #' @export
 #'
 draw_lines <- function(datapoints, config, x_values = NULL){
- if(!missing(x_values)){
-   series_types <- vapply(config$series, \(x) x$type, character(1))
-   series_colours <- vapply(config$series, \(x) x$colour, character(1))
-   line_colours <- series_colours[series_types == "line"]
-   line_datapoints <- datapoints[series_types == "line"]
-   line_datapoints <- purrr::reduce(line_datapoints, ~dplyr::full_join(.x, .y, by = "date")) |>
-     dplyr::arrange(date)
-   numeric_cols <- line_datapoints[, sapply(line_datapoints, is.numeric), drop = FALSE]
+  if(!missing(x_values)){
+    series_types <- vapply(config$series, \(x) x$type, character(1))
+    series_colours <- vapply(config$series, \(x) x$colour, character(1))
+    line_colours <- series_colours[series_types == "line"]
+    line_datapoints <- datapoints[series_types == "line"]
+    line_datapoints <- purrr::reduce(line_datapoints, ~dplyr::full_join(.x, .y, by = "date")) |>
+      dplyr::arrange(date)
+    numeric_cols <- line_datapoints[, sapply(line_datapoints, is.numeric), drop = FALSE]
 
-   x_values <- interpolate_x(x_values$dates, x_values$midpoints, line_datapoints$date)
-   for (i in 1:ncol(numeric_cols)) {
-     y_values <- numeric_cols[[i]]
-     lines(x_values[!is.na(y_values)], na.omit(y_values),
-           col=line_colours[i], type="l", lwd = 2)
-   }
- } else {# means there are only only lines
-   line_colours <- vapply(config$series, \(x) x$colour, character(1))
-   for (i in 1:length(datapoints)) {
-     lines(datapoints[[i]]$date, datapoints[[i]]$value ,
-           col=line_colours[i], type="l", lwd = 2)
-   }
- }
+    x_values <- interpolate_x(x_values$dates, x_values$midpoints, line_datapoints$date)
+    for (i in 1:ncol(numeric_cols)) {
+      y_values <- numeric_cols[[i]]
+      lines(x_values[!is.na(y_values)], na.omit(y_values),
+            col=line_colours[i], type="l", lwd = 2)
+    }
+  } else {# means there are only only lines
+    line_colours <- vapply(config$series, \(x) x$colour, character(1))
+    for (i in 1:length(datapoints)) {
+      lines(datapoints[[i]]$date, datapoints[[i]]$value ,
+            col=line_colours[i], type="l", lwd = 2)
+    }
+  }
 }
 
 

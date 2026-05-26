@@ -11,7 +11,8 @@ x_axis_label_params(
   x_lims,
   bar,
   x_values,
-  language = "si"
+  language = "si",
+  interval_type = "annual"
 )
 }
 \arguments{
@@ -27,7 +28,9 @@ x_axis_label_params(
 
 \item{x_values}{midpoints and params for interpolating}
 
-\item{language}{"si" or "en"}
+\item{language}{"si" or "en"z}
+
+\item{interval_type}{- annual (default) or monthly, from  \link[UMARvisualisR]{x_axis_lims_tickmarks}}
 }
 \value{
 list of named x_positions, x_labels, tickmars and x_lims

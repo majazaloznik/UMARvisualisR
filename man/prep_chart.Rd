@@ -18,7 +18,8 @@ prep_chart(
   legend_columns = 2,
   rolling = NULL,
   growth = NULL,
-  index = NULL
+  index = NULL,
+  ylim = NULL
 )
 }
 \arguments{
@@ -55,6 +56,9 @@ NULL (default) auto-detects: 0 if in range, 100 if y_axis contains
 
 \item{index}{base_period either a year in YYYY format or quarter in 2023Q2 format
 or month in 2023M03 format}
+
+\item{ylim}{numeric(2) manual y-axis limits, e.g. c(90, 120).
+NULL (default) auto-detects. Ignored for bar charts (must include 0).}
 }
 \value{
 An object of class "umar_chart" containing the data and config.

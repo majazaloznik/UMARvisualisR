@@ -52,10 +52,11 @@ first_up <- function(x) {
 find_pretty_ylim <- function(values){
   ylim <- range(pretty(c(values)), na.rm = TRUE)
   diff <- max(values, na.rm = TRUE) - min(values, na.rm = TRUE)
-  if(ylim[1] == min(values, na.rm = TRUE) & ylim[1] != 0) {
-    values <- c(values, min(values, na.rm = TRUE)-diff*0.05)}
-  if(ylim[2] == max(values, na.rm = TRUE)) {
-    values <- c(values, max(values, na.rm = TRUE)+diff*0.05)}
+  tol <- diff * 0.02
+  if(abs(ylim[1] - min(values, na.rm = TRUE)) < tol & ylim[1] != 0) {
+    values <- c(values, min(values, na.rm = TRUE) - diff * 0.1)}
+  if(abs(ylim[2] - max(values, na.rm = TRUE)) < tol) {
+    values <- c(values, max(values, na.rm = TRUE) + diff * 0.1)}
   ylim <- range(pretty(c(values)), na.rm = TRUE)
   y_breaks <- pretty(c(values))
   mget(c("ylim", "y_breaks"))
@@ -675,7 +676,7 @@ last_year_complete_series <- function(datapoints_df, max_year) {
         complete <- TRUE
       } else if (last_period$count == 12 ) {
         complete <- TRUE
-      }  else if (determine_interval(datapoints_df) == "A"){
+      } else if (identical(determine_interval(datapoints_df), "A")){
         complete <- TRUE} else {complete <- FALSE}}
   return(complete)
 }
@@ -761,7 +762,8 @@ year_squisher <- function(sequence, extra = FALSE){
 #' @export
 #'
 only_annual_intervals <- function(datapoints) {
-  all(sapply(datapoints, determine_interval) == "A")
+  intervals <- sapply(datapoints, determine_interval)
+  all(!is.na(intervals) & intervals == "A")
 }
 
 
@@ -919,7 +921,7 @@ calculate_smallest_gap <- function(x_positions, x_labels) {
   if (length(x_positions) != length(x_labels)) {
     stop("Length of x_positions and x_labels must be the same")
   }
-
+  if (length(x_labels) < 2) return(Inf)
   # Calculate the width of the letter "m" in user coordinates
   m_width <- graphics::strwidth("m", units = "user")
 

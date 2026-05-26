@@ -112,6 +112,12 @@ get_code <- function(chart) {
                              paste(chart$config$emphasis, collapse = ", "), "),"))
   }
 
+  # ylim
+  if (!is.null(chart$config$ylim)) {
+    lines <- c(lines, paste0("  ylim = c(", chart$config$ylim[1], ", ",
+                             chart$config$ylim[2], "),"))
+  }
+
   # transformations
   if (!is.null(chart$config$rolling)) {
     lines <- c(lines, paste0("  rolling = ", chart$config$rolling, ","))

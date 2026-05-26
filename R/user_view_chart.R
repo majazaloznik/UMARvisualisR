@@ -31,8 +31,15 @@ view_chart <- function(chart) {
   x_axis <- x_axis_lims_tickmarks(datapoints, config)
 
   # --- y axis ---
-  values <- get_data_values(datapoints, config)
-  y_axis <- find_pretty_ylim(values)
+  if (!is.null(chart$config$ylim)) {
+    y_axis <- list(
+      ylim = chart$config$ylim,
+      y_breaks = pretty(chart$config$ylim)
+    )
+  } else {
+    values <- get_data_values(datapoints, config)
+    y_axis <- find_pretty_ylim(values)
+  }
 
   # --- left margin ---
   left <- left_axis_label_width(config, y_axis)
@@ -58,7 +65,7 @@ view_chart <- function(chart) {
 
   # --- x axis labels ---
   x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks,
-                                x_axis$x_lims, bar, x_values)
+                                x_axis$x_lims, bar, x_values, interval_type = x_axis$interval_type)
 
   # --- legend ---
   if (length(config$series) > 1) {
@@ -169,9 +176,15 @@ draw_axis_break <- function(y_lims, bar) {
   label_x <- grconvertX(0, from = "nfc", to = "user")
   step_w <- (usr[1] - label_x) * 0.08
 
-  # white rectangle — stop short of the axis line
-  rect(label_x, y_center - zz_h * 2.5,
-       usr[1] - step_w, y_center + zz_h * 2.5,
+  # measure bottom label width
+  bottom_label <- format(y_lims[1], big.mark = ".", decimal.mark = ",", scientific = FALSE)
+  label_w <- graphics::strwidth(bottom_label, units = "user")
+
+  # white rectangle — just wide enough to cover the label
+  rect(usr[1] - label_w * 2,
+       y_center - zz_h * 2.2,
+       usr[1] - step_w,
+       y_center + zz_h * 2.2,
        col = "white", border = NA, xpd = TRUE)
 
   # stepped break: top-left → right → down → right

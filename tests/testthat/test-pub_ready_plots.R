@@ -33,7 +33,7 @@ test_that("top margins are calculated correctly", {
                  title = "Very very long title that just keeps going on and on and hopefully takes up at least two lines for me to be able to test this shit properly.")
   top <- get_top_margin_and_title(config, 10)
   expect_true(top[[1]]> 3.5 & top[[1]] < 3.6)
-  expect_equal(top[[2]], 1.90)
+  expect_equal(top[[2]], 1.85)
 })
 
 test_that("empty plot is drawn correctly", {
@@ -60,20 +60,7 @@ test_that("bar plot is drawn correctly", {
   p <- function() base_barplot(datapoints, config,y_axis)
   vdiffr::expect_doppelganger("bar_plot grouped", p)
 
-  # config$stacked <- TRUE
-  # config$legend_columns <- 2
-  # p <- function() {
-  #   base_barplot(datapoints, config,y_axis)
-  #   create_legend(config, 10)}
-  # vdiffr::expect_doppelganger("bar_plot w legend 1", p)
-  #
-  # config$legend_columns <- 1
-  # p <- function() {
-  #   base_barplot(datapoints, config,y_axis)
-  #   create_legend(config, 10, "en")}
-  # vdiffr::expect_doppelganger("bar_plot w legend en", p)
 
-  # stacked with 100 and 0 emph and negative
   config$stacked <- TRUE
   config$y_axis_label <- "Indeks"
   datapoints <- list(data.frame(date = c("2023-01-01", "2023-02-01", "2023-03-01", "2023-04-01"),
@@ -106,20 +93,23 @@ test_that("x axis tickmarks", {
                      data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01"),
                                 value = c(22,33,44,-2)))
   out <- x_axis_lims_tickmarks(datapoints, config)
-  expect_equal(out$tickmarks, as.Date(c("2020-01-01", "2021-01-01")))
+  expect_equal(out$tickmarks, as.Date(c( "2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01",
+                                         "2021-01-01")))
   datapoints <- list(data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01", "2021-01-01"),
                                 value = c(52,63,74,-5, 2)),
                      data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01", "2021-01-01"),
                                 value = c(22,33,44,-2, 2)))
   out <- x_axis_lims_tickmarks(datapoints, config)
-  expect_equal(out$tickmarks, as.Date(c("2020-01-01", "2021-01-01")))
+  expect_equal(out$tickmarks, as.Date(c( "2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01",
+                                         "2021-01-01", "2021-04-01")))
   # different lengths
   datapoints <- list(data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01", "2021-01-01"),
                                 value = c(52,63,74,-5, 2)),
                      data.frame(date = c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01"),
                                 value = c(22,33,44,-2)))
   out <- x_axis_lims_tickmarks(datapoints, config)
-  expect_equal(out$tickmarks, as.Date(c("2020-01-01", "2021-01-01")))
+  expect_equal(out$tickmarks, as.Date(c( "2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01",
+                                         "2021-01-01", "2021-04-01")))
 })
 
 test_that("x axis params", {
