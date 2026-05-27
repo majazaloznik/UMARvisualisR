@@ -151,68 +151,339 @@ test_that("x axis params", {
   result <- x_axis_label_params(datapoints, config, out$tickmarks, out$x_lims, bar = FALSE, x_values = NULL, language = "si")
   expect_equal(result$x_labels, c("2019", "2020",  "2021", "2022"))
 })
+# === x_axis_lims_tickmarks - interval types ===
 
-#
-# test_that("x axis params squishiness", {
-#   temp_file <- start_controlled_plot(1000, 500)
-#   datapoints <- list(data.frame(date = seq(as.Date("2010-01-01"), as.Date("2024-10-01"), by = "year"),
-#                                 value = 1:15))
-#   config <- list(series = list(list(type="line", colour = umar_cols()[1], legend_txt_si = "serija 1",
-#                                     legend_txt_en = "series 1", unit = "EUR",  mio_eur = FALSE)),
-#                  y_axis_label = "leva os",
-#                  x_sub_annual = FALSE, stacked = FALSE)
-#   values <- get_data_values(datapoints, config)
-#   y_axis <- find_pretty_ylim(values)
-#   x_axis <- x_axis_lims_tickmarks(datapoints, config)
-#   left <- left_axis_label_width(config, y_axis)
-#   empty_plot(x_axis$x_lims, y_axis, left$unit)
-#   result <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar = FALSE, x_values = NULL, language = "si")
-#   expect_equal(result$x_labels, as.character(2010:2024))
-#   end_controlled_plot(temp_file)
-#   temp_file <- start_controlled_plot(width = 500)
-#   empty_plot(x_axis$x_lims, y_axis, left$unit)
-#   result <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar = FALSE, x_values = NULL, language = "si")
-#   expect_equal(result$x_labels, as.character(c(2010, (11:24))))
-#   end_controlled_plot(temp_file)
-#   temp_file <- start_controlled_plot(width = 200)
-#   empty_plot(x_axis$x_lims, y_axis, left$unit)
-#   result <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar = FALSE, x_values = NULL, language = "si")
-#   expect_equal(result$x_labels, as.character(c(2010, 15, 20, 24)))
-#   end_controlled_plot(temp_file)
-#
-#   temp_file <- start_controlled_plot(1000, 500)
-#   datapoints <- list(data.frame(date = seq(as.Date("2010-01-01"), as.Date("2024-01-01"), by = "quarter"),
-#                                 value = 1:57))
-#   config <- list(series = list(list(type="line", colour = umar_cols()[1], legend_txt_si = "serija 1",
-#                                     legend_txt_en = "series 1", unit = "EUR",  mio_eur = FALSE)),
-#                  y_axis_label = "leva os",
-#                  x_sub_annual = FALSE, stacked = FALSE)
-#   values <- get_data_values(datapoints, config)
-#   y_axis <- find_pretty_ylim(values)
-#   x_axis <- x_axis_lims_tickmarks(datapoints, config)
-#   left <- left_axis_label_width(config, y_axis)
-#   empty_plot(x_axis$x_lims, y_axis, left$unit)
-#   result <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar = FALSE, x_values = NULL, language = "si")
-#   axis.Date(1,
-#             at = x_axis$tickmarks,
-#             col = umar_cols("gridlines"),
-#             lwd = 0, lwd.ticks =1, tck=-0.02, labels = FALSE)
-#   axis(1, result$x_labels,
-#        at = result$x_positions,
-#        col = umar_cols("gridlines"),
-#        lwd = 0, tck = 0,  family = umar_font(),
-#        padj = 0.5, gap.axis = 0.25)
-#   expect_equal(result$x_labels, c(as.character(2010:2022), "Q1-24"))
-#   end_controlled_plot(temp_file)
-#
-#   temp_file <- start_controlled_plot(width = 500)
-#   empty_plot(x_axis$x_lims, y_axis, left$unit)
-#   result <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar = FALSE, x_values = NULL, language = "si")
-#   expect_equal(result$x_labels, c(as.character(c(2010, (11:22))), "Q1-24"))
-#   end_controlled_plot(temp_file)
-#   temp_file <- start_controlled_plot(width = 200)
-#   empty_plot(x_axis$x_lims, y_axis, left$unit)
-#   result <- x_axis_label_params(datapoints, config, x_axis$tickmarks, x_axis$x_lims, bar = FALSE, x_values = NULL, language = "si")
-#   expect_equal(result$x_labels, c("2010", "15", "20", "Q1-24"))
-#   end_controlled_plot(temp_file)
-# })
+test_that("quarterly data under 2 years gets quarterly tickmarks", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = as.Date(c("2020-01-15", "2020-04-15", "2020-07-15", "2020-10-15", "2021-01-15")),
+    value = 1:5
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "quarterly")
+  expect_equal(out$tickmarks[1], as.Date("2020-01-01"))
+  expect_equal(out$tickmarks[length(out$tickmarks)], as.Date("2021-04-01"))
+})
+
+test_that("quarterly data over 2 years gets annual tickmarks", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2018-01-15"), by = "quarter", length.out = 20),
+    value = 1:20
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "annual")
+})
+
+test_that("monthly data under 2 years gets monthly tickmarks", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2025-01-15"), by = "month", length.out = 8),
+    value = 1:8
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "monthly")
+})
+
+test_that("monthly data over 2 years gets annual tickmarks", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2020-01-15"), by = "month", length.out = 36),
+    value = 1:36
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "annual")
+})
+
+test_that("daily data under 2 months gets daily tickmarks", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2026-04-01"), by = "day", length.out = 30),
+    value = 1:30
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "daily")
+})
+
+test_that("daily data over 2 months gets monthly tickmarks", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2026-01-01"), by = "day", length.out = 100),
+    value = 1:100
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "monthly")
+})
+
+test_that("annual data always gets annual tickmarks regardless of span", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = as.Date(c("2023-01-01", "2024-01-01", "2025-01-01")),
+    value = 1:3
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "annual")
+})
+
+test_that("daily tickmark spacing adapts to span", {
+  config <- list(x_sub_annual = FALSE)
+  # under 14 days - daily
+  dp_short <- list(data.frame(
+    date = seq(as.Date("2026-05-01"), by = "day", length.out = 10),
+    value = 1:10
+  ))
+  out <- x_axis_lims_tickmarks(dp_short, config)
+  expect_true(all(diff(out$tickmarks) == 1))
+
+  # 15-28 days - every 3 days
+  dp_mid <- list(data.frame(
+    date = seq(as.Date("2026-05-01"), by = "day", length.out = 20),
+    value = 1:20
+  ))
+  out <- x_axis_lims_tickmarks(dp_mid, config)
+  expect_true(all(diff(out$tickmarks[1:(length(out$tickmarks)-1)]) == 3))
+
+  # 29-60 days - weekly
+  dp_long <- list(data.frame(
+    date = seq(as.Date("2026-04-01"), by = "day", length.out = 45),
+    value = 1:45
+  ))
+  out <- x_axis_lims_tickmarks(dp_long, config)
+  expect_true(all(diff(out$tickmarks[1:(length(out$tickmarks)-1)]) == 7))
+})
+
+test_that("monthly tickmarks end at data endpoint, not month end", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2025-01-15"), by = "month", length.out = 6),
+    value = 1:6
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_true(out$x_lims[2] >= as.Date("2025-06-15"))
+})
+
+# === x_axis_label_params - quarterly ===
+
+test_that("quarterly labels are positioned between tickmarks", {
+  plot.new()
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = as.Date(c("2020-01-15", "2020-04-15", "2020-07-15", "2020-10-15")),
+    value = 1:4
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  result <- x_axis_label_params(datapoints, config, out$tickmarks, out$x_lims,
+                                bar = FALSE, x_values = NULL,
+                                interval_type = "quarterly")
+  expect_equal(length(result$x_labels), length(out$tickmarks) - 1)
+  # labels should be between consecutive tickmarks
+  for (i in seq_along(result$x_positions)) {
+    expect_true(result$x_positions[i] > out$tickmarks[i])
+    expect_true(result$x_positions[i] < out$tickmarks[i + 1])
+  }
+})
+
+# === x_axis_label_params - monthly ===
+
+test_that("monthly labels have year on first and January", {
+  plot.new()
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2025-10-15"), by = "month", length.out = 6),
+    value = 1:6
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  result <- x_axis_label_params(datapoints, config, out$tickmarks, out$x_lims,
+                                bar = FALSE, x_values = NULL,
+                                interval_type = "monthly")
+  # first label should contain year
+  expect_true(grepl("25", result$x_labels[1]))
+  # find January label — should contain year
+  jan_idx <- which(lubridate::month(result$x_positions) == 1)
+  if (length(jan_idx) > 0) {
+    expect_true(grepl("26", result$x_labels[jan_idx[1]]))
+  }
+  # non-January, non-first labels should NOT contain year
+  other_idx <- setdiff(seq_along(result$x_labels), c(1, jan_idx))
+  if (length(other_idx) > 0) {
+    expect_false(any(grepl("\\d{2}$", result$x_labels[other_idx])))
+  }
+})
+
+# === x_axis_label_params - daily ===
+
+test_that("daily labels have month on first and month changes", {
+  plot.new()
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2026-04-25"), by = "day", length.out = 14),
+    value = 1:14
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  result <- x_axis_label_params(datapoints, config, out$tickmarks, out$x_lims,
+                                bar = FALSE, x_values = NULL,
+                                interval_type = "daily")
+  # first label should contain month and year
+  expect_true(grepl("apr", result$x_labels[1], ignore.case = TRUE) ||
+                grepl("26", result$x_labels[1]))
+  # labels at month change should also have month
+  may_idx <- which(lubridate::month(result$x_positions) == 5 &
+                     c(TRUE, diff(lubridate::month(result$x_positions)) != 0))
+  if (length(may_idx) > 0) {
+    expect_true(grepl("maj|may", result$x_labels[may_idx[1]], ignore.case = TRUE))
+  }
+})
+
+# === x_axis_label_params - annual with interval_type passed ===
+
+test_that("annual label params still work with interval_type argument", {
+  plot.new()
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(
+    data.frame(date = as.Date(c("2019-01-15", "2020-01-15", "2021-01-15", "2022-01-15")),
+               value = c(2, 3, 4, 5)),
+    data.frame(date = as.Date(c("2019-01-15", "2020-01-15", "2021-01-15", "2022-01-15")),
+               value = c(2, 3, 4, 5))
+  )
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  result <- x_axis_label_params(datapoints, config, out$tickmarks, out$x_lims,
+                                bar = FALSE, x_values = NULL,
+                                interval_type = "annual")
+  expect_equal(result$x_labels, c("2019", "2020", "2021", "2022"))
+})
+
+# === calculate_smallest_gap edge cases ===
+
+test_that("calculate_smallest_gap returns Inf for single label", {
+  plot.new()
+  expect_equal(calculate_smallest_gap(1, "label"), Inf)
+})
+
+test_that("calculate_smallest_gap errors on mismatched lengths", {
+  plot.new()
+  expect_error(calculate_smallest_gap(1:3, c("a", "b")),
+               "Length of x_positions and x_labels must be the same")
+})
+
+# === find_pretty_ylim ===
+
+test_that("find_pretty_ylim adds padding when data near limits", {
+  result <- find_pretty_ylim(c(5.01, 9.99))
+  expect_true(result$ylim[1] < 5)
+  expect_true(result$ylim[2] > 10)
+})
+
+test_that("find_pretty_ylim preserves zero lower bound", {
+  result <- find_pretty_ylim(c(0, 5))
+  expect_equal(result$ylim[1], 0)
+})
+
+test_that("find_pretty_ylim handles negative values", {
+  result <- find_pretty_ylim(c(-5, 5))
+  expect_true(result$ylim[1] < -5)
+  expect_true(result$ylim[2] > 5)
+})
+
+# === cut_to_x_range ===
+
+test_that("cut_to_x_range respects xmin only", {
+  config <- list(xmin = as.Date("2020-06-01"), xmax = NULL)
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2020-01-01"), by = "month", length.out = 12),
+    value = 1:12
+  ))
+  result <- cut_to_x_range(datapoints, config)
+  expect_true(min(result[[1]]$date) >= as.Date("2020-06-01"))
+})
+
+test_that("cut_to_x_range respects xmax only", {
+  config <- list(xmin = NULL, xmax = as.Date("2020-06-01"))
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2020-01-01"), by = "month", length.out = 12),
+    value = 1:12
+  ))
+  result <- cut_to_x_range(datapoints, config)
+  expect_true(max(result[[1]]$date) <= as.Date("2020-06-01"))
+})
+
+test_that("cut_to_x_range ignores non-overlapping user range", {
+  config <- list(xmin = as.Date("2025-01-01"), xmax = as.Date("2025-12-01"))
+  datapoints <- list(data.frame(
+    date = seq(as.Date("2020-01-01"), by = "month", length.out = 12),
+    value = 1:12
+  ))
+  expect_message(result <- cut_to_x_range(datapoints, config), "xmin")
+  expect_equal(nrow(result[[1]]), 12)
+})
+
+# === draw_lines with single line series on combo chart ===
+
+test_that("draw_lines handles single line series in combo chart", {
+  plot(1, 1, xlim = c(0, 10), ylim = c(0, 10))
+  config <- list(series = list(
+    list(type = "bar", colour = "#A10305"),
+    list(type = "line", colour = "#4A6FB5")
+  ))
+  datapoints <- list(
+    data.frame(date = 1:4, value = c(2, 3, 4, 5)),
+    data.frame(date = 1:4, value = c(3, 4, 5, 6))
+  )
+  x_values <- list(dates = as.Date(c("2020-01-01", "2020-04-01", "2020-07-01", "2020-10-01")),
+                   midpoints = c(1, 3, 5, 7))
+  # should not error — the drop = FALSE fix
+  expect_no_error(draw_lines(datapoints, config, x_values = x_values))
+})
+
+# === only_annual_intervals with NA ===
+
+test_that("only_annual_intervals returns FALSE for irregular data", {
+  datapoints <- list(data.frame(
+    date = as.Date(c("2026-01-05", "2026-01-12", "2026-01-20")),
+    value = 1:3
+  ))
+  expect_false(only_annual_intervals(datapoints))
+})
+
+# === last_year_complete_series with irregular data ===
+
+test_that("last_year_complete_series handles irregular interval", {
+  df <- data.frame(
+    date = as.Date(c("2026-01-05", "2026-01-12", "2026-02-03", "2026-03-15")),
+    value = 1:4
+  )
+  result <- last_year_complete_series(df, 2026)
+  expect_false(result)
+})
+
+# === mixed interval datapoints ===
+
+test_that("x_axis_lims_tickmarks handles mixed intervals across series", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(
+    data.frame(date = seq(as.Date("2020-01-15"), by = "month", length.out = 12),
+               value = 1:12),
+    data.frame(date = seq(as.Date("2020-01-15"), by = "quarter", length.out = 4),
+               value = 1:4)
+  )
+  # should not error
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_true(out$interval_type %in% c("annual", "monthly", "quarterly", "daily"))
+})
+
+# === interpolate_x ===
+
+test_that("interpolate_x does linear interpolation correctly", {
+  original_dates <- as.Date(c("2020-01-01", "2020-12-31"))
+  x_values <- c(0, 100)
+  new_dates <- as.Date("2020-07-01")
+  result <- interpolate_x(original_dates, x_values, new_dates)
+  # July 1 is roughly halfway through the year
+  expect_true(result > 45 && result < 55)
+})
+
+test_that("interpolate_x handles endpoints exactly", {
+  original_dates <- as.Date(c("2020-01-01", "2020-12-31"))
+  x_values <- c(10, 50)
+  expect_equal(interpolate_x(original_dates, x_values, as.Date("2020-01-01")), 10)
+  expect_equal(interpolate_x(original_dates, x_values, as.Date("2020-12-31")), 50)
+})

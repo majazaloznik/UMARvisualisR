@@ -319,6 +319,10 @@ V R verziji 4.2 in kasnejših je že native UTF-8 suport, ampak mora biti aktivn
 LC_CTYPE=English_United Kingdom.utf8
 ```
 
+Če še vedno le dela, lahko v R-u probaš pognati tudi to vrstico, ali jo dodati v `.Rprofile`. 
+
+`Sys.setlocale("LC_CTYPE", "English_United Kingdom.utf8")`
+
 
 # ToDo list
 
