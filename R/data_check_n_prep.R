@@ -363,21 +363,6 @@ prep_config <- function(df) {
   config
 }
 
-#' Change axis label for english version
-#'
-#' used inside \link[UMARvisualisR]{publication_ready_plot} to change
-#' y axis label to english version.
-#'
-#' @param config configuration list
-#'
-#' @return updated config list
-#' @export
-#'
-prep_config_en <- function(config){
-  config$y_axis_label <- config$y_axis_label_en
-  config$y2_axis_label <- config$y2_axis_label_en
-  config
-}
 
 #' Get the datapoints from the database
 #'
