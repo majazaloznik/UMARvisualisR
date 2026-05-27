@@ -159,7 +159,7 @@ draw_emphasis <- function(emphasis, y_axis_label, y_lims) {
 
 #' Null-coalescing operator
 #' @noRd
-`%||%` <- function(x, y) if (is.null(x)) y else y
+`%||%` <- function(x, y) if (is.null(x)) y else x
 
 #' Draw axis break indicator over bottom y-axis label
 #' @param y_lims numeric(2) y-axis limits
