@@ -257,8 +257,8 @@ x_axis_lims_tickmarks <- function(datapoints, config) {
   span_days <- as.numeric(difftime(x_lims[[2]], x_lims[[1]], units = "days"))
   interval <- determine_interval(datapoints[[1]])
 
-  if (!config$x_sub_annual && span_days > 730) {
-    # --- ANNUAL tickmarks (existing logic, unchanged) ---
+  if (!config$x_sub_annual &&
+      (span_days > 730 || (!is.na(interval) && interval == "A"))) {
     if (only_annual_log) {
       tickmarks <- seq(x_lims[[1]], x_lims[[2]], by = "1 year")
     } else if (last_year_complete_log) {
@@ -280,7 +280,17 @@ x_axis_lims_tickmarks <- function(datapoints, config) {
     tickmarks <- seq(tick_start, tick_end, by = "3 months")
     x_lims <- c(min(tickmarks), max(tickmarks))
     interval_type <- "quarterly"
+  } else if (!is.na(interval) && interval == "M") {
+    tick_start <- lubridate::floor_date(x_lims[[1]], "month")
+    tickmarks <- seq(tick_start, x_lims[[2]], by = "1 month")
+    # add final tickmark at actual data endpoint if past last month start
+    if (tickmarks[length(tickmarks)] < x_lims[[2]]) {
+      tickmarks <- c(tickmarks, x_lims[[2]])
+    }
+    x_lims <- c(min(tickmarks), max(tickmarks))
+    interval_type <- "monthly"
   } else if (span_days > 60) {
+    # --- MONTHLY (for daily/irregular over 2 months) ---
     tick_start <- lubridate::floor_date(x_lims[[1]], "month")
     tickmarks <- seq(tick_start, x_lims[[2]], by = "1 month")
     # add final tickmark at actual data endpoint if past last month start

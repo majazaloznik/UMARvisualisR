@@ -310,6 +310,15 @@ test_that("monthly labels have year on first and January", {
   }
 })
 
+test_that("monthly data with short span still gets monthly tickmarks", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = as.Date(c("2026-04-15", "2026-05-15")),
+    value = 1:2
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "monthly")
+})
 # === x_axis_label_params - daily ===
 
 test_that("daily labels have month on first and month changes", {
