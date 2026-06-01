@@ -281,26 +281,23 @@ x_axis_lims_tickmarks <- function(datapoints, config) {
     x_lims <- c(min(tickmarks), max(tickmarks))
     interval_type <- "quarterly"
   } else if (!is.na(interval) && interval == "M") {
+    # --- MONTHLY (regular monthly data) ---
     tick_start <- lubridate::floor_date(x_lims[[1]], "month")
-    tickmarks <- seq(tick_start, x_lims[[2]], by = "1 month")
-    # add final tickmark at actual data endpoint if past last month start
-    if (tickmarks[length(tickmarks)] < x_lims[[2]]) {
-      tickmarks <- c(tickmarks, x_lims[[2]])
-    }
+    tick_end <- lubridate::ceiling_date(x_lims[[2]], "month")
+    tickmarks <- seq(tick_start, tick_end, by = "1 month")
     x_lims <- c(min(tickmarks), max(tickmarks))
     interval_type <- "monthly"
   } else if (span_days > 60) {
-    # --- MONTHLY (for daily/irregular over 2 months) ---
+    # --- MONTHLY (daily/irregular over 2 months) ---
     tick_start <- lubridate::floor_date(x_lims[[1]], "month")
     tickmarks <- seq(tick_start, x_lims[[2]], by = "1 month")
-    # add final tickmark at actual data endpoint if past last month start
     if (tickmarks[length(tickmarks)] < x_lims[[2]]) {
       tickmarks <- c(tickmarks, x_lims[[2]])
     }
     x_lims <- c(min(tickmarks), max(tickmarks))
     interval_type <- "monthly"
   } else {
-    # daily — tickmarks at sensible intervals
+    # --- DAILY ---
     if (span_days > 28) {
       tick_by <- "1 week"
     } else if (span_days > 14) {

@@ -496,3 +496,22 @@ test_that("interpolate_x handles endpoints exactly", {
   expect_equal(interpolate_x(original_dates, x_values, as.Date("2020-01-01")), 10)
   expect_equal(interpolate_x(original_dates, x_values, as.Date("2020-12-31")), 50)
 })
+
+
+test_that("monthly tickmarks have equal spacing for regular monthly data", {
+  config <- list(x_sub_annual = FALSE)
+  datapoints <- list(data.frame(
+    date = as.Date(c("2026-03-16", "2026-04-15")),
+    value = 1:2
+  ))
+  out <- x_axis_lims_tickmarks(datapoints, config)
+  expect_equal(out$interval_type, "monthly")
+  # should have 3 tickmarks: Mar 1, Apr 1, May 1
+  expect_equal(out$tickmarks, as.Date(c("2026-03-01", "2026-04-01", "2026-05-01")))
+  # equal spacing
+  diffs <- diff(out$tickmarks)
+  expect_true(all(diffs >= 28 & diffs <= 31))
+  # both data points should be inside the axis range
+  expect_true(all(datapoints[[1]]$date >= out$x_lims[1]))
+  expect_true(all(datapoints[[1]]$date <= out$x_lims[2]))
+})
