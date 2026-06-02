@@ -83,19 +83,23 @@ view_chart <- function(chart) {
                    left$axis_labels, left$y_lab_lines)
 
   # --- x axis tickmarks ---
-  if (bar) {
-    axis(1, at = x_axis$tickmarks, col = umar_cols("gridlines"),
-         lwd = 0, lwd.ticks = 1, tck = -0.02, labels = FALSE)
-  } else {
-    axis.Date(1, at = x_axis$tickmarks, col = umar_cols("gridlines"),
-              lwd = 0, lwd.ticks = 1, tck = -0.02, labels = FALSE)
+  if (length(x_axis$tickmarks) > 0 && all(is.finite(x_axis$tickmarks))) {
+    if (bar) {
+      axis(1, at = x_axis$tickmarks, col = umar_cols("gridlines"),
+           lwd = 0, lwd.ticks = 1, tck = -0.02, labels = FALSE)
+    } else {
+      axis.Date(1, at = x_axis$tickmarks, col = umar_cols("gridlines"),
+                lwd = 0, lwd.ticks = 1, tck = -0.02, labels = FALSE)
+    }
   }
 
   # --- x axis labels ---
-  par_mgp(mgp = c(3, -0.2, 0))
-  axis(1, x_axis$x_labels, at = x_axis$x_positions,
-       col = umar_cols("gridlines"), lwd = 0, tck = 0,
-       family = umar_font(), padj = 0.5, gap.axis = 0.25)
+  if (length(x_axis$x_positions) > 0 && all(is.finite(x_axis$x_positions))) {
+    par_mgp(mgp = c(3, -0.2, 0))
+    axis(1, x_axis$x_labels, at = x_axis$x_positions,
+         col = umar_cols("gridlines"), lwd = 0, tck = 0,
+         family = umar_font(), padj = 0.5, gap.axis = 0.25)
+  }
 
   # --- axis break indicator ---
   draw_axis_break(y_axis$ylim, bar)

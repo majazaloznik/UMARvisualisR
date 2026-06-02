@@ -216,3 +216,27 @@ test_that("view_chart renders combo bar+line chart", {
   expect_no_error(view_chart(chart))
 })
 
+test_that("view_chart handles single-row data without error", {
+  df <- data.frame(
+    date = as.Date("2026-01-01"),
+    A = 16, B = 34, C = 36, D = 10, E = 19
+  )
+  chart <- prep_chart(df, type = "bar")
+  expect_no_error(view_chart(chart))
+})
+
+test_that("view_chart handles single-row long format without error", {
+  df <- data.frame(
+    date = rep(as.Date("2026-01-01"), 3),
+    value = c(10, 20, 30),
+    category = c("A", "B", "C")
+  )
+  chart <- prep_chart(df, type = "bar")
+  expect_no_error(view_chart(chart))
+})
+
+test_that("view_chart handles single-row single-series data", {
+  df <- data.frame(date = as.Date("2026-01-01"), value = 42)
+  chart <- prep_chart(df, type = "bar")
+  expect_no_error(view_chart(chart))
+})
