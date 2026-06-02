@@ -114,6 +114,10 @@ prep_chart <- function(data,
     if (!is.numeric(emphasis)) stop("emphasis must be NULL, FALSE, or a numeric vector.")
   }
 
+  # --- validate y_axis ---
+  if (!is.null(y_axis) && (!is.character(y_axis) || length(y_axis) != 1)) {
+    stop("y_axis is the axis title and must be a single character string. For manual axis limits use ylim.")
+  }
   # --- validate transformations ---
   if (!is.null(rolling)) {
     if (!is.numeric(rolling) || length(rolling) != 1 || rolling < 2)

@@ -340,6 +340,7 @@ Seznam idej in planov, not in any particular order:
 - drseče sredine centrirane, če bo želja/potreba
 - mogoče opcija, da si shraniš tudi celo kodo za graf, ki jo lahko po potrebi tweakaš, čeprav to je kar messy in vprašanje, če je res potreba
 - ~~možnost prikaza podatkov, ki niso M, Q ali A.~~
+- ~~možnost prikaza samo ene vrstice podatkov - uporabno za quick barchart~~
 
 # Za beta testerje
 

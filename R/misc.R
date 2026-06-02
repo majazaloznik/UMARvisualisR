@@ -581,7 +581,7 @@ left_axis_label_width <- function(config, y_axis) {
   axis_positions <- y_axis$y_breaks
   unit <- unique(unlist(purrr::map(config$series, ~ .x$unit)))
   mio_eur <- unique(unlist(purrr::map(config$series, ~ .x$mio_eur)))
-  if(unit == "EUR" & mio_eur) {
+  if (length(unit) == 1 && unit == "EUR" & mio_eur) {
     axis_labels <- axis_labels/1000000
     y_label_max <- max(abs(axis_labels))
     unit <- "Mio EUR"}

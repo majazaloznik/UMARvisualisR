@@ -95,28 +95,6 @@ test_that("draw_emphasis explicit values outside range are excluded", {
   expect_invisible(UMARvisualisR:::draw_emphasis(c(-5, 15), NULL, c(0, 10)))
 })
 
-# === draw_axis_break ===
-
-test_that("draw_axis_break skips bar charts", {
-  plot(1, 1)
-  expect_invisible(UMARvisualisR:::draw_axis_break(c(0, 10), bar = TRUE))
-})
-
-test_that("draw_axis_break skips when ylim starts at zero", {
-  plot(1, 1)
-  expect_invisible(UMARvisualisR:::draw_axis_break(c(0, 10), bar = FALSE))
-})
-
-test_that("draw_axis_break draws for line chart with clipped axis", {
-  plot(1, 1, ylim = c(80, 120))
-  # should not error
-  expect_no_error(UMARvisualisR:::draw_axis_break(c(80, 120), bar = FALSE))
-})
-
-test_that("draw_axis_break draws for negative clipped axis", {
-  plot(1, 1, ylim = c(-50, -10))
-  expect_no_error(UMARvisualisR:::draw_axis_break(c(-50, -10), bar = FALSE))
-})
 
 # === %||% operator ===
 

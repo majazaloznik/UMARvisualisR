@@ -45,6 +45,11 @@ view_chart <- function(chart) {
   left <- left_axis_label_width(config, y_axis)
   if (is.null(config$y_axis_label)) config$y_axis_label <- left$unit
 
+  # in view_chart(), after left_axis_label_width() and before left_axis_labels():
+  if (!bar && y_axis$ylim[1] > 0) {
+    left$axis_labels[1] <- "//"
+  }
+
   # --- top margin ---
   top <- get_top_margin_and_title(config, title_ps = title_ps)
 
@@ -100,9 +105,6 @@ view_chart <- function(chart) {
          col = umar_cols("gridlines"), lwd = 0, tck = 0,
          family = umar_font(), padj = 0.5, gap.axis = 0.25)
   }
-
-  # --- axis break indicator ---
-  draw_axis_break(y_axis$ylim, bar)
 
   invisible(chart)
 }
@@ -164,36 +166,3 @@ draw_emphasis <- function(emphasis, y_axis_label, y_lims) {
 #' Null-coalescing operator
 #' @noRd
 `%||%` <- function(x, y) if (is.null(x)) y else x
-
-#' Draw axis break indicator over bottom y-axis label
-#' @param y_lims numeric(2) y-axis limits
-#' @param bar logical, is it a bar chart
-#' @keywords internal
-draw_axis_break <- function(y_lims, bar) {
-  if (bar || y_lims[1] == 0) return(invisible())
-
-  usr <- par("usr")
-  y_center <- y_lims[1]
-  zz_h <- diff(y_lims) * 0.012
-
-  # position at the y-axis labels (in the margin)
-  label_x <- grconvertX(0, from = "nfc", to = "user")
-  step_w <- (usr[1] - label_x) * 0.08
-
-  # measure bottom label width
-  bottom_label <- format(y_lims[1], big.mark = ".", decimal.mark = ",", scientific = FALSE)
-  label_w <- graphics::strwidth(bottom_label, units = "user")
-
-  # white rectangle — just wide enough to cover the label
-  rect(usr[1] - label_w * 2,
-       y_center - zz_h * 2.2,
-       usr[1] - step_w,
-       y_center + zz_h * 2.2,
-       col = "white", border = NA, xpd = TRUE)
-
-  # stepped break: top-left → right → down → right
-  mid_x <- (label_x + usr[1]) / 2 + (usr[1] - label_x) * 0.15
-  x_pts <- c(mid_x - step_w, mid_x, mid_x, mid_x + step_w)
-  y_pts <- c(y_center + zz_h, y_center + zz_h, y_center - zz_h, y_center - zz_h)
-  lines(x_pts, y_pts, col = "black", lwd = 0.9, xpd = TRUE)
-}
