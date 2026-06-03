@@ -74,6 +74,7 @@ view_chart <- function(chart) {
     }
 
     # --- x axis labels ---
+    par(ps = 10)  # match axis label size
     x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks,
                                   x_axis$x_lims, bar, x_values, interval_type = x_axis$interval_type)
 
