@@ -39,12 +39,14 @@ library(UMARvisualisR)
 ```
 ## Namestitev Aptos fonta
 
-Odpri [stran z Aptos fonti](https://www.microsoft.com/en-us/download/details.aspx?id=106087) in klikni "Download" in si prenesi zip datoteko. Odzippaj in označi vse .ttf datoteke, desno klikni nanje in izberi "Install". Mogoče dobiš opozorilo, da je kater font že nameščen, kar je vseeno, lahko ga prepišeš ali ne.
+Odpri [stran z Aptos fonti](https://www.microsoft.com/en-us/download/details.aspx?id=106087) in klikni "Download" in si prenesi zip datoteko. Odzippaj in označi vse .ttf datoteke, desno klikni nanje in izberi "Install". Mogoče dobiš opozorilo, da je kater font že nameščen, kar je vseeno, lahko ga kar prepišeš.
+
+Potem greš v RStudio pod Tools/Global Options/General - Graphics/in pod `Backend graphics` izbereš `AGG`. To je treba narediti samo enkrat, potem bi moralo delati.
 
 # Osnovna uporaba
 
 
-Tole so iz SiStat-a neki **četrtletni** podatki o BDP za demonstracijo:
+Tole so iz SiStat-a neki **četrtletni** podatki o BDP za hitro demonstracijo:
 ```{r, eval=FALSE}
 raw_data <- read.csv("https://pxweb.stat.si:443/SiStatData/sq/28805", 
                      fileEncoding = "Windows-1250", na.strings = "...")
@@ -288,7 +290,10 @@ chart5 |>
 
 # Še par malenkosti
 
-## 
+## `mpg` warning
+
+Pri uporabi se lahko pojavi opozorilo `'mgp[1:3]' are of differing sign.` To je posledica tehnične podrobnosti R-jeve funkcije `par()`, ki se ji je očitno nemogoče izogniti - in sem se res potrudila - amapk ne vpliva na izgled grafa, tako da ga lahko ignoriraš.
+
 ## Umar barve
 
 Tale funkcija je lahko še kje drugje uporabna, zato jo posebej dokumentiram: `umar_cols()`. V bistvu je samo named vektor z našimi barvami in s posebno print metodo (to probaj pri sebi, da vidiš kako se izpišejo barve!):

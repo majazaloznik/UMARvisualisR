@@ -417,9 +417,11 @@ center_dates <- function(datapoints) {
   if (is.na(interval) || interval == "A") return(datapoints)
   lapply(datapoints, function(df) {
     if (interval == "M") {
-      df$date <- df$date + 15L
+      month_start <- lubridate::floor_date(df$date, "month")
+      df$date <- month_start + (lubridate::days_in_month(month_start) - 1) / 2
     } else if (interval == "Q") {
-      df$date <- df$date + 45L
+      quarter_start <- lubridate::floor_date(df$date, "quarter")
+      df$date <- quarter_start + 45
     }
     df
   })

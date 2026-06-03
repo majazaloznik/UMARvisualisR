@@ -575,26 +575,24 @@ legend_mz2 <- function(x = par("usr")[[1]],
 #' @export
 #'
 left_axis_label_width <- function(config, y_axis) {
-
-  y_label_max <- max(y_axis$ylim)
   axis_labels <- y_axis$y_breaks
   axis_positions <- y_axis$y_breaks
   unit <- unique(unlist(purrr::map(config$series, ~ .x$unit)))
   mio_eur <- unique(unlist(purrr::map(config$series, ~ .x$mio_eur)))
   if (length(unit) == 1 && unit == "EUR" & mio_eur) {
-    axis_labels <- axis_labels/1000000
-    y_label_max <- max(abs(axis_labels))
-    unit <- "Mio EUR"}
-
-  y_lab_lines <- strwidth(format(y_label_max, big.mark = ".", decimal.mark = ",",
-                                 scientific = FALSE),
-                          units = "inches")/par("csi") + 0.5
+    axis_labels <- axis_labels / 1000000
+    unit <- "Mio EUR"
+  }
+  # measure the widest actual label
+  formatted_labels <- format(axis_labels, big.mark = ".", decimal.mark = ",",
+                             scientific = FALSE)
+  widths <- strwidth(formatted_labels, units = "inches")
+  y_lab_lines <- max(widths) / par("csi") + 0.5
   current_mar <- par("mar")
   current_mar[2] <- y_lab_lines + 1
-  par(mar =  current_mar)
-  mget(c("unit",  "axis_labels", "axis_positions", "y_lab_lines"))
+  par(mar = current_mar)
+  mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines"))
 }
-
 
 
 #' Draw left axis labels
@@ -810,15 +808,17 @@ shift_dates_by_six_months <- function(dates) {
 #'
 #' @return nothing, changes mgp parameter
 #' @export
-par_mgp <- function(mgp=c(3,-0.2,0)) {
-  old_warn <- options("warn")
-  options(warn = -1)
-  # Set the par parameters
-  par(mgp = mgp)
-  # Restore previous warning options
-  options(old_warn)
+par_mgp <- function(mgp = c(3, -0.2, 0)) {
+  withCallingHandlers(
+    par(mgp = mgp),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      if (grepl("mgp", msg)) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
 }
-
 #' Determine interval from timeseries dataframe
 #'
 #' function to return A, Q or M based on differences

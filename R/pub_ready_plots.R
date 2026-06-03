@@ -414,12 +414,12 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_va
       x_labels <- filtered$x_labels
       min_gap <- calculate_smallest_gap(x_positions, x_labels)
       if (min_gap < 0.1) {
-        # keep only January and first/last
         keep2 <- rep(FALSE, length(x_labels))
         keep2[1] <- TRUE
         keep2[length(keep2)] <- TRUE
-        months2 <- lubridate::month(x_positions)
-        keep2[months2 == 1] <- TRUE
+        # use the months from the first round that survived filtering
+        surviving_months <- months[keep]
+        keep2[surviving_months == 1] <- TRUE
         x_labels[!keep2] <- NA
         filtered <- filter_na_labels(x_positions, x_labels)
         x_positions <- filtered$x_positions
