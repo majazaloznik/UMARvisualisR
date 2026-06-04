@@ -348,11 +348,15 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_va
   if (interval_type == "daily") {
     x_positions <- tickmarks
     x_labels <- format(tickmarks, format = "%d.")
-    # first label and any month change gets month + year
     months <- lubridate::month(x_positions)
+    years <- lubridate::year(x_positions)
     for (i in seq_along(x_labels)) {
-      if (i == 1 || months[i] != months[i - 1]) {
+      if (i == 1) {
         x_labels[i] <- format(x_positions[i], format = "%d. %b %y")
+      } else if (years[i] != years[i - 1]) {
+        x_labels[i] <- format(x_positions[i], format = "%d. %b %y")
+      } else if (months[i] != months[i - 1]) {
+        x_labels[i] <- format(x_positions[i], format = "%d. %b")
       }
     }
 
