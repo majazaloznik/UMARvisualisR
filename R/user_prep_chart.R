@@ -54,6 +54,21 @@ prep_chart <- function(data,
   # --- defactor ---
   data[] <- lapply(data, function(x) if (is.factor(x)) as.character(x) else x)
 
+  # --- convert POSIXct to Date ---
+  posix_cols <- names(data)[vapply(data, inherits, logical(1), "POSIXct")]
+  for (col in posix_cols) {
+    data[[col]] <- as.Date(data[[col]])
+  }
+
+  # ---  drop character columns with only one unique value ---
+  const_cols <- names(data)[vapply(data, function(x) {
+    is.character(x) && length(unique(stats::na.omit(x))) <= 1
+  }, logical(1))]
+  if (length(const_cols)) {
+    message("Dropping constant columns: ", paste(const_cols, collapse = ", "))
+    data <- data[, setdiff(names(data), const_cols), drop = FALSE]
+  }
+
   # --- convert period strings to Date if needed ---
   data <- convert_period_column(data)
 
@@ -388,6 +403,17 @@ colourise <- function(text, hex) {
 #' @keywords internal
 convert_period_column <- function(data) {
   if (!is.null(find_date_column(data))) return(data)
+
+  # check numeric columns that look like years
+  num_cols <- names(data)[vapply(data, is.numeric, logical(1))]
+  for (col in num_cols) {
+    vals <- stats::na.omit(data[[col]])
+    if (length(vals) == 0) next
+    if (all(vals >= 1900 & vals <= 2100 & vals == floor(vals))) {
+      data[[col]] <- as.Date(paste0(vals, "-01-01"))
+      return(data)
+    }
+  }
 
   char_cols <- names(data)[vapply(data, is.character, logical(1))]
   for (col in char_cols) {
