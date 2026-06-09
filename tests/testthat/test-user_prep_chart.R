@@ -342,4 +342,14 @@ test_that("convert_period_column ignores non-period strings", {
   result <- convert_period_column(df)
   expect_type(result$label, "character")
 })
-
+umar_font("sans")
+test_that("single-row data preserves category columns", {
+  df <- data.frame(
+    period = "2026Q1",
+    category = "A",
+    value = 16
+  )
+  chart <- prep_chart(df, type = "bar")
+  expect_length(chart$datapoints, 1)
+  expect_no_error(view_chart(chart))
+})

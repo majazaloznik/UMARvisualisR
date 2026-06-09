@@ -51,6 +51,9 @@ prep_chart <- function(data,
                        index = NULL,
                        ylim = NULL) {
 
+  # --- first sanity check ---
+  if (!is.data.frame(data)) stop("data must be a data.frame.")
+
   # --- defactor ---
   data[] <- lapply(data, function(x) if (is.factor(x)) as.character(x) else x)
 
@@ -61,12 +64,14 @@ prep_chart <- function(data,
   }
 
   # ---  drop character columns with only one unique value ---
-  const_cols <- names(data)[vapply(data, function(x) {
-    is.character(x) && length(unique(stats::na.omit(x))) <= 1
-  }, logical(1))]
-  if (length(const_cols)) {
-    message("Dropping constant columns: ", paste(const_cols, collapse = ", "))
-    data <- data[, setdiff(names(data), const_cols), drop = FALSE]
+  if (nrow(data) > 1) {
+    const_cols <- names(data)[vapply(data, function(x) {
+      is.character(x) && length(unique(stats::na.omit(x))) <= 1
+    }, logical(1))]
+    if (length(const_cols)) {
+      message("Dropping constant columns: ", paste(const_cols, collapse = ", "))
+      data <- data[, setdiff(names(data), const_cols), drop = FALSE]
+    }
   }
 
   # --- convert period strings to Date if needed ---
@@ -236,7 +241,6 @@ prep_chart <- function(data,
 #' @return "wide" or "long"
 #' @keywords internal
 detect_format <- function(data) {
-  if (!is.data.frame(data)) stop("data must be a data.frame.")
   if (ncol(data) < 2) stop("data must have at least 2 columns.")
 
   date_col <- find_date_column(data)
