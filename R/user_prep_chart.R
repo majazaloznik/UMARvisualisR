@@ -342,12 +342,12 @@ validate_colours <- function(colours, n_series) {
 
   vapply(colours, function(c) {
     if (is.numeric(c)) {
-      if (c < 1 || c > 8) stop("Colour index must be between 1 and 8.")
+      if (c < 1 || c > 9) stop("Colour index must be between 1 and 9.")
       unname(palette[c])
     } else if (is.character(c) && grepl("^#", c)) {
       c
     } else {
-      stop("colours must be integers (1-8) or hex strings (e.g. '#A10305').")
+      stop("colours must be integers (1-9) or hex strings (e.g. '#A10305').")
     }
   }, character(1))
 }

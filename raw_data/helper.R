@@ -1,16 +1,31 @@
 # list of colours used in the umar palette.
 
-umar_colours <- c(`rdeca` = rgb(161, 3, 5, maxColorValue = 255),
-                  `roza` = rgb(212, 101, 101, maxColorValue = 255),
-                  `siva` = rgb(167, 174, 180, maxColorValue = 255),
-                  `temno_modra` = rgb(52, 61, 88, maxColorValue = 255),
-                  `turkizna` = rgb(23, 111, 139, maxColorValue = 255),
-                  `zelena` = rgb(152, 197, 118, maxColorValue = 255),
-                  `vijolicna` = rgb(50, 20, 67, maxColorValue = 255),
-                  `sinja` = rgb(102, 138, 182, maxColorValue = 255),
-                  `gridlines` = rgb(191, 191, 191, maxColorValue = 255),
-                  `emph` = rgb(80, 87, 94, maxColorValue = 255))
-usethis::use_data(umar_colours, internal = TRUE, overwrite = TRUE)
+umar_colours_default <- c(
+  rdeca = rgb(161, 3, 5, maxColorValue = 255),
+  roza = rgb(212, 101, 101, maxColorValue = 255),
+  siva = rgb(167, 174, 180, maxColorValue = 255),
+  temno_modra = rgb(52, 61, 88, maxColorValue = 255),
+  turkizna = rgb(23, 111, 139, maxColorValue = 255),
+  zelena = rgb(152, 197, 118, maxColorValue = 255),
+  vijolicna = rgb(50, 20, 67, maxColorValue = 255),
+  sinja = rgb(102, 138, 182, maxColorValue = 255),
+  crna = "#000000",
+  gridlines = rgb(191, 191, 191, maxColorValue = 255),
+  emph = rgb(80, 87, 94, maxColorValue = 255)
+)
+
+umar_colours_colourblind <- c(
+  oranzna = "#E69F00",
+  modra_neb = "#56B4E9",
+  zelena_cb = "#009E73",
+  rumena = "#F0E442",
+  modra = "#0072B2",
+  rdeca_cb = "#D55E00",
+  roza_cb = "#CC79A7",
+  crna = "#000000",
+  gridlines = rgb(191, 191, 191, maxColorValue = 255),
+  emph = rgb(80, 87, 94, maxColorValue = 255)
+)
 
 # lookup for unit translation
 unit_lookup <- structure(list(id = c(1L, 2L, 3L, 4L, 8L, 14L, 18L, 31L, 32L,
@@ -29,5 +44,5 @@ unit_lookup <- structure(list(id = c(1L, 2L, 3L, 4L, 8L, 14L, 18L, 31L, 32L,
           row.names = c(NA,
                         -20L), class = c("tbl_df", "tbl", "data.frame"))
 
-usethis::use_data(umar_colours, unit_lookup, internal = TRUE, overwrite = TRUE)
+usethis::use_data(umar_colours_default, umar_colours_colourblind, unit_lookup, internal = TRUE, overwrite = TRUE)
 

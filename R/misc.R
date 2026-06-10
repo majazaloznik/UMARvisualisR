@@ -1005,10 +1005,15 @@ end_controlled_plot <- function(temp_file) {
 #' @export
 umar_cols <- function(...) {
   cols <- c(...)
-  if (is.null(cols)) {
-    out <- umar_colours
+  active <- if (umar_palette() == "janez" | umar_palette() == "Janez") {
+    umar_colours_colourblind
   } else {
-    out <- umar_colours[cols]
+    umar_colours_default
+  }
+  if (is.null(cols)) {
+    out <- active
+  } else {
+    out <- active[cols]
   }
   structure(out, class = c("umar_palette", "character"))
 }

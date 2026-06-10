@@ -14,3 +14,23 @@ umar_font <- function(family = NULL) {
     invisible(family)
   }
 }
+
+
+.umar_env$palette <- "default"
+
+#' Get or set the active UMAR colour palette
+#'
+#' The default is the UMAR-style palette used in all official publications.
+#' The alternative is the Janez-style colour blindness palette. Set it once per
+#' session!
+#'
+#' @param palette "default" or "Janez" (or "janez"). Omit to get current value.
+#' @return active palette name (invisibly when setting)
+#' @export
+umar_palette <- function(palette) {
+  if (missing(palette)) return(.umar_env$palette)
+  if (!palette %in% c("default", "janez", "Janez"))
+    stop("palette must be 'default' or 'Janez'.")
+  .umar_env$palette <- palette
+  invisible(palette)
+}
