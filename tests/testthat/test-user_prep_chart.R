@@ -126,7 +126,7 @@ test_that("wrong number of colours errors", {
 
 test_that("out of range colour index errors", {
   df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
-  expect_error(prep_chart(df, colours = 9), "Colour index must be between 1 and 8")
+  expect_error(prep_chart(df, colours = 10), "Colour index must be between 1 and 9")
 })
 
 # === prep_chart: date limits ===
