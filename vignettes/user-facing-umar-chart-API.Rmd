@@ -138,6 +138,11 @@ Ker je dovoljenih največ 8 serij, bo avtomatično uporabljenih prvih 8 barv, do
 
 Načeloma lahko tudi direkt uporabiš HEX barve, recimo `colours = "#A10305"`, čeprav to potem ni po našem CGP-ju, ampak ta možnost obstaja. 
 
+
+### `dashed` in `dotted`
+
+Izjemoma je potrebno (ponavadi samo eno) linijo posebej poudariti, kar ponavadi naredimo tako, da ji določimo črno barvo (9, glej zgoraj) in izberemo črtkan način, tako da izberemo `dashed = [indeks izbrane serije]`, recimo `dashed = 3` za tretjo serijo.
+
 ### `xmin` in `xmax` 
 
 Default razpon x-osi je celoten razpon podatkov, ki ga lahko tudi skrajšaš, ponavadi z xmin, ki mora biti v obliki `xmin = "2015-01-01"`
@@ -217,15 +222,17 @@ prep_chart(raw_data[c(1,4:5)],
   view_chart()
 ```
 
-## Kombiniran in naložen 
+## Kombiniran in naložen + črtkana linija
 ```{r}
 prep_chart(raw_data[c(1,3,2, 6)],
-           title = "Več serij - kombiniran in naložen",
+           title = "Več serij - kombiniran in naložen + črtkana linija",
            type = c("bar","bar", "line"),
            stacked = TRUE,
+           dashed = 3,
            y_axis = "Mio EUR",
            legend = paste("Serija", 1:3),
-           colours = c(3,4,1),
+           colours = c(2,1,9),
+           legend_columns = 3,
            xmin = as.Date("2020-01-01"))|> 
   view_chart()
 
@@ -346,6 +353,8 @@ Seznam idej in planov, not in any particular order:
 - razširitev arhitektire za prikaz kategoričnih (ne-časovnih) spremenljivk...
 - ~~posebna barvna paleta za Janeza~~
 - ~~dodana črna barva~~
+- ~~dodana možnost za črtkane in pikčaste linije~~
+
 
 # Za beta testerje
 
