@@ -23,7 +23,7 @@ view_chart <- function(chart) {
     datapoints <- chart$datapoints
 
     # --- set params ---
-    title_ps <- 10
+    title_ps <- 10.5
     legend_ps <- 10
     shapes <- vapply(config$series, \(x) x$type, character(1))
     bar <- any(shapes == "bar")
@@ -74,7 +74,7 @@ view_chart <- function(chart) {
     }
 
     # --- x axis labels ---
-    par(ps = 10)  # match axis label size
+    par(ps = legend_ps)  # match axis label size
     x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks,
                                   x_axis$x_lims, bar, x_values, interval_type = x_axis$interval_type)
 
@@ -84,12 +84,12 @@ view_chart <- function(chart) {
     }
 
     # --- title ---
-    par("ps" = title_ps)
+    # par("ps" = title_ps)
     mtext(top[[3]], side = 3, line = top[[2]], adj = 0, padj = 0,
-          family = umar_font(), font = 2)
+          family = umar_font(), font = 2, cex = title_ps/par("ps"))
 
     # --- y axis labels ---
-    par("ps" = 10)
+    par("ps" = legend_ps)
     left_axis_labels(config$y_axis_label, left$axis_positions,
                      left$axis_labels, left$y_lab_lines)
 
