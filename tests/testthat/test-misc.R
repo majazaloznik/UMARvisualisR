@@ -340,5 +340,9 @@ test_that("get data values works for stacked bar", {
   expect_equal(get_data_values(datapoints, config), c(2,3,4,5,2,3,4,5,4,6,8,10,0))
 })
 
-
+test_that("linestyle_to_lty maps correctly", {
+  expect_equal(UMARvisualisR:::linestyle_to_lty("solid"), 1)
+  expect_equal(UMARvisualisR:::linestyle_to_lty("dashed"), 2)
+  expect_equal(UMARvisualisR:::linestyle_to_lty("dotted"), 3)
+})
 

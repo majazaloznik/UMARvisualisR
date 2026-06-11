@@ -353,3 +353,84 @@ test_that("single-row data preserves category columns", {
   expect_length(chart$datapoints, 1)
   expect_no_error(view_chart(chart))
 })
+
+
+test_that("dashed param accepts integer indices", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10, C = 11:15)
+  chart <- prep_chart(df, dashed = c(1, 3))
+  expect_equal(chart$series[[1]]$linestyle, "dashed")
+  expect_equal(chart$series[[2]]$linestyle, "solid")
+  expect_equal(chart$series[[3]]$linestyle, "dashed")
+})
+
+test_that("dotted param accepts integer indices", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
+  chart <- prep_chart(df, dotted = 2)
+  expect_equal(chart$series[[1]]$linestyle, "solid")
+  expect_equal(chart$series[[2]]$linestyle, "dotted")
+})
+
+test_that("dashed and dotted can combine on different series", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10, C = 11:15)
+  chart <- prep_chart(df, dashed = 1, dotted = 2)
+  expect_equal(chart$series[[1]]$linestyle, "dashed")
+  expect_equal(chart$series[[2]]$linestyle, "dotted")
+  expect_equal(chart$series[[3]]$linestyle, "solid")
+})
+
+test_that("dashed and dotted on same series errors", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
+  expect_error(prep_chart(df, dashed = 1, dotted = 1),
+               "cannot be both dashed and dotted")
+})
+
+test_that("non-integer dashed errors", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  expect_error(prep_chart(df, dashed = 1.5), "must be integer")
+})
+
+test_that("out-of-range dashed errors", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
+  expect_error(prep_chart(df, dashed = 3), "must be between 1 and 2")
+  expect_error(prep_chart(df, dashed = 0), "must be between 1 and 2")
+})
+
+test_that("dashed on bar series is ignored with warning", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
+  expect_warning(
+    chart <- prep_chart(df, type = c("bar", "line"), dashed = 1),
+    "ignored for non-line series"
+  )
+  expect_equal(chart$series[[1]]$linestyle, "solid")
+})
+
+test_that("dashed on mixed series only applies to lines", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10, C = 11:15)
+  expect_warning(
+    chart <- prep_chart(df, type = c("bar", "line", "line"), dashed = c(1, 3)),
+    "ignored for non-line series"
+  )
+  expect_equal(chart$series[[1]]$linestyle, "solid")
+  expect_equal(chart$series[[3]]$linestyle, "dashed")
+})
+
+test_that("default linestyle is solid", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  chart <- prep_chart(df)
+  expect_equal(chart$series[[1]]$linestyle, "solid")
+})
+
+test_that("get_code includes dashed and dotted", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10, C = 11:15)
+  chart <- prep_chart(df, dashed = 1, dotted = 3)
+  code <- get_code(chart)
+  expect_true(grepl("dashed = c(1)", code, fixed = TRUE))
+  expect_true(grepl("dotted = c(3)", code, fixed = TRUE))
+})
+
+test_that("view_chart renders with dashed and dotted without error", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:11,
+                   A = 1:12, B = 13:24, C = 25:36)
+  chart <- prep_chart(df, dashed = 1, dotted = 3)
+  expect_no_error(view_chart(chart))
+})

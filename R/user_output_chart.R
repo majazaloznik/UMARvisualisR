@@ -91,6 +91,16 @@ get_code <- function(chart) {
   coloured_hex <- vapply(colours, \(c) colourise(paste0('"', c, '"'), c), character(1))
   lines <- c(lines, paste0("  colours = c(", paste(coloured_hex, collapse = ", "), "),"))
 
+  # dashed dotted
+  dashed_idx <- which(vapply(chart$series, \(x) x$linestyle == "dashed", logical(1)))
+  dotted_idx <- which(vapply(chart$series, \(x) x$linestyle == "dotted", logical(1)))
+  if (length(dashed_idx)) {
+    lines <- c(lines, paste0("  dashed = c(", paste(dashed_idx, collapse = ", "), "),"))
+  }
+  if (length(dotted_idx)) {
+    lines <- c(lines, paste0("  dotted = c(", paste(dotted_idx, collapse = ", "), "),"))
+  }
+
   # xmin/xmax
   if (!is.null(chart$config$xmin)) {
     lines <- c(lines, paste0('  xmin = "', chart$config$xmin, '",'))

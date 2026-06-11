@@ -11,6 +11,8 @@ prep_chart(
   y_axis = NULL,
   legend = NULL,
   colours = NULL,
+  dashed = NULL,
+  dotted = NULL,
   xmin = NULL,
   xmax = NULL,
   stacked = FALSE,
@@ -37,6 +39,10 @@ or unique group values (long).}
 
 \item{colours}{integer vector (indices into UMAR palette) or character vector
 (hex colours). Defaults to sequential palette colours.}
+
+\item{dashed}{integer vector for which series should be drawn dashed}
+
+\item{dotted}{integer vector for which series should be drawn dotted}
 
 \item{xmin}{Date or character coercible to Date. Left x-axis limit.}
 

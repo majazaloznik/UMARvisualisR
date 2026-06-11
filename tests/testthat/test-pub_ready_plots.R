@@ -426,12 +426,12 @@ test_that("cut_to_x_range ignores non-overlapping user range", {
 })
 
 # === draw_lines with single line series on combo chart ===
-
+### fix tomorrow!
 test_that("draw_lines handles single line series in combo chart", {
   plot(1, 1, xlim = c(0, 10), ylim = c(0, 10))
   config <- list(series = list(
     list(type = "bar", colour = "#A10305"),
-    list(type = "line", colour = "#4A6FB5")
+    list(type = "line", colour = "#4A6FB5", linestyle = "solid")
   ))
   datapoints <- list(
     data.frame(date = 1:4, value = c(2, 3, 4, 5)),

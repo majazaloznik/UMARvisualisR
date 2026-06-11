@@ -14,5 +14,5 @@ You can install the development version of UMARvisualisR from [GitHub](https://g
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("majazaloznik/UMARvisualisR")
+devtools::install_github("majazaloznik/UMARvisualisR", build_vignettes = TRUE)
 ```

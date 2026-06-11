@@ -135,6 +135,7 @@ to_internal_config <- function(chart) {
     list(
       type = s$type,
       colour = s$colour,
+      linestyle = s$linestyle,
       legend_txt_si = s$legend_txt,
       legend_txt_en = s$legend_txt,
       unit = chart$config$y_axis %||% "",

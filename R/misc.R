@@ -1027,3 +1027,15 @@ print.umar_palette <- function(x, ...) {
   }
   invisible(x)
 }
+
+#' Convert linestyle to lty
+#'
+#' Internal function
+#'
+#' @param style auto passed
+#'
+#' @return nothing, closes the png device
+#' @keywords internal
+linestyle_to_lty <- function(style) {
+  switch(style, solid = 1, dashed = 2, dotted = 3, 1)
+}

@@ -19,6 +19,8 @@
 #'   or unique group values (long).
 #' @param colours integer vector (indices into UMAR palette) or character vector
 #'   (hex colours). Defaults to sequential palette colours.
+#' @param dashed integer vector for which series should be drawn dashed
+#' @param dotted integer vector for which series should be drawn dotted
 #' @param xmin Date or character coercible to Date. Left x-axis limit.
 #' @param xmax Date or character coercible to Date. Right x-axis limit.
 #' @param stacked logical, stack bar series. Defaults to FALSE.
@@ -41,6 +43,8 @@ prep_chart <- function(data,
                        y_axis = NULL,
                        legend = NULL,
                        colours = NULL,
+                       dashed = NULL,
+                       dotted = NULL,
                        xmin = NULL,
                        xmax = NULL,
                        stacked = FALSE,
@@ -115,6 +119,28 @@ prep_chart <- function(data,
   }
   # --- validate colours ---
   colours <- validate_colours(colours, n_series)
+
+  # --- validate line styles ---
+  validate_linestyle <- function(x, name, n_series, type) {
+    if (is.null(x)) return(NULL)
+    if (!is.numeric(x) || !all(x == round(x)))
+      stop(name, " must be integer index/indices.")
+    if (any(x < 1 | x > n_series))
+      stop(name, " indices must be between 1 and ", n_series, ".")
+    non_line <- x[type[x] != "line"]
+    if (length(non_line)) {
+      warning(name, " ignored for non-line series: ", paste(non_line, collapse = ", "))
+      x <- x[type[x] == "line"]
+    }
+    if (length(x) == 0) NULL else x
+  }
+  dashed <- validate_linestyle(dashed, "dashed", n_series, type)
+  dotted <- validate_linestyle(dotted, "dotted", n_series, type)
+
+  if (length(intersect(dashed, dotted))) {
+    stop("A series cannot be both dashed and dotted: ",
+         paste(intersect(dashed, dotted), collapse = ", "))
+  }
 
   # --- validate dates ---
   xmin <- validate_date(xmin, "xmin")
@@ -215,11 +241,15 @@ prep_chart <- function(data,
   )
 
   series <- lapply(seq_len(n_series), function(i) {
+    style <- if (i %in% dashed) "dashed"
+    else if (i %in% dotted) "dotted"
+    else "solid"
     list(
       series_name = parsed$series_names[i],
       type = type[i],
       colour = colours[i],
-      legend_txt = legend[i]
+      legend_txt = legend[i],
+      linestyle = style
     )
   })
 

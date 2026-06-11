@@ -218,12 +218,15 @@ create_legend <- function(config, legend_ps, language = "si") {
   par("ps" = legend_ps)
   par(family = umar_font())
   lwd <- lty <- series_types <- vapply(config$series, \(x) x$type, character(1))
+
   line_colours <- bar_colours <- series_colours <- vapply(config$series, \(x) x$colour, character(1))
   if(language == "si"){ # switch languages
     legend_labels <- vapply(config$series, \(x) x$legend_txt_si, character(1))} else {
       legend_labels <- vapply(config$series, \(x) x$legend_txt_en, character(1))}
-  lty[series_types == "line"] <- 1
-  lty[series_types != "line"] <- NA
+  lty <- vapply(config$series, function(s) {
+    if (s$type != "line") NA
+    else linestyle_to_lty(s$linestyle)
+  }, numeric(1))
   lwd[series_types == "line"] <- 2
   lwd[series_types != "line"] <- NA
   line_colours[series_types != "line"] <- NA
@@ -559,16 +562,22 @@ draw_lines <- function(datapoints, config, x_values = NULL){
     numeric_cols <- line_datapoints[, sapply(line_datapoints, is.numeric), drop = FALSE]
 
     x_values <- interpolate_x(x_values$dates, x_values$midpoints, line_datapoints$date)
+    line_styles <- vapply(config$series[series_types == "line"],
+                          \(x) x$linestyle, character(1))
     for (i in 1:ncol(numeric_cols)) {
       y_values <- numeric_cols[[i]]
       lines(x_values[!is.na(y_values)], na.omit(y_values),
-            col=line_colours[i], type="l", lwd = 2)
+            col = line_colours[i], type = "l", lwd = 2,
+            lty = linestyle_to_lty(line_styles[i]))
     }
+
   } else {# means there are only only lines
     line_colours <- vapply(config$series, \(x) x$colour, character(1))
+    line_styles <- vapply(config$series, \(x) x$linestyle, character(1))
     for (i in 1:length(datapoints)) {
-      lines(datapoints[[i]]$date, datapoints[[i]]$value ,
-            col=line_colours[i], type="l", lwd = 2)
+      lines(datapoints[[i]]$date, datapoints[[i]]$value,
+            col = line_colours[i], type = "l", lwd = 2,
+            lty = linestyle_to_lty(line_styles[i]))
     }
   }
 }
