@@ -177,7 +177,10 @@ get_top_margin_and_title <- function(config, title_ps){
   par(mar = mar)
   plot.window(c(0,10), c(0,10))
 
-  legend_lines <- get_legend_lines(config$series, config$legend_columns)
+  n_visible <- sum(!is.na(vapply(config$series, function(s) {
+    if (!is.null(s$legend_txt_si)) s$legend_txt_si else s$legend_txt
+  }, character(1))))
+  legend_lines <- get_legend_lines(n_visible, config$legend_columns)
   par("ps" = title_ps)
   title <- wrap_title(config$title, font = 2)
   title_lines <- title[[2]]
@@ -217,33 +220,48 @@ get_top_margin_and_title <- function(config, title_ps){
 create_legend <- function(config, legend_ps, language = "si") {
   par("ps" = legend_ps)
   par(family = umar_font())
-  lwd <- lty <- series_types <- vapply(config$series, \(x) x$type, character(1))
+  series_types <- vapply(config$series, \(x) x$type, character(1))
+  series_colours <- vapply(config$series, \(x) x$colour, character(1))
 
-  line_colours <- bar_colours <- series_colours <- vapply(config$series, \(x) x$colour, character(1))
-  if(language == "si"){ # switch languages
-    legend_labels <- vapply(config$series, \(x) x$legend_txt_si, character(1))} else {
-      legend_labels <- vapply(config$series, \(x) x$legend_txt_en, character(1))}
+  if (language == "si") {
+    legend_labels <- vapply(config$series, \(x) x$legend_txt_si, character(1))
+  } else {
+    legend_labels <- vapply(config$series, \(x) x$legend_txt_en, character(1))
+  }
+
   lty <- vapply(config$series, function(s) {
-    if (s$type != "line") NA
-    else linestyle_to_lty(s$linestyle)
+    if (s$type != "line") NA_real_
+    else as.numeric(linestyle_to_lty(s$linestyle))
   }, numeric(1))
-  lwd[series_types == "line"] <- 2
-  lwd[series_types != "line"] <- NA
-  line_colours[series_types != "line"] <- NA
-  bar_colours[series_types == "line"] <- NA
-  legend_mz2(par("usr")[[1]] , par("usr")[[4]] + diff(par("usr")[3:4]) * 0.01,
+
+  lwd <- ifelse(series_types == "line", 2, NA)
+  line_colours <- ifelse(series_types == "line", series_colours, NA)
+  # bars AND areas get fill swatches
+  fill_colours <- ifelse(series_types %in% c("bar", "area"), series_colours, NA)
+  area_mask <- series_types == "area"
+  if (any(area_mask)) {
+    fill_colours[area_mask] <- grDevices::adjustcolor(fill_colours[area_mask], alpha.f = 0.5)
+  }
+  # drop NA labels (e.g. second area series)
+  keep <- !is.na(legend_labels)
+  legend_labels <- legend_labels[keep]
+  lty <- lty[keep]
+  lwd <- lwd[keep]
+  line_colours <- line_colours[keep]
+  fill_colours <- fill_colours[keep]
+
+  legend_mz2(par("usr")[[1]], par("usr")[[4]] + diff(par("usr")[3:4]) * 0.01,
              legend_labels,
-             lty = as.numeric(lty),
+             lty = lty,
              lwd = lwd,
              col = line_colours,
-             fill = bar_colours,
+             fill = fill_colours,
              ncol = config$legend_columns,
              xjust = 0,
              yjust = 0,
              x.intersp = 0.2,
              y.intersp = 0.8)
 }
-
 #' Get x_axis lims and tickmarks
 #'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
@@ -570,14 +588,15 @@ draw_lines <- function(datapoints, config, x_values = NULL){
             col = line_colours[i], type = "l", lwd = 2,
             lty = linestyle_to_lty(line_styles[i]))
     }
-
   } else {# means there are only only lines
-    line_colours <- vapply(config$series, \(x) x$colour, character(1))
-    line_styles <- vapply(config$series, \(x) x$linestyle, character(1))
-    for (i in 1:length(datapoints)) {
+    line_indices <- which(vapply(config$series, \(x) x$type == "line", logical(1)))
+    line_colours <- vapply(config$series[line_indices], \(x) x$colour, character(1))
+    line_styles <- vapply(config$series[line_indices], \(x) x$linestyle, character(1))
+    for (idx in seq_along(line_indices)) {
+      i <- line_indices[idx]
       lines(datapoints[[i]]$date, datapoints[[i]]$value,
-            col = line_colours[i], type = "l", lwd = 2,
-            lty = linestyle_to_lty(line_styles[i]))
+            col = line_colours[idx], type = "l", lwd = 2,
+            lty = linestyle_to_lty(line_styles[idx]))
     }
   }
 }
@@ -650,5 +669,50 @@ my_special_barplot <- function(data_matrix, ...){
   } else {
     # If original call had add = TRUE it's already in ...
     barplot(negative_data, ...)
+  }
+}
+
+
+#' Draw area or ribbon shading
+#'
+#' Draws filled polygons for series with type = "area". One area series
+#' shades from baseline (0 by default, 100 for index charts) to the series
+#' values. Two area series shade the region between them.
+#'
+#' @param datapoints list of date+value dataframes
+#' @param config internal config with series info
+#' @param y_axis_label character y-axis label for baseline detection
+#' @keywords internal
+draw_areas <- function(datapoints, config, y_axis_label) {
+  series_types <- vapply(config$series, \(x) x$type, character(1))
+  area_indices <- which(series_types == "area")
+  n_area <- length(area_indices)
+  if (n_area == 0) return(invisible())
+
+  fill <- grDevices::adjustcolor(umar_cols("siva"), alpha.f = 0.5)
+
+  if (n_area == 1) {
+    # single area: shade from baseline to values
+    baseline <- if (!is.null(y_axis_label) &&
+                    grepl("indeks|index", y_axis_label, ignore.case = TRUE)) 100 else 0
+    df <- datapoints[[area_indices[1]]]
+    df <- df[!is.na(df$value), ]
+    if (nrow(df) < 2) return(invisible())
+    x <- c(df$date, rev(df$date))
+    y <- c(df$value, rep(baseline, nrow(df)))
+    polygon(x, y, col = fill, border = NA)
+
+  } else if (n_area == 2) {
+    # ribbon between two series
+    df1 <- datapoints[[area_indices[1]]]
+    df2 <- datapoints[[area_indices[2]]]
+    # join on date so we shade only where both exist
+    merged <- merge(df1, df2, by = "date", suffixes = c("_1", "_2"))
+    merged <- merged[stats::complete.cases(merged), ]
+    merged <- merged[order(merged$date), ]
+    if (nrow(merged) < 2) return(invisible())
+    x <- c(merged$date, rev(merged$date))
+    y <- c(merged$value_1, rev(merged$value_2))
+    polygon(x, y, col = fill, border = NA)
   }
 }

@@ -8,11 +8,12 @@
 #' series. Column names become legend labels by default.
 #'
 #' Long format: exactly three columns — one Date, one numeric (values), one
-#' character or factor (series names).
+#' character or factor (series names) or multiple character or factor which get
+#' concatented into series names unless legend in given.
 #'
 #' @param data dataframe in wide or long format
 #' @param type character, either a single value applied to all series or a vector
-#'   of per-series values. Valid: "line", "bar". Defaults to "line".
+#'   of per-series values. Valid: "line", "bar" or "area" (for max 2 series). Defaults to "line".
 #' @param title character, chart title. Defaults to NULL (no title).
 #' @param y_axis character, y-axis label. Defaults to NULL.
 #' @param legend character vector of legend labels. Defaults to column names (wide)
@@ -111,6 +112,14 @@ prep_chart <- function(data,
   # --- validate type ---
   type <- validate_type(type, n_series)
 
+  # --- validate area ---
+  area_indices <- which(type == "area")
+  n_area <- length(area_indices)
+  if (n_area > 2) {
+    stop("Maximum 2 series can be type 'area' (single area or ribbon between two).")
+  }
+
+  # --- validate series number
   if (n_series > 8) {
     warning("Maximum 8 series supported. Keeping the first 8.")
     parsed$datapoints <- parsed$datapoints[1:8]
@@ -118,7 +127,18 @@ prep_chart <- function(data,
     n_series <- 8
   }
   # --- validate colours ---
-  colours <- validate_colours(colours, n_series)
+  area_indices <- which(type == "area")
+  # warn if user explicitly passed non-NA colours for area positions
+  if (!is.null(colours) && length(area_indices) > 0) {
+    explicit <- colours[area_indices]
+    explicit_non_na <- explicit[!is.na(explicit)]
+    if (length(explicit_non_na)) {
+      warning("Colours for area series are always gray. Ignoring user value(s) at position(s): ",
+              paste(area_indices[!is.na(explicit)], collapse = ", "),
+              ". Use NA to suppress this warning.")
+    }
+  }
+  colours <- validate_colours(colours, n_series, area_indices)
 
   # --- validate line styles ---
   validate_linestyle <- function(x, name, n_series, type) {
@@ -217,12 +237,28 @@ prep_chart <- function(data,
 
   parsed$datapoints <- center_dates(parsed$datapoints)
   # --- build legend ---
-  if (is.null(legend)) {
-    legend <- parsed$series_names
-  } else {
-    if (length(legend) != n_series) {
-      stop(paste0("legend must have ", n_series, " elements (one per series)."))
+  legend_arg <- legend  # save before defaults fill in
+  # if user supplied legend, check length, allow NA at area positions
+  if (!is.null(legend_arg)) {
+    if (length(legend_arg) != n_series) {
+      stop("legend must have ", n_series, " elements.")
     }
+    legend <- legend_arg
+  } else {
+    legend <- parsed$series_names
+  }
+
+  # area legend handling
+  if (length(area_indices) >= 1) {
+    if (length(area_indices) == 2) {
+      second <- area_indices[2]
+      if (!is.null(legend_arg) && !is.na(legend_arg[second])) {
+        warning("Legend for second area series ignored. ",
+                "Use NA at position ", second, " to suppress.")
+      }
+      legend[second] <- NA
+    }
+    # first area series legend stays as-is (either user-supplied or column name)
   }
 
   # --- build config ---
@@ -345,8 +381,8 @@ parse_long <- function(data) {
 #' Validate and recycle type argument
 #' @keywords internal
 validate_type <- function(type, n_series) {
-  valid <- c("line", "bar")
-  if (!all(type %in% valid)) stop("type must be 'line' or 'bar'.")
+  valid <- c("line", "bar", "area")
+  if (!all(type %in% valid)) stop("type must be 'line' or 'bar' or 'area'.")
 
   if (length(type) == 1) {
     rep(type, n_series)
@@ -359,27 +395,35 @@ validate_type <- function(type, n_series) {
 
 #' Validate and fill colours
 #' @keywords internal
-validate_colours <- function(colours, n_series) {
+validate_colours <- function(colours, n_series, area_indices = integer(0)) {
   palette <- umar_cols()
-
   if (is.null(colours)) {
-    return(unname(palette[seq_len(n_series)]))
-  }
-
-  if (length(colours) != n_series) {
-    stop(paste0("colours must have ", n_series, " elements (one per series)."))
-  }
-
-  vapply(colours, function(c) {
-    if (is.numeric(c)) {
-      if (c < 1 || c > 9) stop("Colour index must be between 1 and 9.")
-      unname(palette[c])
-    } else if (is.character(c) && grepl("^#", c)) {
-      c
-    } else {
-      stop("colours must be integers (1-9) or hex strings (e.g. '#A10305').")
+    out <- unname(palette[seq_len(n_series)])
+  } else {
+    if (length(colours) != n_series) {
+      stop(paste0("colours must have ", n_series, " elements (one per series)."))
     }
-  }, character(1))
+    out <- vapply(seq_along(colours), function(i) {
+      c <- colours[[i]]
+      if (is.na(c)) {
+        if (i %in% area_indices) return(NA_character_)
+        stop("Colour at position ", i, " is NA but series is not area type.")
+      }
+      if (is.numeric(c)) {
+        if (c < 1 || c > 9) stop("Colour index must be between 1 and 9.")
+        unname(palette[c])
+      } else if (is.character(c) && grepl("^#", c)) {
+        c
+      } else {
+        stop("colours must be integers (1-9) or hex strings (e.g. '#A10305').")
+      }
+    }, character(1))
+  }
+  # fill area positions with gray
+  if (length(area_indices)) {
+    out[area_indices] <- unname(umar_cols("siva"))
+  }
+  out
 }
 
 #' Validate date argument

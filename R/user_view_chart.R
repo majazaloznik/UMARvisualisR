@@ -28,7 +28,7 @@ view_chart <- function(chart) {
     shapes <- vapply(config$series, \(x) x$type, character(1))
     bar <- any(shapes == "bar")
     line <- any(shapes == "line")
-
+    area <- any(shapes == "area")
     # --- cut data to x limits ---
     datapoints <- cut_to_x_range(datapoints, config)
 
@@ -62,15 +62,19 @@ view_chart <- function(chart) {
     if (!bar) {
       empty_plot(x_axis$x_lims, y_axis, config$y_axis_label)
       draw_emphasis(chart$config$emphasis, config$y_axis_label, y_axis$ylim)
+      draw_areas(datapoints, config, config$y_axis_label)
       draw_lines(datapoints, config)
       x_values <- NULL
     }
     if (bar) {
       x_values <- base_barplot(datapoints, config, y_axis)
       draw_emphasis(chart$config$emphasis, config$y_axis_label, y_axis$ylim)
+      if(area)  stop("Oh no, you cannot combine a bar chart with an area chart.")
+
     }
     if (bar & line) {
       draw_lines(datapoints, config, x_values = x_values)
+      if(area)  stop("Oh no, you cannot combine a bar chart with an area chart.")
     }
 
     # --- x axis labels ---

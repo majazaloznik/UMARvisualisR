@@ -405,17 +405,14 @@ wrap_title <- function(title, max_width = NULL, cex = 1, family = umar_font(), f
 
 #' helper function to get number of lines required for the legend
 #'
-#' @param elements string of legend entries
+#' @param n_elements number of legend elements
 #' @param columns numeric value of number of columns
 #'
 #' @return integer value
 #' @export
 #'
-get_legend_lines <- function(elements, columns){
-  if (length(elements) == 1) {lines <- 0} else {
-    lines <- ceiling(length(elements) / columns)
-  }
-  lines
+get_legend_lines <- function(n_elements, columns){
+  if (n_elements <= 1) 0 else ceiling(n_elements / columns)
 }
 
 #' My legend function

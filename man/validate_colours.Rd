@@ -4,7 +4,7 @@
 \alias{validate_colours}
 \title{Validate and fill colours}
 \usage{
-validate_colours(colours, n_series)
+validate_colours(colours, n_series, area_indices = integer(0))
 }
 \description{
 Validate and fill colours

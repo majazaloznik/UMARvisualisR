@@ -103,19 +103,19 @@ test_that("text wrapping works correctly", {
 })
 
 
-test_that("legend lines work correctly", {
+test_that("legend works correctly", {
   config <- readRDS(testthat::test_path("testdata", "config.rds"))
-  x <- get_legend_lines(config$series, config$legend_columns)
+  x <- get_legend_lines(length(config$series), config$legend_columns)
   expect_equal(x, 1)
-  x <- get_legend_lines(config$series, 1)
+  x <- get_legend_lines(length(config$series), 1)
   expect_equal(x, 2)
-  expect_equal(get_legend_lines("s1", 1), 0)
-  expect_equal(get_legend_lines("s1", 2), 0)
-  expect_equal(get_legend_lines(c("s1", "s2"), 1), 2)
-  expect_equal(get_legend_lines(c("s1", "s2"), 2), 1)
-  expect_equal(get_legend_lines(c("s1", "s2"), 3), 1)
-  expect_equal(get_legend_lines(c("s1", "s2", "s3"), 2), 2)
-  expect_equal(get_legend_lines(c("s1", "s2", "s3"), 3), 1)
+  expect_equal(get_legend_lines(1, 1), 0)
+  expect_equal(get_legend_lines(1, 2), 0)
+  expect_equal(get_legend_lines(2, 1), 2)
+  expect_equal(get_legend_lines(2, 2), 1)
+  expect_equal(get_legend_lines(2, 3), 1)
+  expect_equal(get_legend_lines(3, 2), 2)
+  expect_equal(get_legend_lines(3, 3), 1)
 })
 
 test_that("year_squisher_medium works correctly", {

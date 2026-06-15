@@ -28,7 +28,7 @@ prep_chart(
 \item{data}{dataframe in wide or long format}
 
 \item{type}{character, either a single value applied to all series or a vector
-of per-series values. Valid: "line", "bar". Defaults to "line".}
+of per-series values. Valid: "line", "bar" or "area" (for max 2 series). Defaults to "line".}
 
 \item{title}{character, chart title. Defaults to NULL (no title).}
 
@@ -79,5 +79,6 @@ Wide format: first column is date (Date class), remaining columns are numeric
 series. Column names become legend labels by default.
 
 Long format: exactly three columns — one Date, one numeric (values), one
-character or factor (series names).
+character or factor (series names) or multiple character or factor which get
+concatented into series names unless legend in given.
 }

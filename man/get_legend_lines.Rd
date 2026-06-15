@@ -4,10 +4,10 @@
 \alias{get_legend_lines}
 \title{helper function to get number of lines required for the legend}
 \usage{
-get_legend_lines(elements, columns)
+get_legend_lines(n_elements, columns)
 }
 \arguments{
-\item{elements}{string of legend entries}
+\item{n_elements}{number of legend elements}
 
 \item{columns}{numeric value of number of columns}
 }

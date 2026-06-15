@@ -105,6 +105,13 @@ Funkcija `prep_chart()` rabi samo `data` argument, ostali so opcijski
 
 Default je `"line"`. Alternativa je `"bar"`. Če hočeš kombinirati oba tipa, potem moraš napisati vektor v dolžini števila prikazanih spremenljivk, recimo `c("line", "bar", "line")`.
 
+Dodana je tudi možnost `"area"`, ki pa deluje samo v dveh primerih:
+
+- če je samo ena serija izbrana, potem se svetlo sivo obarva površina med serijo in `y=0` (oz., če gre za indeks `y=100`)
+- če gre za dve seriji, se s svetlo sivo obarva površina med njima (uporabno za min-max).
+
+*Area tudi deluje samo v kombinaciji z line, ne pa bar.*
+
 ### `title`
 
 Naslov, ki se izpiše na vrhu grafa. Default je prazen.
@@ -258,6 +265,26 @@ chart5 |>
 
 ```
 
+## Min-max area kombiniran z linijskim 
+
+Pri `"area"` grafih je potrebno biti malo bolj pozoren:
+
+- čeprav sta dve seriji tipa "area", bo upoštevan samo en vnos za legendo
+- barva je avtomatično transparentna siva, zato ne bosta upoštevana vnosa za barvo. 
+
+**Vektorja za `legend` in `colours` morata biti vseeno vedno enako dolga kot število serij.** Vnosi, ki se ne bodo upoštevali so lahko zaradi večje preglednosti tudi `NA` kot v primeru spodaj.
+
+```{r, fig.width = 5.33, fig.height = 3.54}
+prep_chart(raw_data[c(1,4,9,5,8)], # poleg obdobja so izbrani še štirje stolpci s podatki
+           title = "Area + linijski",
+           y_axis = "Mio EUR",
+           type = c("line", "line", "area", "area"),
+           legend = c("Slovenija",  "EU", "min-max",  NA),
+           colours = c(1,5,NA, NA),
+           legend_columns = 3,
+           xmin = as.Date("2020-01-01"))|> 
+  view_chart() 
+```
 
 # Ogled grafa
 
