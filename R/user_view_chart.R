@@ -50,7 +50,10 @@ view_chart <- function(chart) {
     left <- left_axis_label_width(config, y_axis)
     if (is.null(config$y_axis_label)) config$y_axis_label <- left$unit
 
-    # in view_chart(), after left_axis_label_width() and before left_axis_labels():
+    # format numeric labels with separators
+    left$axis_labels <- format(left$axis_labels, big.mark = ".", decimal.mark = ",",
+                               scientific = FALSE)
+
     if (!bar && y_axis$ylim[1] > 0) {
       left$axis_labels[1] <- "//"
     }
@@ -101,10 +104,10 @@ view_chart <- function(chart) {
     if (length(x_axis$tickmarks) > 0 && all(is.finite(x_axis$tickmarks))) {
       if (bar) {
         axis(1, at = x_axis$tickmarks, col = umar_cols("gridlines"),
-             lwd = 0, lwd.ticks = 1, tck = -0.02, labels = FALSE)
+             lwd = 0, lwd.ticks = 1, tck = -0.015, labels = FALSE)
       } else {
         axis.Date(1, at = x_axis$tickmarks, col = umar_cols("gridlines"),
-                  lwd = 0, lwd.ticks = 1, tck = -0.02, labels = FALSE)
+                  lwd = 0, lwd.ticks = 1, tck = -0.015, labels = FALSE)
       }
     }
 

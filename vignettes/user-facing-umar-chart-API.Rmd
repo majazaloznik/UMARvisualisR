@@ -30,7 +30,7 @@ Pred prvo uporabo je treba
 
 ```
 # install.packages("devtools")
-devtools::install_github("majazaloznik/UMARvisualisR")
+devtools::install_github("majazaloznik/UMARvisualisR", build_vignettes = TRUE)
 ```
 Potem je knjižnica na voljo za uporabo:
 
@@ -381,6 +381,8 @@ Seznam idej in planov, not in any particular order:
 - ~~posebna barvna paleta za Janeza~~
 - ~~dodana črna barva~~
 - ~~dodana možnost za črtkane in pikčaste linije~~
+- ~~dodan "area" type za eno ali dve seriji~~
+
 
 
 # Za beta testerje

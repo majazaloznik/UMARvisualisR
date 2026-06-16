@@ -572,18 +572,21 @@ legend_mz2 <- function(x = par("usr")[[1]],
 #' @export
 #'
 left_axis_label_width <- function(config, y_axis) {
-  axis_labels <- y_axis$y_breaks
+  axis_labels_num <- y_axis$y_breaks
   axis_positions <- y_axis$y_breaks
   unit <- unique(unlist(purrr::map(config$series, ~ .x$unit)))
   mio_eur <- unique(unlist(purrr::map(config$series, ~ .x$mio_eur)))
   if (length(unit) == 1 && unit == "EUR" & mio_eur) {
-    axis_labels <- axis_labels / 1000000
+    axis_labels_num <- axis_labels_num / 1000000
     unit <- "Mio EUR"
   }
-  # measure the widest actual label
-  formatted_labels <- format(axis_labels, big.mark = ".", decimal.mark = ",",
-                             scientific = FALSE)
-  widths <- strwidth(formatted_labels, units = "inches")
+  axis_labels <- format(axis_labels_num, big.mark = ".", decimal.mark = ",",
+                        scientific = FALSE)
+  # measure at the same ps as actual rendering
+  old_ps <- par("ps")
+  par(ps = 10)
+  widths <- strwidth(axis_labels, units = "inches")
+  par(ps = old_ps)
   y_lab_lines <- max(widths) / par("csi") + 0.5
   current_mar <- par("mar")
   current_mar[2] <- y_lab_lines + 1
@@ -604,8 +607,7 @@ left_axis_label_width <- function(config, y_axis) {
 left_axis_labels <- function(unit, axis_positions, axis_labels, y_lab_lines){
   par(mgp=c(3,0.5,0), xpd = FALSE)
   axis(2, at = axis_positions,
-       labels = format(axis_labels, big.mark = ".", decimal.mark = ",",
-                       scientific = FALSE),
+       labels = axis_labels,
        col = umar_cols("gridlines"), lwd = 0,  tck = 0.0,
        las = 2,  family =umar_font())
   mtext(unit, side = 2,

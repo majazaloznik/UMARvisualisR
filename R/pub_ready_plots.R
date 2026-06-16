@@ -172,7 +172,7 @@ get_top_margin_and_title <- function(config, title_ps){
 
   plot.new()
   mar <- par("mar")
-  mar[1] <- 1.6
+  mar[1] <- 1.2
   mar[4] <- 0.7
   par(mar = mar)
   plot.window(c(0,10), c(0,10))
@@ -198,7 +198,7 @@ get_top_margin_and_title <- function(config, title_ps){
 
   current_mar <- par("mar")
   current_mar[3] <- lines
-  current_mar[1] <- 1.6
+  current_mar[1] <- 1.2
   current_mar[4] <- 0.7
   par(mar = current_mar)
 

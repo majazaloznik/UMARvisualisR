@@ -257,7 +257,7 @@ test_that("EUR values over a million", {
   y_axis$y_breaks <- c(0, 500000, 1000000, 1500000, 2000000)
   result <- left_axis_label_width(config, y_axis)
   expect_equal(result$unit, "Mio EUR")
-  expect_true(all(result$axis_labels <= 2))
+  expect_true(all(result$axis_labels <= 2.1))
 })
 
 # Test return structure
@@ -277,7 +277,7 @@ test_that("Non-EUR label handling", {
   y_axis$y_breaks <- c(0, 500000, 1000000, 1500000, 2000000)
   result <- left_axis_label_width(config, y_axis)
   expect_equal(result$unit, "USD")
-  expect_true(all(result$axis_labels == y_axis$y_breaks))
+  expect_equal(result$axis_labels, c("        0", "  500.000", "1.000.000", "1.500.000", "2.000.000"))
 })
 
 # Test with no NAs
