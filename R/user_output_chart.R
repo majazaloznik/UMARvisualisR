@@ -127,7 +127,10 @@ get_code <- function(chart) {
     lines <- c(lines, paste0("  ylim = c(", chart$config$ylim[1], ", ",
                              chart$config$ylim[2], "),"))
   }
-
+  # notes
+  if (!is.null(chart$config$note)) {
+    lines <- c(lines, paste0("  note = ", chart$config$note))
+  }
   # transformations
   if (!is.null(chart$config$rolling)) {
     lines <- c(lines, paste0("  rolling = ", chart$config$rolling, ","))

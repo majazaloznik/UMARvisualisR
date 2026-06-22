@@ -434,3 +434,147 @@ test_that("view_chart renders with dashed and dotted without error", {
   chart <- prep_chart(df, dashed = 1, dotted = 3)
   expect_no_error(view_chart(chart))
 })
+
+
+# === Area charts ===
+
+test_that("single area series creates area type", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  chart <- prep_chart(df, type = "area")
+  expect_equal(chart$series[[1]]$type, "area")
+})
+
+test_that("area series colour is forced to gray", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
+  chart <- prep_chart(df, type = c("area", "line"))
+  expect_equal(chart$series[[1]]$colour, as.character(unname(umar_cols("siva"))))
+})
+
+test_that("explicit area colour triggers warning", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
+  expect_warning(
+    prep_chart(df, type = c("area", "line"), colours = c(1, 5)),
+    "always gray"
+  )
+})
+
+test_that("NA at area position suppresses colour warning", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
+  expect_no_warning(
+    prep_chart(df, type = c("area", "line"), colours = c(NA, 5))
+  )
+})
+
+test_that("two area series creates ribbon", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4,
+                   min = 1:5, max = 11:15, line = 6:10)
+  chart <- prep_chart(df, type = c("area", "area", "line"))
+  expect_equal(chart$series[[1]]$type, "area")
+  expect_equal(chart$series[[2]]$type, "area")
+})
+
+test_that("more than two area series errors", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4,
+                   A = 1:5, B = 6:10, C = 11:15)
+  expect_error(
+    prep_chart(df, type = c("area", "area", "area")),
+    "Maximum 2"
+  )
+})
+
+test_that("second area series legend is set to NA", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4,
+                   min = 1:5, max = 11:15)
+  chart <- prep_chart(df, type = c("area", "area"))
+  expect_equal(chart$series[[1]]$legend_txt, "min")
+  expect_true(is.na(chart$series[[2]]$legend_txt))
+})
+
+test_that("explicit second area legend triggers warning", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4,
+                   min = 1:5, max = 11:15)
+  expect_warning(
+    prep_chart(df, type = c("area", "area"), legend = c("Range min", "Range max")),
+    "second area series ignored"
+  )
+})
+
+test_that("dashed cannot be applied to area series", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, A = 1:5, B = 6:10)
+  expect_warning(
+    chart <- prep_chart(df, type = c("area", "line"), dashed = 1),
+    "ignored for non-line"
+  )
+  expect_equal(chart$series[[1]]$linestyle, "solid")
+})
+
+test_that("view_chart renders area without error", {
+  df <- data.frame(date = seq(as.Date("2020-01-01"), by = "month", length.out = 12),
+                   value = 1:12)
+  chart <- prep_chart(df, type = "area")
+  expect_no_error(view_chart(chart))
+})
+
+test_that("view_chart renders ribbon without error", {
+  df <- data.frame(date = seq(as.Date("2020-01-01"), by = "month", length.out = 12),
+                   min = 1:12, max = 11:22)
+  chart <- prep_chart(df, type = c("area", "area"))
+  expect_no_error(view_chart(chart))
+})
+
+# === Notes below chart ===
+
+test_that("note is stored in config", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  chart <- prep_chart(df, note = "Source: SURS.")
+  expect_equal(chart$config$note, "Source: SURS.")
+})
+
+test_that("NULL note has no bottom impact", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  chart <- prep_chart(df)
+  expect_null(chart$config$note)
+  expect_no_error(view_chart(chart))
+})
+
+test_that("note with explicit linebreak wraps to multiple lines", {
+  result <- UMARvisualisR:::get_bottom_margin_and_note(
+    "Source: SURS.\nNote: April figure used for Q2."
+  )
+  expect_length(result$wrapped, 2)
+  expect_equal(result$wrapped[1], "Source: SURS.")
+})
+
+test_that("empty note returns minimal margin", {
+  result <- UMARvisualisR:::get_bottom_margin_and_note("")
+  expect_length(result$wrapped, 0)
+  expect_equal(result$lines, 1.2)
+})
+
+test_that("NULL note returns minimal margin", {
+  result <- UMARvisualisR:::get_bottom_margin_and_note(NULL)
+  expect_length(result$wrapped, 0)
+})
+
+test_that("view_chart renders chart with note without error", {
+  df <- data.frame(date = seq(as.Date("2020-01-01"), by = "month", length.out = 12),
+                   value = 1:12)
+  chart <- prep_chart(df, note = "Source: SURS, calculations by UMAR.")
+  expect_no_error(view_chart(chart))
+})
+
+test_that("view_chart renders chart with multiline note", {
+  df <- data.frame(date = seq(as.Date("2020-01-01"), by = "month", length.out = 12),
+                   value = 1:12)
+  chart <- prep_chart(df,
+                      note = "Source: SURS.\nNote: Q2 2026 value is April.")
+  expect_no_error(view_chart(chart))
+})
+
+test_that("get_code includes note", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  chart <- prep_chart(df, note = "Source: SURS.")
+  code <- get_code(chart)
+  expect_true(grepl("note = ", code))
+  expect_true(grepl("Source: SURS", code))
+})
