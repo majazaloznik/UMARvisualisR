@@ -205,6 +205,68 @@ get_top_margin_and_title <- function(config, title_ps){
   return(list(lines, title_pos, wrapped_title))
 }
 
+#' Helper to get the bottom margin and wrapped note lines
+#'
+#' Uses a blind plot to measure the wrapped note text at 9pt, returns
+#' the bottom margin in lines and the wrapped lines for rendering.
+#'
+#' @param note character string, possibly with \\n breaks
+#' @param note_ps font size for note, defaults 9
+#'
+#' @return list with bottom margin in lines and wrapped note lines
+#' @keywords internal
+get_bottom_margin_and_note <- function(note, note_ps = 9) {
+  if (is.null(note) || note == "") {
+    current_mar <- par("mar")
+    current_mar[1] <- 1.2
+    par(mar = current_mar)
+    return(list(lines = 1.2, wrapped = character(0)))
+  }
+
+  dev_size <- dev.size("in")
+  mar_in <- par("mar") * par("csi")  # margins in inches
+  plot_width_in <- dev_size[1] - mar_in[2] - mar_in[4]
+
+  real_dev <- dev.cur()
+  tmp <- tempfile(fileext = ".pdf")
+  grDevices::cairo_pdf(tmp, width = dev_size[1], height = dev_size[2])
+  tmp_dev <- dev.cur()
+  plot.new()
+  par(ps = note_ps)
+
+  raw_lines <- strsplit(note, "\n", fixed = TRUE)[[1]]
+  wrapped <- unlist(lapply(raw_lines, function(line) {
+    line_w_in <- strwidth(line, units = "inches")
+    if (line_w_in <= plot_width_in) return(line)
+    words <- strsplit(line, " ")[[1]]
+    out <- character(0)
+    current <- ""
+    for (w in words) {
+      candidate <- if (current == "") w else paste(current, w)
+      if (strwidth(candidate, units = "inches") <= plot_width_in) {
+        current <- candidate
+      } else {
+        out <- c(out, current)
+        current <- w
+      }
+    }
+    c(out, current)
+  }))
+
+  dev.off(tmp_dev)
+  unlink(tmp)
+  dev.set(real_dev)
+
+  gap <- 0
+  note_height_lines <- length(wrapped) * 0.8
+  total_lines <- 0.8 + gap + note_height_lines + 0.3
+
+  current_mar <- par("mar")
+  current_mar[1] <- total_lines
+  par(mar = current_mar)
+
+  list(lines = total_lines, wrapped = wrapped)
+}
 
 #' Create legend
 #'

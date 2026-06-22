@@ -35,6 +35,7 @@
 #' or month in 2023M03 format
 #' @param ylim numeric(2) manual y-axis limits, e.g. c(90, 120).
 #' NULL (default) auto-detects. Ignored for bar charts (must include 0).
+#' @param note character string, possibly with \\n breaks
 #'
 #' @return An object of class "umar_chart" containing the data and config.
 #' @export
@@ -54,7 +55,8 @@ prep_chart <- function(data,
                        rolling = NULL,
                        growth = NULL,
                        index = NULL,
-                       ylim = NULL) {
+                       ylim = NULL,
+                       note = NULL) {
 
   # --- first sanity check ---
   if (!is.data.frame(data)) stop("data must be a data.frame.")
@@ -273,7 +275,8 @@ prep_chart <- function(data,
     rolling = rolling,
     growth = growth,
     index = index,
-    ylim = ylim
+    ylim = ylim,
+    note = note
   )
 
   series <- lapply(seq_len(n_series), function(i) {

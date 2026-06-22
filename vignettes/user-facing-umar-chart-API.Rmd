@@ -166,6 +166,14 @@ Poudarjanje vzporednih gridline-ov lahko kontroliraš z recimo  `emphasis = 100`
 
 Defualt je 2, gre za število stolpcev legende. Recimo, če so zelo dolge oznake, lahko daš `legend_columns = 1`.
 
+### `note`
+
+Pod grafom je možno dodati tudi opombo. Če je opomba predolga, se bo sama prelomila v novo vrstico, če pa jo želiš sam prelomiti, to narediš tako da dodaš `"\n"` tam, kjer želiš prelom (brez presledka!). npr:
+
+```
+..., note = "Vir: Surs.\nOpomba2, ta se pojavi v novi vrstici.", ...
+```
+
 ## Transformacije
 
 Obstaja tudi enostavna funkcionalnost za transformiranje serij, ki deluje *na vse serije naenkrat*. Možno je dodati drsečo sredino (`rolling`), medletne, četrtletne in mesečne rasti (`growth`) in izračunati indeks z določeno osnovo (`index`):
@@ -265,7 +273,7 @@ chart5 |>
 
 ```
 
-## Min-max area kombiniran z linijskim 
+## Min-max area kombiniran z linijskim in z opombo
 
 Pri `"area"` grafih je potrebno biti malo bolj pozoren:
 
@@ -282,7 +290,8 @@ prep_chart(raw_data[c(1,4,9,5,8)], # poleg obdobja so izbrani še štirje stolpc
            legend = c("Slovenija",  "EU", "min-max",  NA),
            colours = c(1,5,NA, NA),
            legend_columns = 3,
-           xmin = as.Date("2020-01-01"))|> 
+           xmin = as.Date("2020-01-01"),
+           note = "Vir: SURS. \nOpomba v drugi vrstici.")|> 
   view_chart() 
 ```
 

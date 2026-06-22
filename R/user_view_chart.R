@@ -60,6 +60,7 @@ view_chart <- function(chart) {
 
     # --- top margin ---
     top <- get_top_margin_and_title(config, title_ps = title_ps)
+    bottom <- get_bottom_margin_and_note(config$note)
 
     # --- draw ---
     if (!bar) {
@@ -118,6 +119,16 @@ view_chart <- function(chart) {
            col = umar_cols("gridlines"), lwd = 0, tck = 0,
            family = umar_font(), padj = 0.5, gap.axis = 0.25)
     }
+    # --- note ---
+    if (length(bottom$wrapped) > 0) {
+      par(ps = 9)
+      for (i in seq_along(bottom$wrapped)) {
+        mtext(bottom$wrapped[i], side = 1,
+              line = 0.8 + (i - 1) * 0.8,
+              adj = 0, at = par("usr")[1],
+              family = umar_font())
+      }
+    }
 
     invisible(chart)
   }, warning = function(w) {
@@ -159,7 +170,8 @@ to_internal_config <- function(chart) {
     legend_columns = chart$config$legend_columns,
     x_sub_annual = FALSE,
     dual_y = FALSE,
-    series = series
+    series = series,
+    note = chart$config$note
   )
 }
 

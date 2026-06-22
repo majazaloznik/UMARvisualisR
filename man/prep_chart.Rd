@@ -21,7 +21,8 @@ prep_chart(
   rolling = NULL,
   growth = NULL,
   index = NULL,
-  ylim = NULL
+  ylim = NULL,
+  note = NULL
 )
 }
 \arguments{
@@ -65,6 +66,8 @@ or month in 2023M03 format}
 
 \item{ylim}{numeric(2) manual y-axis limits, e.g. c(90, 120).
 NULL (default) auto-detects. Ignored for bar charts (must include 0).}
+
+\item{note}{character string, possibly with \\n breaks}
 }
 \value{
 An object of class "umar_chart" containing the data and config.
