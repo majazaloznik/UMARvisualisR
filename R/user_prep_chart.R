@@ -36,6 +36,8 @@
 #' @param ylim numeric(2) manual y-axis limits, e.g. c(90, 120).
 #' NULL (default) auto-detects. Ignored for bar charts (must include 0).
 #' @param note character string, possibly with \\n breaks
+#' @param forecast character or date vector of lenght 2 to determine extend of
+#' gray background shading.
 #'
 #' @return An object of class "umar_chart" containing the data and config.
 #' @export
@@ -56,7 +58,8 @@ prep_chart <- function(data,
                        growth = NULL,
                        index = NULL,
                        ylim = NULL,
-                       note = NULL) {
+                       note = NULL,
+                       forecast = NULL) {
 
   # --- first sanity check ---
   if (!is.data.frame(data)) stop("data must be a data.frame.")
@@ -182,6 +185,16 @@ prep_chart <- function(data,
     if (!is.numeric(emphasis)) stop("emphasis must be NULL, FALSE, or a numeric vector.")
   }
 
+  # in prep_chart() validation
+  if (!is.null(forecast)) {
+    if (!is.character(forecast) && !inherits(forecast, "Date") || length(forecast) != 2) {
+      stop("forecast must be a character or Date vector of length 2.")
+    }
+    forecast <- as.Date(forecast)
+    if (is.na(forecast[1]) || is.na(forecast[2])) stop("forecast dates couldn't be parsed.")
+    if (forecast[1] >= forecast[2]) stop("forecast[1] must be earlier than forecast[2].")
+  }
+
   # --- validate y_axis ---
   if (!is.null(y_axis) && (!is.character(y_axis) || length(y_axis) != 1)) {
     stop("y_axis is the axis title and must be a single character string. For manual axis limits use ylim.")
@@ -276,7 +289,8 @@ prep_chart <- function(data,
     growth = growth,
     index = index,
     ylim = ylim,
-    note = note
+    note = note,
+    forecast = forecast
   )
 
   series <- lapply(seq_len(n_series), function(i) {

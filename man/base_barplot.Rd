@@ -4,7 +4,7 @@
 \alias{base_barplot}
 \title{Base barplot}
 \usage{
-base_barplot(datapoints, config, y_axis)
+base_barplot(datapoints, config, y_axis, forecast = NULL)
 }
 \arguments{
 \item{datapoints}{list of dataframes from \link[UMARvisualisR]{prep_data}}
@@ -12,6 +12,8 @@ base_barplot(datapoints, config, y_axis)
 \item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
 
 \item{y_axis}{output of \link[UMARvisualisR]{find_pretty_ylim}}
+
+\item{forecast}{forecast param}
 }
 \value{
 midpoints, of course also plots a barplot to open device

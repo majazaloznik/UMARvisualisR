@@ -578,3 +578,65 @@ test_that("get_code includes note", {
   expect_true(grepl("note = ", code))
   expect_true(grepl("Source: SURS", code))
 })
+
+
+test_that("forecast must be length 2", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  expect_error(prep_chart(df, forecast = "2024-01-01"), "length 2")
+  expect_error(prep_chart(df, forecast = c("2024-01-01", "2025-01-01", "2026-01-01")),
+               "length 2")
+})
+
+test_that("forecast accepts character or Date input", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  c1 <- prep_chart(df, forecast = c("2024-01-01", "2025-01-01"))
+  c2 <- prep_chart(df, forecast = as.Date(c("2024-01-01", "2025-01-01")))
+  expect_equal(c1$config$forecast, c2$config$forecast)
+  expect_s3_class(c1$config$forecast, "Date")
+})
+
+test_that("forecast start must precede end", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  expect_error(prep_chart(df, forecast = c("2025-01-01", "2024-01-01")),
+               "earlier than")
+})
+
+test_that("forecast with invalid date errors", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  expect_error(prep_chart(df, forecast = c("not-a-date", "2025-01-01")))
+})
+
+test_that("forecast stored in config", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  chart <- prep_chart(df, forecast = c("2024-01-01", "2025-01-01"))
+  expect_equal(chart$config$forecast, as.Date(c("2024-01-01", "2025-01-01")))
+})
+
+test_that("NULL forecast leaves config unchanged", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  chart <- prep_chart(df)
+  expect_null(chart$config$forecast)
+})
+
+test_that("view_chart with forecast renders for line chart", {
+  df <- data.frame(date = seq(as.Date("2020-01-01"), by = "month", length.out = 24),
+                   value = 1:24)
+  chart <- prep_chart(df, forecast = c("2021-01-01", "2021-06-01"))
+  expect_no_error(view_chart(chart))
+})
+
+test_that("view_chart with forecast renders for bar chart", {
+  df <- data.frame(date = seq(as.Date("2020-01-01"), by = "year", length.out = 5),
+                   value = 1:5)
+  chart <- prep_chart(df, type = "bar", forecast = c("2022-01-01", "2024-01-01"))
+  expect_no_error(view_chart(chart))
+})
+
+
+test_that("get_code includes forecast", {
+  df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
+  chart <- prep_chart(df, forecast = c("2024-01-01", "2025-01-01"))
+  code <- get_code(chart)
+  expect_true(grepl("forecast = ", code))
+  expect_true(grepl("2024-01-01", code))
+})

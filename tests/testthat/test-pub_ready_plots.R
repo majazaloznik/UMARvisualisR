@@ -521,3 +521,17 @@ test_that("monthly tickmarks have equal spacing for regular monthly data", {
   expect_true(all(datapoints[[1]]$date >= out$x_lims[1]))
   expect_true(all(datapoints[[1]]$date <= out$x_lims[2]))
 })
+
+test_that("draw_forecast skips bar charts", {
+  plot.new()
+  plot.window(c(0, 10), c(0, 10))
+  expect_invisible(UMARvisualisR:::draw_forecast(
+    as.Date(c("2024-01-01", "2025-01-01")), bar = TRUE
+  ))
+})
+
+test_that("draw_forecast skips NULL", {
+  plot.new()
+  plot.window(c(0, 10), c(0, 10))
+  expect_invisible(UMARvisualisR:::draw_forecast(NULL, bar = FALSE))
+})

@@ -22,7 +22,8 @@ prep_chart(
   growth = NULL,
   index = NULL,
   ylim = NULL,
-  note = NULL
+  note = NULL,
+  forecast = NULL
 )
 }
 \arguments{
@@ -68,6 +69,9 @@ or month in 2023M03 format}
 NULL (default) auto-detects. Ignored for bar charts (must include 0).}
 
 \item{note}{character string, possibly with \\n breaks}
+
+\item{forecast}{character or date vector of lenght 2 to determine extend of
+gray background shading.}
 }
 \value{
 An object of class "umar_chart" containing the data and config.

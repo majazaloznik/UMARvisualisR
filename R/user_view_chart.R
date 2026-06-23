@@ -66,12 +66,12 @@ view_chart <- function(chart) {
     if (!bar) {
       empty_plot(x_axis$x_lims, y_axis, config$y_axis_label)
       draw_emphasis(chart$config$emphasis, config$y_axis_label, y_axis$ylim)
+      draw_forecast(chart$config$forecast, bar = FALSE, x_values = NULL)
       draw_areas(datapoints, config, config$y_axis_label)
       draw_lines(datapoints, config)
-      x_values <- NULL
     }
     if (bar) {
-      x_values <- base_barplot(datapoints, config, y_axis)
+      x_values <- base_barplot(datapoints, config, y_axis, forecast = chart$config$forecast)
       draw_emphasis(chart$config$emphasis, config$y_axis_label, y_axis$ylim)
       if(area)  stop("Oh no, you cannot combine a bar chart with an area chart.")
 

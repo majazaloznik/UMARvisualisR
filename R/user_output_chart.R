@@ -127,6 +127,13 @@ get_code <- function(chart) {
     lines <- c(lines, paste0("  ylim = c(", chart$config$ylim[1], ", ",
                              chart$config$ylim[2], "),"))
   }
+
+  # forecast
+  if (!is.null(chart$config$forecast)) {
+    lines <- c(lines, paste0("  forecast = c(", chart$config$forecast[1], ", ",
+                             chart$config$forecast[2], "),"))
+  }
+
   # notes
   if (!is.null(chart$config$note)) {
     lines <- c(lines, paste0("  note = ", chart$config$note))

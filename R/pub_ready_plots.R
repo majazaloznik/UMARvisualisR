@@ -105,11 +105,12 @@ empty_plot <- function(x_lims, y_axis, y_axis_label){
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param y_axis output of \link[UMARvisualisR]{find_pretty_ylim}
+#' @param forecast forecast param
 #'
 #' @return midpoints, of course also plots a barplot to open device
 #' @export
 #'
-base_barplot <- function(datapoints, config, y_axis){
+base_barplot <- function(datapoints, config, y_axis, forecast = NULL){
   series_types <- vapply(config$series, \(x) x$type, character(1))
   series_colours <- vapply(config$series, \(x) x$colour, character(1))
   bar_colours <- series_colours[series_types == "bar"]
@@ -119,12 +120,11 @@ base_barplot <- function(datapoints, config, y_axis){
   dates <- bar_datapoints$date
   if (config$stacked) beside <- FALSE else
     beside <- TRUE
-
   bar_datapoints <- t(as.matrix(bar_datapoints[,-1]))
   bar_datapoints[is.na(bar_datapoints)] <- 0
   if(beside) spacing <- c(0.1, 0.33) else
     spacing <- 0.33
-  # plot emptty barplot
+  # plot empty barplot
   midpoints <- barplot(bar_datapoints, beside = beside,
                        axes = FALSE, ylim = y_axis$ylim, border = NA, col = NA,
                        panel.first={grid(nx = NA, ny = length(y_axis$y_breaks) - 1,
@@ -136,16 +136,22 @@ base_barplot <- function(datapoints, config, y_axis){
     abline(h = 100, col = umar_cols("emph"), lwd = 1.1)}
   if(in_range_strict(0, y_axis$ylim))  {
     abline(h = 0, col = umar_cols("emph"), lwd = 1.1)}
-
+  # forecast rectangle (under bars)
+  if (!is.null(forecast)) {
+    usr <- par("usr")
+    xleft <- interpolate_x(dates, midpoints, as.Date(forecast[1]))
+    xright <- interpolate_x(dates, midpoints, as.Date(forecast[2]))
+    rect(xleft, usr[3], xright, usr[4],
+         col = grDevices::adjustcolor(umar_cols("gridlines"), alpha.f = 0.5),
+         border = NA)
+  }
   # plot over gridlines
   my_special_barplot(bar_datapoints, beside = beside,
                      axes = FALSE, ylim = y_axis$ylim, col = bar_colours, border = NA,
                      space = spacing, xpd = FALSE, add = TRUE)
   box(col = umar_cols("gridlines"), lwd = 1.1)
-
   mget(c("midpoints", "dates"))
 }
-
 #' Helper funciton to get the number of lines for the top margin and title position
 #'
 #' A bit of an eclectic function, but there's no way around it. This funciton
@@ -777,4 +783,28 @@ draw_areas <- function(datapoints, config, y_axis_label) {
     y <- c(merged$value_1, rev(merged$value_2))
     polygon(x, y, col = fill, border = NA)
   }
+}
+
+#' Draw forecast shading rectangle
+#'
+#' Draws a translucent grey rectangle from \code{forecast[1]} to
+#' \code{forecast[2]} spanning the full height of the plot area. Used to
+#' indicate periods of forecast or projected data. For bar charts, the
+#' rectangle is drawn inside \link[UMARvisualisR]{base_barplot} instead.
+#'
+#' @param forecast Date vector of length 2 (start and end), or NULL to skip.
+#' @param bar logical, TRUE if bar chart (skips drawing; bars handle it).
+#' @param x_values list with dates and midpoints, for interpolation. NULL for line charts.
+#'
+#' @return nothing, draws to open device
+#' @keywords internal
+draw_forecast <- function(forecast, bar, x_values = NULL) {
+  if (is.null(forecast)) return(invisible())
+  if (bar) return(invisible())  # bars handle forecast in base_barplot
+  usr <- graphics::par("usr")
+  xleft <- as.numeric(forecast[1])
+  xright <- as.numeric(forecast[2])
+  graphics::rect(xleft, usr[3], xright, usr[4],
+                 col = grDevices::adjustcolor(umar_cols("gridlines"), alpha.f = 0.5),
+                 border = NA)
 }
