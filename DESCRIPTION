@@ -1,7 +1,7 @@
 Package: UMARvisualisR
 Type: Package
 Title: Publication-ready UMAR-style charts
-Version: 1.1.0
+Version: 1.2.0
 Authors@R: c(
     person(
       "Maja", "Založnik",
@@ -13,7 +13,6 @@ Description: Drawing time series charts using UMAR's corporate visual identity.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
 Suggests: 
     covr,
     dittodb,
@@ -38,3 +37,4 @@ Imports:
 Remotes:
   majazaloznik/UMARaccessR
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.1.0

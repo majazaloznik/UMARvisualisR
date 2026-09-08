@@ -115,3 +115,4 @@ transform_index <- function(df, base_period){
     dplyr::mutate(value = value/base_value*100)
   list(df = df, base_period = base_period)
 }
+

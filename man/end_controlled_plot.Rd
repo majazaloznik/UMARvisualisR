@@ -6,9 +6,6 @@
 \usage{
 end_controlled_plot(temp_file)
 }
-\arguments{
-\item{temp_file}{}
-}
 \value{
 nothing, closes the png device
 }

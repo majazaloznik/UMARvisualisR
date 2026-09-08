@@ -182,11 +182,13 @@ Predvsem za uporabo pri napovedi, da lahko s svetlo sivo označiš pravokotnik o
 
 ## Transformacije
 
-Obstaja tudi enostavna funkcionalnost za transformiranje serij, ki deluje *na vse serije naenkrat*. Možno je dodati drsečo sredino (`rolling`), medletne, četrtletne in mesečne rasti (`growth`) in izračunati indeks z določeno osnovo (`index`):
+Obstaja tudi funkcionalnost za transformiranje serij. Možno je dodati drsečo sredino (`rolling`), medletne, četrtletne in mesečne rasti (`growth`) in izračunati indeks z določeno osnovo (`index`). Transformacije je mogoče (i) aplicirati na vse serije naenkrat ali (ii) na vsako serij posebej - v tem primeru mora imeti vektor enako dolžino kot je število serij in pri tem moraš uporabiti `NA` za serije, ki se ne transformirajo.
+
+**Pazi**: rast, glajenje in indeksiranje ima v grafih načeloma smisel samo, če je aplicirano na vse serije naenkrat. Možnost (ii) je zato namenena predvsem preskakovanju serij, ki transformacije ne rabijo (ker so že pravilno transformirane), ne pa da v istem grafu uporabiš npr. različne indekse ali različna obdobja glajenja. V tem primeru, bo funkcija izdala opozorilo. 
 
 ### `rolling`
 
-Izbereš število obdobij, recimo `rolling = 3` bi izračunal drsečo sredino za zadnja tri obdobja (karkoli so). Drseče sredine so vse desno poravnane, ker v glavnem samo to uporabljamo, če bo potreba, lahko dodamo tudi "c".
+Izbereš število obdobij, recimo `rolling = 3` bi izračunal drsečo sredino za zadnja tri obdobja (karkoli so). Drseče sredine so vse desno poravnane, ker v glavnem samo to uporabljamo, če bo potreba, lahko dodamo tudi "c". Če želiš recimo hkrati prikazati zglajeno in originalno serijo, potem moraš imeti isto serijo dvakrat v `data` in potem uporabiti `rolling = c(3, NA)`, tako bo ena ostala nedotaknjena, druga pa zglajena. 
 
 ### `growth`
 
@@ -196,6 +198,7 @@ Možne so tri opcije:
 2. `"QOQ"` izračuna rast glede na prejšnje četrtletje - deluje samo, če so podatki četrtletni.
 3. `"MOM"` izračuna rast glede na prejšnji mesec - deluje samo, če so podatki mesečni.
 
+Spet lahko uporabiš transformacijo na vseh serijah naenkrat, ali pa samo na izbranih serijah: `index = c("YOY", NA, NA)`. 
 
 ### `index`
 
@@ -205,6 +208,7 @@ Izračuna indeks glede na bazno obdobje, ki je lahko v eni od treh oblik:
 2. četrtletje `index = 2015Q1`, deluje samo na četrtletnih podatkih
 3. mesec: `index = 2015M01`, deluje samo na mesečnih podatkih
 
+Spet lahko uporabiš transformacijo na vseh serijah naenkrat, ali pa samo na izbranih serijah: `index = c(2020, NA, NA)`. 
 ### `ylim`
 
 Ročna določitev y-osi namesto avtomatične, npr. kadar hočeš prikazati več grafov vzporedno z isto y-osjo. Vektor z dvema številkama, kjer je prva manjša od druge:
@@ -384,7 +388,7 @@ Seznam idej in planov, not in any particular order:
 - dvojne y-osi...
 - možnost dodatnih formatov po želji, za prezentacije recimo
 - opcija za dodajanje opomb spodaj
-- možnost izvajanja transformacij na posameznih serijah ločeno
+- ~~možnost izvajanja transformacij na posameznih serijah ločeno~~
 - možnost ponovne uporabe iste serije (da je lahko enkrat zglajena in enkrat originalna recimo)
 - integracija v shiny app, da lahko ne-R-sodelavci direkt uploadajo svoje podatke in dobijo ven lep graf. (in potem seveda še dodajajo serije iz baze, ampak otompotom).
 - ~~ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli, zaenkrat to pade na Mojco~~

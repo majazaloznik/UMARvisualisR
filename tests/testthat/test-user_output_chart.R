@@ -42,3 +42,12 @@ test_that("save_chart rejects invalid size", {
   chart <- prep_chart(df)
   expect_error(save_chart(chart, "test.pdf", size = 5), "size must be")
 })
+
+test_that("get_code round-trips per-series transforms", {
+  df <- data.frame(date = seq(as.Date("2015-01-01"), by = "quarter", length.out = 20),
+                   A = 1:20, B = 21:40)
+  chart <- prep_chart(df, rolling = c(4, NA), growth = c(NA, "YOY"))
+  code <- get_code(chart)
+  expect_true(grepl("rolling = c(4, NA)", code, fixed = TRUE))
+  expect_true(grepl('growth = c(NA, "YOY")', code, fixed = TRUE))
+})

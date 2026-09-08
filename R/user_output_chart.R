@@ -139,15 +139,19 @@ get_code <- function(chart) {
     lines <- c(lines, paste0("  note = ", chart$config$note))
   }
   # transformations
-  if (!is.null(chart$config$rolling)) {
-    lines <- c(lines, paste0("  rolling = ", chart$config$rolling, ","))
+  fmt_arg <- function(x, quoted = FALSE) {
+    q <- function(v) if (quoted) paste0('"', v, '"') else as.character(v)
+    if (length(x) == 1) return(q(x))
+    elems <- ifelse(is.na(x), "NA", q(x))
+    paste0("c(", paste(elems, collapse = ", "), ")")
   }
-  if (!is.null(chart$config$growth)) {
-    lines <- c(lines, paste0('  growth = "', chart$config$growth, '",'))
-  }
-  if (!is.null(chart$config$index)) {
-    lines <- c(lines, paste0('  index = "', chart$config$index, '",'))
-  }
+
+  if (!is.null(chart$config$rolling))
+    lines <- c(lines, paste0("  rolling = ", fmt_arg(chart$config$rolling), ","))
+  if (!is.null(chart$config$growth))
+    lines <- c(lines, paste0("  growth = ", fmt_arg(chart$config$growth, quoted = TRUE), ","))
+  if (!is.null(chart$config$index))
+    lines <- c(lines, paste0("  index = ", fmt_arg(chart$config$index, quoted = TRUE), ","))
 
   # legend_columns
   lines <- c(lines, paste0("  legend_columns = ", chart$config$legend_columns, ")"))

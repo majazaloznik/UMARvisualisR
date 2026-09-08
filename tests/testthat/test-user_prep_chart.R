@@ -223,8 +223,8 @@ test_that("rolling average works", {
 
 test_that("invalid rolling errors", {
   df <- data.frame(date = as.Date("2020-01-01") + 0:4, value = 1:5)
-  expect_error(prep_chart(df, rolling = 1), "rolling must be a single integer >= 2")
-  expect_error(prep_chart(df, rolling = c(2, 3)), "rolling must be a single integer >= 2")
+  expect_error(prep_chart(df, rolling = 1), "rolling must be NA or an integer >= 2")
+  expect_no_error(prep_chart(df, rolling = c(2)))
 })
 
 test_that("growth sets y_axis to %", {
@@ -639,4 +639,45 @@ test_that("get_code includes forecast", {
   code <- get_code(chart)
   expect_true(grepl("forecast = ", code))
   expect_true(grepl("2024-01-01", code))
+})
+
+test_that("different index base periods warn", {
+  df <- data.frame(date = seq(as.Date("2015-01-01"), by = "quarter", length.out = 20),
+                   A = 1:20, B = 21:40)
+  expect_warning(
+    prep_chart(df, index = c("2015Q1", "2016Q1")),
+    "Different index base period values"
+  )
+})
+
+test_that("same index base period does not warn", {
+  df <- data.frame(date = seq(as.Date("2015-01-01"), by = "quarter", length.out = 20),
+                   A = 1:20, B = 21:40)
+  expect_no_warning(prep_chart(df, index = "2015Q1"))
+  expect_no_warning(prep_chart(df, index = c("2015Q1", "2015Q1")))
+})
+
+test_that("index on one series only does not warn", {
+  df <- data.frame(date = seq(as.Date("2015-01-01"), by = "quarter", length.out = 20),
+                   A = 1:20, B = 21:40)
+  expect_no_warning(prep_chart(df, index = c("2015Q1", NA)))
+})
+
+test_that("different growth types across series warn", {
+  df <- data.frame(date = seq(as.Date("2015-01-01"), by = "quarter", length.out = 20),
+                   A = 1:20, B = 21:40)
+  expect_warning(prep_chart(df, growth = c("YOY", "QOQ")), "Different growth values")
+})
+
+test_that("different rolling windows across series warn", {
+  df <- data.frame(date = seq(as.Date("2015-01-01"), by = "quarter", length.out = 20),
+                   A = 1:20, B = 21:40)
+  expect_warning(prep_chart(df, rolling = c(4, 8)), "Different rolling values")
+})
+
+test_that("same transform with NA skips does not warn", {
+  df <- data.frame(date = seq(as.Date("2015-01-01"), by = "quarter", length.out = 20),
+                   A = 1:20, B = 21:40)
+  expect_no_warning(prep_chart(df, rolling = c(4, NA)))
+  expect_no_warning(prep_chart(df, growth = c("YOY", NA)))
 })

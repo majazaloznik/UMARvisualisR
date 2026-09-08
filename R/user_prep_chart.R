@@ -114,6 +114,18 @@ prep_chart <- function(data,
 
   n_series <- length(parsed$series_names)
 
+  # expand transformations, so scalars work
+  expand_transform <- function(x, n_series, name) {
+    if (is.null(x)) return(NULL)
+    if (length(x) == 1) return(rep(x, n_series))
+    if (length(x) != n_series)
+      stop(name, " must be length 1 or ", n_series, " (one per series).")
+    x
+  }
+  rolling <- expand_transform(rolling, n_series, "rolling")
+  growth  <- expand_transform(growth,  n_series, "growth")
+  index   <- expand_transform(index,   n_series, "index")
+
   # --- validate type ---
   type <- validate_type(type, n_series)
 
@@ -201,26 +213,47 @@ prep_chart <- function(data,
   }
   # --- validate transformations ---
   if (!is.null(rolling)) {
-    if (!is.numeric(rolling) || length(rolling) != 1 || rolling < 2)
-      stop("rolling must be a single integer >= 2.")
+    if (!is.numeric(rolling)) stop("rolling must be numeric (or NA per series).")
+    bad <- !is.na(rolling) & (rolling < 2 | rolling != round(rolling))
+    if (any(bad)) stop("rolling must be NA or an integer >= 2.")
   }
+
   if (!is.null(growth)) {
-    if (!growth %in% c("YOY", "QOQ", "MOM"))
-      stop("growth must be 'YOY', 'QOQ', or 'MOM'.")
-    if (growth == "QOQ" && determine_interval(parsed$datapoints[[1]]) != "Q")
-      stop("QOQ growth requires quarterly data.")
-    if (growth == "MOM" && determine_interval(parsed$datapoints[[1]]) != "M")
-      stop("MOM growth requires monthly data.")
+    bad <- !is.na(growth) & !growth %in% c("YOY", "QOQ", "MOM")
+    if (any(bad)) stop("growth must be 'YOY', 'QOQ', 'MOM', or NA.")
+    for (i in which(!is.na(growth))) {
+      int <- determine_interval(parsed$datapoints[[i]])
+      if (growth[i] == "QOQ" && (is.na(int) || int != "Q"))
+        stop("QOQ growth requires quarterly data (series ", i, ").")
+      if (growth[i] == "MOM" && (is.na(int) || int != "M"))
+        stop("MOM growth requires monthly data (series ", i, ").")
+    }
   }
 
   if (!is.null(index)) {
-    if (!grepl("^\\d{4}(Q\\d|M\\d{2})?$", index))
-      stop("index must be a year ('2015'), quarter ('2023Q1'), or month ('2023M06').")
-  }
-  if (!is.null(growth) && !is.null(index)) {
-    stop("growth and index are mutually exclusive.")
+    bad <- !is.na(index) & !grepl("^\\d{4}(Q\\d|M\\d{2})?$", index)
+    if (any(bad))
+      stop("index must be a year ('2015'), quarter ('2023Q1'), month ('2023M06'), or NA.")
   }
 
+  if (!is.null(growth) && !is.null(index)) {
+    clash <- which(!is.na(growth) & !is.na(index))
+    if (length(clash))
+      stop("growth and index are mutually exclusive (series ",
+           paste(clash, collapse = ", "), ").")
+  }
+
+  warn_mixed <- function(x, name) {
+    if (is.null(x)) return(invisible())
+    distinct <- unique(x[!is.na(x)])
+    if (length(distinct) > 1) {
+      warning("Different ", name, " values across series (",
+              paste(distinct, collapse = ", "),
+              "). Series will not be directly comparable.")
+    }
+  }
+  warn_mixed(rolling, "rolling")
+  warn_mixed(growth, "growth")
   # --- validate ylim ---
   if (!is.null(ylim)) {
     if (!is.numeric(ylim) || length(ylim) != 2) stop("ylim must be numeric(2).")
@@ -234,23 +267,46 @@ prep_chart <- function(data,
   # reserved for future use
 
   # --- apply transformations ---
+
+
   if (!is.null(rolling)) {
-    parsed$datapoints <- lapply(parsed$datapoints, transform_rolling,
-                                periods = rolling, align = "r")
+    parsed$datapoints <- Map(function(df, p) {
+      if (is.na(p)) df else transform_rolling(df, periods = p, align = "r")
+    }, parsed$datapoints, rolling)
   }
+
   if (!is.null(growth)) {
-    parsed$datapoints <- lapply(parsed$datapoints, transform_growth, type = growth)
-    if (is.null(y_axis)) y_axis <- "%"
+    parsed$datapoints <- Map(function(df, g) {
+      if (is.na(g)) df else transform_growth(df, type = g)
+    }, parsed$datapoints, growth)
+    if (is.null(y_axis) && all(!is.na(growth))) y_axis <- "%"
   }
+
   if (!is.null(index)) {
-    results <- lapply(parsed$datapoints, transform_index, base_period = index)
+    results <- Map(function(df, b) {
+      if (is.na(b)) list(df = df, base_period = NA_character_)
+      else transform_index(df, base_period = b)
+    }, parsed$datapoints, index)
     parsed$datapoints <- lapply(results, `[[`, "df")
-    # use the (possibly corrected) base_period from first series
-    index <- results[[1]]$base_period
-    if (is.null(y_axis)) y_axis <- paste0("Indeks (", index, " = 100)")
+    bases <- vapply(results, \(x) as.character(x$base_period), character(1))
+    distinct <- unique(bases[!is.na(bases)])
+    warn_mixed(bases, "index base period")
+    if (is.null(y_axis) && all(!is.na(bases)) && length(unique(bases)) == 1)
+      y_axis <- paste0("Indeks (", bases[1], " = 100)")
+    index <- bases
   }
 
   parsed$datapoints <- center_dates(parsed$datapoints)
+
+  # collapse transformations back if possible for neat config
+  collapse_transform <- function(x) {
+    if (is.null(x)) return(NULL)
+    if (all(is.na(x))) return(NULL)
+    if (length(unique(x)) == 1) x[1] else x
+  }
+  rolling <- collapse_transform(rolling)
+  growth  <- collapse_transform(growth)
+  index   <- collapse_transform(index)
   # --- build legend ---
   legend_arg <- legend  # save before defaults fill in
   # if user supplied legend, check length, allow NA at area positions
