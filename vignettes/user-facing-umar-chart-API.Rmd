@@ -263,6 +263,20 @@ prep_chart(raw_data[c(1,3,2, 6)],
 
 ```
 
+## Transformacija samo na izbrano serijo: zglajena in originalna hkrati
+```{r}
+prep_chart(raw_data[c(1,3, 3)],
+           title = "Zglajena in originalna linija",
+           type = c("line", "line"),
+           y_axis = "Mio EUR",
+           legend = paste("Serija", 1:2),
+           colours = c(1,3),
+           legend_columns = 2,
+           rolling = c(3, NA),
+           xmin = as.Date("2010-01-01"))|> 
+  view_chart()
+
+```
 ## Zglajen in indeksiran, dolga legenda plus napoved
 ```{r, fig.width = 5.33, fig.height = 3.54}
 chart5 <-  prep_chart(raw_data[c(1,4:5, 8:9)],
