@@ -23,7 +23,8 @@ prep_chart(
   index = NULL,
   ylim = NULL,
   note = NULL,
-  forecast = NULL
+  forecast = NULL,
+  language = "si"
 )
 }
 \arguments{
@@ -72,6 +73,8 @@ NULL (default) auto-detects. Ignored for bar charts (must include 0).}
 
 \item{forecast}{character or date vector of lenght 2 to determine extend of
 gray background shading.}
+
+\item{language}{language option "si" or "en", defaulting to the former}
 }
 \value{
 An object of class "umar_chart" containing the data and config.

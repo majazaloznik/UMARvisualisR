@@ -566,12 +566,13 @@ legend_mz2 <- function(x = par("usr")[[1]],
 #'
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param y_axis output of \link[UMARvisualisR]{find_pretty_ylim}
+#' @param language language, options en and si, defaulg si
 #'
 #' @return list of axis title, axis labels, and
 #' number of lines
 #' @export
 #'
-left_axis_label_width <- function(config, y_axis) {
+left_axis_label_width <- function(config, y_axis, language = "si") {
   axis_labels_num <- y_axis$y_breaks
   axis_positions <- y_axis$y_breaks
   unit <- unique(unlist(purrr::map(config$series, ~ .x$unit)))
@@ -580,8 +581,7 @@ left_axis_label_width <- function(config, y_axis) {
     axis_labels_num <- axis_labels_num / 1000000
     unit <- "Mio EUR"
   }
-  axis_labels <- format(axis_labels_num, big.mark = ".", decimal.mark = ",",
-                        scientific = FALSE)
+  axis_labels <- format_number(axis_labels_num, language)
   # measure at the same ps as actual rendering
   old_ps <- par("ps")
   par(ps = 10)
@@ -980,7 +980,7 @@ start_controlled_plot <- function(width = 800, height = 600) {
 #'
 #' Use temp_file <- start_controlled_plot() and then close and unlink with this
 #'
-#' @param temp_file
+#' @param temp_file temporary file
 #'
 #' @return nothing, closes the png device
 #' @keywords internal
@@ -1037,4 +1037,17 @@ print.umar_palette <- function(x, ...) {
 #' @keywords internal
 linestyle_to_lty <- function(style) {
   switch(style, solid = 1, dashed = 2, dotted = 3, 1)
+}
+
+
+#' Format numbers for axis labels
+#' @param x numeric vector
+#' @param language "si" or "en"
+#' @keywords internal
+format_number <- function(x, language = "si") {
+  if (language == "en") {
+    format(x, big.mark = ",", decimal.mark = ".", scientific = FALSE, trim = TRUE)
+  } else {
+    format(x, big.mark = ".", decimal.mark = ",", scientific = FALSE, trim = TRUE)
+  }
 }

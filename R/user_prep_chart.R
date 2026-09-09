@@ -38,6 +38,7 @@
 #' @param note character string, possibly with \\n breaks
 #' @param forecast character or date vector of lenght 2 to determine extend of
 #' gray background shading.
+#' @param language language option "si" or "en", defaulting to the former
 #'
 #' @return An object of class "umar_chart" containing the data and config.
 #' @export
@@ -59,7 +60,8 @@ prep_chart <- function(data,
                        index = NULL,
                        ylim = NULL,
                        note = NULL,
-                       forecast = NULL) {
+                       forecast = NULL,
+                       language = "si") {
 
   # --- first sanity check ---
   if (!is.data.frame(data)) stop("data must be a data.frame.")
@@ -266,6 +268,9 @@ prep_chart <- function(data,
   # --- dual y axis: not yet ---
   # reserved for future use
 
+  # validation
+  if (!language %in% c("si", "en")) stop("language must be 'si' or 'en'.")
+
   # --- apply transformations ---
 
 
@@ -292,7 +297,8 @@ prep_chart <- function(data,
     distinct <- unique(bases[!is.na(bases)])
     warn_mixed(bases, "index base period")
     if (is.null(y_axis) && all(!is.na(bases)) && length(unique(bases)) == 1)
-      y_axis <- paste0("Indeks (", bases[1], " = 100)")
+      y_axis <- if (language == "en") paste0("Index (", bases[1], " = 100)")
+    else paste0("Indeks (", bases[1], " = 100)")
     index <- bases
   }
 
@@ -346,7 +352,8 @@ prep_chart <- function(data,
     index = index,
     ylim = ylim,
     note = note,
-    forecast = forecast
+    forecast = forecast,
+    language = language
   )
 
   series <- lapply(seq_len(n_series), function(i) {

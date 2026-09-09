@@ -47,13 +47,10 @@ view_chart <- function(chart) {
     }
 
     # --- left margin ---
-    left <- left_axis_label_width(config, y_axis)
+    left <- left_axis_label_width(config, y_axis, language = config$language)
     if (is.null(config$y_axis_label)) config$y_axis_label <- left$unit
 
     # format numeric labels with separators
-    left$axis_labels <- format(left$axis_labels, big.mark = ".", decimal.mark = ",",
-                               scientific = FALSE)
-
     if (!bar && y_axis$ylim[1] > 0) {
       left$axis_labels[1] <- "//"
     }
@@ -84,11 +81,13 @@ view_chart <- function(chart) {
     # --- x axis labels ---
     par(ps = legend_ps)  # match axis label size
     x_axis <- x_axis_label_params(datapoints, config, x_axis$tickmarks,
-                                  x_axis$x_lims, bar, x_values, interval_type = x_axis$interval_type)
+                                  x_axis$x_lims, bar, x_values,
+                                  language = config$language,
+                                  interval_type = x_axis$interval_type)
 
     # --- legend ---
     if (length(config$series) > 1) {
-      create_legend(config, legend_ps = legend_ps)
+      create_legend(config, legend_ps = legend_ps, language = config$language)
     }
 
     # --- title ---
@@ -171,7 +170,8 @@ to_internal_config <- function(chart) {
     x_sub_annual = FALSE,
     dual_y = FALSE,
     series = series,
-    note = chart$config$note
+    note = chart$config$note,
+    language = chart$config$language
   )
 }
 

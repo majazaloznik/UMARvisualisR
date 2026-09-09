@@ -180,6 +180,10 @@ Predvsem za uporabo pri napovedi, da lahko s svetlo sivo označiš pravokotnik o
 
 `forecast = c("2025-01-01", "2027-12-31")`
 
+### `language`
+
+Opcije sta `"si"` (kar je default) in `"en"`. Od izbire je odvisno kako so meseci izpisani na x-osi, tisočice in decimanle pike/vejice na osi in "index"/"indeks", ki se izpiše na y-osi, če so vse serije transformirane v indekse (in nisi sam določil naslova `y_axis` . 
+
 ## Transformacije
 
 Obstaja tudi funkcionalnost za transformiranje serij. Možno je dodati drsečo sredino (`rolling`), medletne, četrtletne in mesečne rasti (`growth`) in izračunati indeks z določeno osnovo (`index`). Transformacije je mogoče (i) aplicirati na vse serije naenkrat ali (ii) na vsako serij posebej - v tem primeru mora imeti vektor enako dolžino kot je število serij in pri tem moraš uporabiti `NA` za serije, ki se ne transformirajo.
@@ -277,6 +281,7 @@ prep_chart(raw_data[c(1,3, 3)],
   view_chart()
 
 ```
+
 ## Zglajen in indeksiran, dolga legenda plus napoved
 ```{r, fig.width = 5.33, fig.height = 3.54}
 chart5 <-  prep_chart(raw_data[c(1,4:5, 8:9)],
@@ -400,10 +405,11 @@ Seznam idej in planov, not in any particular order:
 
 - ~~možnost fixiranja y-osi (kadar hočeš več grafov vzporedno z isto y-osjo).~~
 - dvojne y-osi...
+- ~~language option si/en, ki določa mesece, tisočice in decimalke + indeks/index switch~~
 - možnost dodatnih formatov po želji, za prezentacije recimo
-- opcija za dodajanje opomb spodaj
+- ~~opcija za dodajanje opomb spodaj~~
 - ~~možnost izvajanja transformacij na posameznih serijah ločeno~~
-- možnost ponovne uporabe iste serije (da je lahko enkrat zglajena in enkrat originalna recimo)
+- ~~možnost ponovne uporabe iste serije (da je lahko enkrat zglajena in enkrat originalna recimo)~~
 - integracija v shiny app, da lahko ne-R-sodelavci direkt uploadajo svoje podatke in dobijo ven lep graf. (in potem seveda še dodajajo serije iz baze, ampak otompotom).
 - ~~ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli, zaenkrat to pade na Mojco~~
 - možnost agregiranja M->Q, M->A, Q->A, z izbrano funkcijo (sum, mean)

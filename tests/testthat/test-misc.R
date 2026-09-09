@@ -277,7 +277,7 @@ test_that("Non-EUR label handling", {
   y_axis$y_breaks <- c(0, 500000, 1000000, 1500000, 2000000)
   result <- left_axis_label_width(config, y_axis)
   expect_equal(result$unit, "USD")
-  expect_equal(result$axis_labels, c("        0", "  500.000", "1.000.000", "1.500.000", "2.000.000"))
+  expect_equal(result$axis_labels, c("0", "500.000", "1.000.000", "1.500.000", "2.000.000"))
 })
 
 # Test with no NAs
@@ -346,3 +346,14 @@ test_that("linestyle_to_lty maps correctly", {
   expect_equal(UMARvisualisR:::linestyle_to_lty("dotted"), 3)
 })
 
+test_that("linestyle_to_lty maps correctly", {
+  expect_equal(UMARvisualisR:::linestyle_to_lty("solid"), 1)
+  expect_equal(UMARvisualisR:::linestyle_to_lty("dashed"), 2)
+  expect_equal(UMARvisualisR:::linestyle_to_lty("dotted"), 3)
+})
+
+test_that("format numbber works alrigh", {
+  expect_equal(UMARvisualisR:::format_number(1.3, "si"), "1,3")
+  expect_equal(UMARvisualisR:::format_number(2000.2, "en"), "2,000.2")
+  expect_equal(UMARvisualisR:::format_number(2000.3, "si"), "2.000,3")
+})
