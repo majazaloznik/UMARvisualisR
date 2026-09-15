@@ -182,7 +182,7 @@ Predvsem za uporabo pri napovedi, da lahko s svetlo sivo označiš pravokotnik o
 
 ### `language`
 
-Opcije sta `"si"` (kar je default) in `"en"`. Od izbire je odvisno kako so meseci izpisani na x-osi, tisočice in decimanle pike/vejice na osi in "index"/"indeks", ki se izpiše na y-osi, če so vse serije transformirane v indekse (in nisi sam določil naslova `y_axis` . 
+Opciji sta `"si"` (kar je default) in `"en"`. Od izbire je odvisno kako so meseci izpisani na x-osi, tisočice in decimanle pike/vejice na osi in "index"/"indeks", ki se izpiše na y-osi, če so vse serije transformirane v indekse (in nisi sam določil naslova `y_axis` . 
 
 ## Transformacije
 
@@ -412,6 +412,7 @@ Seznam idej in planov, not in any particular order:
 - ~~možnost ponovne uporabe iste serije (da je lahko enkrat zglajena in enkrat originalna recimo)~~
 - integracija v shiny app, da lahko ne-R-sodelavci direkt uploadajo svoje podatke in dobijo ven lep graf. (in potem seveda še dodajajo serije iz baze, ampak otompotom).
 - ~~ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli, zaenkrat to pade na Mojco~~
+- ~~popravi kvakico na //~~
 - možnost agregiranja M->Q, M->A, Q->A, z izbrano funkcijo (sum, mean)
 - drseče sredine centrirane, če bo želja/potreba
 - mogoče opcija, da si shraniš tudi celo kodo za graf, ki jo lahko po potrebi tweakaš, čeprav to je kar messy in vprašanje, če je res potreba
@@ -422,6 +423,7 @@ Seznam idej in planov, not in any particular order:
 - ~~dodana črna barva~~
 - ~~dodana možnost za črtkane in pikčaste linije~~
 - ~~dodan "area" type za eno ali dve seriji~~
+- dodaj alpha za opacity barv.
 
 
 

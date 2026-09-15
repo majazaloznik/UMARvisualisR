@@ -272,14 +272,6 @@ prep_chart <- function(data,
   if (!language %in% c("si", "en")) stop("language must be 'si' or 'en'.")
 
   # --- apply transformations ---
-
-
-  if (!is.null(rolling)) {
-    parsed$datapoints <- Map(function(df, p) {
-      if (is.na(p)) df else transform_rolling(df, periods = p, align = "r")
-    }, parsed$datapoints, rolling)
-  }
-
   if (!is.null(growth)) {
     parsed$datapoints <- Map(function(df, g) {
       if (is.na(g)) df else transform_growth(df, type = g)
@@ -300,6 +292,12 @@ prep_chart <- function(data,
       y_axis <- if (language == "en") paste0("Index (", bases[1], " = 100)")
     else paste0("Indeks (", bases[1], " = 100)")
     index <- bases
+  }
+
+  if (!is.null(rolling)) {
+    parsed$datapoints <- Map(function(df, p) {
+      if (is.na(p)) df else transform_rolling(df, periods = p, align = "r")
+    }, parsed$datapoints, rolling)
   }
 
   parsed$datapoints <- center_dates(parsed$datapoints)

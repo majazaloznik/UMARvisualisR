@@ -582,18 +582,22 @@ left_axis_label_width <- function(config, y_axis, language = "si") {
     unit <- "Mio EUR"
   }
   axis_labels <- format_number(axis_labels_num, language)
+
   # measure at the same ps as actual rendering
   old_ps <- par("ps")
-  par(ps = 10)
+  par(ps = 8.5)
   widths <- strwidth(axis_labels, units = "inches")
+  y_axis_label <- if (is.null(config$y_axis_label)) unit else config$y_axis_label
+  y_axis_label <- wrap_to_height(y_axis_label, par("pin")[2] * 0.95)
   par(ps = old_ps)
+
+  n_title_lines <- length(strsplit(y_axis_label, "\n", fixed = TRUE)[[1]])
   y_lab_lines <- max(widths) / par("csi") + 0.5
   current_mar <- par("mar")
-  current_mar[2] <- y_lab_lines + 1
+  current_mar[2] <- y_lab_lines + n_title_lines
   par(mar = current_mar)
-  mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines"))
+  mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines", "y_axis_label"))
 }
-
 
 #' Draw left axis labels
 #'
@@ -1050,4 +1054,39 @@ format_number <- function(x, language = "si") {
   } else {
     format(x, big.mark = ".", decimal.mark = ",", scientific = FALSE, trim = TRUE)
   }
+}
+
+
+#' Wrap a label to fit a length, breaking on spaces
+#'
+#' Greedy word wrap measured with \code{strwidth()} at the current
+#' \code{par("ps")}, so call it under the same point size the label will be
+#' drawn at. Used for the y-axis title, where the limit is the plot height.
+#' Existing line breaks are kept: each \code{\\n}-separated line is wrapped
+#' on its own, so a manual break in the spec still wins.
+#'
+#' @param label character scalar, possibly containing \code{\\n}
+#' @param max_in maximum line length in inches
+#'
+#' @return character scalar with \code{\\n} between wrapped lines
+#' @keywords internal
+wrap_to_height <- function(label, max_in) {
+  wrap_one <- function(line) {
+    words <- strsplit(line, " ", fixed = TRUE)[[1]]
+    total <- strwidth(line, units = "inches")
+    if (total <= max_in || length(words) < 2) return(line)
+    target <- total / ceiling(total / max_in)   # equal share per line
+    lines <- character(); current <- ""
+    for (w in words) {
+      candidate <- if (current == "") w else paste(current, w)
+      if (strwidth(candidate, units = "inches") > target && current != "") {
+        lines <- c(lines, current); current <- w
+      } else {
+        current <- candidate
+      }
+    }
+    c(lines, current)
+  }
+  paths <- strsplit(label, "\n", fixed = TRUE)[[1]]
+  paste(unlist(lapply(paths, wrap_one)), collapse = "\n")
 }

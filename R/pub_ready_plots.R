@@ -122,6 +122,11 @@ base_barplot <- function(datapoints, config, y_axis, forecast = NULL){
     beside <- TRUE
   bar_datapoints <- t(as.matrix(bar_datapoints[,-1]))
   bar_datapoints[is.na(bar_datapoints)] <- 0
+  if (config$stacked) {
+    # legend order = stack order top-down: series 1 furthest from zero, both signs
+    bar_datapoints <- bar_datapoints[rev(seq_len(nrow(bar_datapoints))), , drop = FALSE]
+    bar_colours <- rev(bar_colours)
+  }
   if(beside) spacing <- c(0.1, 0.33) else
     spacing <- 0.33
   # plot empty barplot

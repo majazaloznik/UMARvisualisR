@@ -24,7 +24,7 @@ view_chart <- function(chart) {
 
     # --- set params ---
     title_ps <- 10.5
-    legend_ps <- 10
+    legend_ps <- 8.5
     shapes <- vapply(config$series, \(x) x$type, character(1))
     bar <- any(shapes == "bar")
     line <- any(shapes == "line")
@@ -43,22 +43,28 @@ view_chart <- function(chart) {
       )
     } else {
       values <- get_data_values(datapoints, config)
+      if (config$stacked) {
+        bar_dp <- datapoints[shapes == "bar"]
+        stack <- purrr::reduce(bar_dp, ~dplyr::full_join(.x, .y, by = "date")) |>
+          dplyr::arrange(date)
+        stack <- as.matrix(stack[, -1]); stack[is.na(stack)] <- 0
+        values <- c(values, rowSums(pmax(stack, 0)), rowSums(pmin(stack, 0)))
+      }
       y_axis <- find_pretty_ylim(values)
-    }
-
-    # --- left margin ---
-    left <- left_axis_label_width(config, y_axis, language = config$language)
-    if (is.null(config$y_axis_label)) config$y_axis_label <- left$unit
-
-    # format numeric labels with separators
-    if (!bar && y_axis$ylim[1] > 0) {
-      left$axis_labels[1] <- "//"
     }
 
     # --- top margin ---
     top <- get_top_margin_and_title(config, title_ps = title_ps)
     bottom <- get_bottom_margin_and_note(config$note)
 
+    # --- left margin ---
+    left <- left_axis_label_width(config, y_axis, language = config$language)
+    config$y_axis_label <- left$y_axis_label
+
+    # format numeric labels with separators
+    if (!bar && y_axis$ylim[1] > 0) {
+      left$axis_labels[1] <- "//"
+    }
     # --- draw ---
     if (!bar) {
       empty_plot(x_axis$x_lims, y_axis, config$y_axis_label)
@@ -120,7 +126,7 @@ view_chart <- function(chart) {
     }
     # --- note ---
     if (length(bottom$wrapped) > 0) {
-      par(ps = 9)
+      par(ps = legend_ps)
       for (i in seq_along(bottom$wrapped)) {
         mtext(bottom$wrapped[i], side = 1,
               line = 0.8 + (i - 1) * 0.8,
