@@ -5,6 +5,13 @@
 #' config dictionary. If the intervals don't overlap, uses just the
 #' datapoint range, ignoring the user input.
 #'
+#' config$xmax is always the first day of its period (parse_spec_date's
+#' contract), but center_dates() has already shifted plotted dates to
+#' mid-period before this runs. A literal comparison against config$xmax
+#' would therefore always exclude the period xmax names. xmax is rounded
+#' up to the last day of its period before being used as a bound; xmin
+#' is left as-is since mid-period dates are always >= first-of-period.
+#'
 #' Returns filtered datapoints.
 #'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}
@@ -15,23 +22,30 @@
 cut_to_x_range <- function(datapoints, config){
   # get max limits from data
   limits <- unlist(purrr::map(datapoints, \(x) range(x$date, na.rm = TRUE)))
-  xmin <- as.Date(min(limits), origin = "1970-01-01")
-  xmax <- as.Date(max(limits), origin = "1970-01-01")
   data_range <- lubridate::interval(as.Date(min(limits), origin = "1970-01-01"),
                                     as.Date(max(limits), origin = "1970-01-01"))
-  # cut them down by config args
-  user_range <- lubridate::interval(as.Date(config$xmin), as.Date(config$xmax))
+
   # Check if config$xmin and config$xmax are provided
   xmin_provided <- !is.null(config$xmin) && !identical(config$xmin, "")
   xmax_provided <- !is.null(config$xmax) && !identical(config$xmax, "")
 
+  # round xmax up to the end of its period, to match center_dates()'s shift
+  xmax_bound <- config$xmax
+  if (xmax_provided) {
+    interval <- determine_interval(datapoints[[1]])
+    if (!is.na(interval) && interval %in% c("M", "Q")) {
+      unit <- if (interval == "M") "month" else "quarter"
+      xmax_bound <- lubridate::ceiling_date(as.Date(config$xmax), unit) - 1
+    }
+  }
+
   if (xmin_provided && xmax_provided) {
-    user_range <- lubridate::interval(as.Date(config$xmin), as.Date(config$xmax))
+    user_range <- lubridate::interval(as.Date(config$xmin), as.Date(xmax_bound))
     final_range <- lubridate::intersect(data_range, user_range)
   } else if (xmin_provided) {
     final_range <- lubridate::interval(as.Date(config$xmin), lubridate::int_end(data_range))
   } else if (xmax_provided) {
-    final_range <- lubridate::interval(lubridate::int_start(data_range), as.Date(config$xmax))
+    final_range <- lubridate::interval(lubridate::int_start(data_range), as.Date(xmax_bound))
   } else {
     final_range <- data_range
   }
@@ -188,10 +202,7 @@ get_top_margin_and_title <- function(config, title_ps){
   par(mar = mar)
   plot.window(c(0,10), c(0,10))
 
-  n_visible <- sum(!is.na(vapply(config$series, function(s) {
-    if (!is.null(s$legend_txt_si)) s$legend_txt_si else s$legend_txt
-  }, character(1))))
-  legend_lines <- get_legend_lines(n_visible, config$legend_columns)
+  legend_lines <- get_legend_lines(n_legend_entries(config), config$legend_columns)
   par("ps" = title_ps)
   title <- wrap_title(config$title, font = 2)
   title_lines <- title[[2]]
@@ -335,6 +346,27 @@ create_legend <- function(config, legend_ps, language = "si") {
              x.intersp = 0.2,
              y.intersp = 0.8)
 }
+
+#' Number of legend entries that will actually be drawn
+#'
+#' Series with an NA legend label get no entry — either deliberately blank in
+#' the spec, or the second of two area series. Charts with a single series get
+#' no legend at all. Both \link[UMARvisualisR]{get_top_margin_and_title} and
+#' \link[UMARvisualisR]{view_chart} call this, so the top margin reserved for
+#' the legend and the legend actually drawn cannot disagree.
+#'
+#' @param config internal config list with a series element
+#' @return integer count of legend entries
+#' @keywords internal
+n_legend_entries <- function(config) {
+  if (length(config$series) < 2) return(0L)
+  labels <- vapply(config$series, function(s) {
+    if (!is.null(s$legend_txt_si)) s$legend_txt_si else s$legend_txt
+  }, character(1))
+  sum(!is.na(labels))
+}
+
+
 #' Get x_axis lims and tickmarks
 #'
 #' @param datapoints list of dataframes from \link[UMARvisualisR]{prep_data}

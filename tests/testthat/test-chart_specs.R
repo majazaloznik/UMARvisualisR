@@ -247,10 +247,47 @@ test_that("plot must be TRUE or FALSE", {
   expect_only_problem(spec, "plot must be TRUE or FALSE")
 })
 
-test_that("plotted row without legend", {
+test_that("a plotted series may have no legend at all", {
+  spec <- clean_spec()
+  w <- spec$chart_series$alias == "w"
+  spec$chart_series$legend_sl[w] <- NA
+  spec$chart_series$legend_en[w] <- NA
+  testthat::expect_equal(nrow(validate_chart_specs(spec$charts, spec$chart_series)), 0)
+})
+
+test_that("all plotted series may have no legend", {
+  spec <- clean_spec()
+  plotted <- spec$chart_series$plot
+  spec$chart_series$legend_sl[plotted] <- NA
+  spec$chart_series$legend_en[plotted] <- NA
+  testthat::expect_equal(nrow(validate_chart_specs(spec$charts, spec$chart_series)), 0)
+})
+
+test_that("a legend filled in one language only is a problem", {
   spec <- clean_spec()
   spec$chart_series$legend_en[spec$chart_series$alias == "w"] <- ""
-  expect_only_problem(spec, "missing legend_sl/legend_en on plotted series")
+  expect_only_problem(spec, "legend_sl/legend_en must both be filled or both blank")
+
+  # and the other way round, with NA rather than ""
+  spec <- clean_spec()
+  spec$chart_series$legend_sl[spec$chart_series$alias == "w"] <- NA
+  expect_only_problem(spec, "legend_sl/legend_en must both be filled or both blank")
+})
+
+test_that("area series legends follow the same rule as any other series", {
+  spec <- clean_spec()
+  gdp_plotted <- spec$chart_series$chart_id == "gdp" & spec$chart_series$plot
+  spec$chart_series$type[gdp_plotted] <- c("area", "area", "line")
+  areas <- which(gdp_plotted)[1:2]
+
+  # either area series may be blank now, not just the second
+  spec$chart_series$legend_sl[areas] <- NA
+  spec$chart_series$legend_en[areas] <- NA
+  testthat::expect_equal(nrow(validate_chart_specs(spec$charts, spec$chart_series)), 0)
+
+  # but one language only is still a mismatch, second area series included
+  spec$chart_series$legend_sl[areas[2]] <- "Maksimum"
+  expect_only_problem(spec, "legend_sl/legend_en must both be filled or both blank")
 })
 
 test_that("plotted row with missing or invalid type", {
@@ -283,19 +320,6 @@ test_that("chart dates must be ISO or period form", {
   testthat::expect_equal(nrow(validate_chart_specs(spec$charts, spec$chart_series)), 0)
 })
 
-test_that("second area series may have a blank legend", {
-  spec <- clean_spec()
-  gdp_plotted <- spec$chart_series$chart_id == "gdp" & spec$chart_series$plot
-  spec$chart_series$type[gdp_plotted] <- c("area", "area", "line")
-  second_area <- which(gdp_plotted)[2]
-  spec$chart_series$legend_sl[second_area] <- NA
-  spec$chart_series$legend_en[second_area] <- NA
-  testthat::expect_equal(nrow(validate_chart_specs(spec$charts, spec$chart_series)), 0)
-
-  # but not the first
-  spec$chart_series$legend_sl[which(gdp_plotted)[1]] <- NA
-  expect_only_problem(spec, "missing legend_sl/legend_en on plotted series")
-})
 
 test_that("invalid rolling", {
   spec <- clean_spec()

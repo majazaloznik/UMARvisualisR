@@ -21,5 +21,12 @@ config dictionary. If the intervals don't overlap, uses just the
 datapoint range, ignoring the user input.
 }
 \details{
+config$xmax is always the first day of its period (parse_spec_date's
+contract), but center_dates() has already shifted plotted dates to
+mid-period before this runs. A literal comparison against config$xmax
+would therefore always exclude the period xmax names. xmax is rounded
+up to the last day of its period before being used as a bound; xmin
+is left as-is since mid-period dates are always >= first-of-period.
+
 Returns filtered datapoints.
 }

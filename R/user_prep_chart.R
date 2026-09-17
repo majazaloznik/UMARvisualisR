@@ -318,7 +318,7 @@ prep_chart <- function(data,
     if (length(legend_arg) != n_series) {
       stop("legend must have ", n_series, " elements.")
     }
-    legend <- legend_arg
+    legend <- as.character(legend_arg)
   } else {
     legend <- parsed$series_names
   }

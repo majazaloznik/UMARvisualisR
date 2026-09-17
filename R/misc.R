@@ -412,7 +412,7 @@ wrap_title <- function(title, max_width = NULL, cex = 1, family = umar_font(), f
 #' @export
 #'
 get_legend_lines <- function(n_elements, columns){
-  if (n_elements <= 1) 0 else ceiling(n_elements / columns)
+  if (n_elements < 1) 0 else ceiling(n_elements / columns)
 }
 
 #' My legend function
@@ -1071,15 +1071,12 @@ format_number <- function(x, language = "si") {
 #' @return character scalar with \code{\\n} between wrapped lines
 #' @keywords internal
 wrap_to_height <- function(label, max_in) {
-  wrap_one <- function(line) {
-    words <- strsplit(line, " ", fixed = TRUE)[[1]]
-    total <- strwidth(line, units = "inches")
-    if (total <= max_in || length(words) < 2) return(line)
-    target <- total / ceiling(total / max_in)   # equal share per line
-    lines <- character(); current <- ""
-    for (w in words) {
-      candidate <- if (current == "") w else paste(current, w)
-      if (strwidth(candidate, units = "inches") > target && current != "") {
+  # greedy pack words into lines at a given per-line width budget
+  pack <- function(words, width) {
+    lines <- character(); current <- words[1]
+    for (w in words[-1]) {
+      candidate <- paste(current, w)
+      if (strwidth(candidate, units = "inches") > width) {
         lines <- c(lines, current); current <- w
       } else {
         current <- candidate
@@ -1087,6 +1084,25 @@ wrap_to_height <- function(label, max_in) {
     }
     c(lines, current)
   }
+
+  wrap_one <- function(line) {
+    words <- strsplit(line, " ", fixed = TRUE)[[1]]
+    if (length(words) < 2 || strwidth(line, units = "inches") <= max_in) return(line)
+
+    n_min <- length(pack(words, max_in))  # true minimum lines at the real budget
+
+    # binary search the narrowest per-line width that still only needs
+    # n_min lines, for the most balanced split at that line count
+    lo <- max(strwidth(words, units = "inches"))  # can't go narrower than the widest word
+    hi <- max_in
+    for (i in 1:20) {
+      mid <- (lo + hi) / 2
+      if (length(pack(words, mid)) <= n_min) hi <- mid else lo <- mid
+    }
+    pack(words, hi)
+  }
+
   paths <- strsplit(label, "\n", fixed = TRUE)[[1]]
   paste(unlist(lapply(paths, wrap_one)), collapse = "\n")
 }
+

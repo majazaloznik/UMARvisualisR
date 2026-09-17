@@ -102,20 +102,50 @@ test_that("text wrapping works correctly", {
   expect_true(wrap_title("")[[2]] == 0)
 })
 
-
-test_that("legend works correctly", {
+test_that("legend lines are pure arithmetic", {
   config <- readRDS(testthat::test_path("testdata", "config.rds"))
   x <- get_legend_lines(length(config$series), config$legend_columns)
   expect_equal(x, 1)
   x <- get_legend_lines(length(config$series), 1)
   expect_equal(x, 2)
-  expect_equal(get_legend_lines(1, 1), 0)
-  expect_equal(get_legend_lines(1, 2), 0)
+  expect_equal(get_legend_lines(0, 1), 0)
+  expect_equal(get_legend_lines(0, 2), 0)
+  expect_equal(get_legend_lines(1, 1), 1)   # one entry still needs one line
+  expect_equal(get_legend_lines(1, 2), 1)
   expect_equal(get_legend_lines(2, 1), 2)
   expect_equal(get_legend_lines(2, 2), 1)
   expect_equal(get_legend_lines(2, 3), 1)
   expect_equal(get_legend_lines(3, 2), 2)
   expect_equal(get_legend_lines(3, 3), 1)
+})
+
+test_that("n_legend_entries counts only the entries that get drawn", {
+  config <- readRDS(testthat::test_path("testdata", "config.rds"))
+  expect_equal(length(config$series), 2)   # fixture assumption, shared with the test above
+
+  blank_label <- function(s) {
+    if (!is.null(s$legend_txt_si)) s$legend_txt_si <- NA_character_
+    if (!is.null(s$legend_txt_en)) s$legend_txt_en <- NA_character_
+    if (!is.null(s$legend_txt))    s$legend_txt    <- NA_character_
+    s
+  }
+
+  expect_equal(n_legend_entries(config), 2)
+
+  # a blanked label drops out
+  one_blank <- config
+  one_blank$series[[1]] <- blank_label(one_blank$series[[1]])
+  expect_equal(n_legend_entries(one_blank), 1)
+
+  # all blank means no legend at all
+  none <- config
+  none$series <- lapply(none$series, blank_label)
+  expect_equal(n_legend_entries(none), 0)
+
+  # a single-series chart never gets one, label or not
+  one_series <- config
+  one_series$series <- config$series[1]
+  expect_equal(n_legend_entries(one_series), 0)
 })
 
 test_that("year_squisher_medium works correctly", {

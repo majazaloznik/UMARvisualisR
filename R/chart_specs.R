@@ -321,16 +321,14 @@ validate_chart_specs <- function(charts, chart_series) {
                      chart_id = .data$chart_id,
                      detail = paste0("position ", .data$position, ": '", .data$plot, "'"))
 
-  missing_legend <- plotted |>
-    dplyr::arrange(.data$chart_id, .data$position) |>
-    dplyr::group_by(.data$chart_id) |>
-    dplyr::mutate(area_rank = cumsum(.data$type %in% "area")) |>
-    dplyr::ungroup() |>
-    dplyr::filter(!(.data$type %in% "area" & .data$area_rank == 2)) |>   # prep_chart NAs it anyway
-    dplyr::filter(blank(.data$legend_sl) | blank(.data$legend_en)) |>
-    dplyr::transmute(check = "missing legend_sl/legend_en on plotted series",
+  legend_mismatch <- plotted |>
+    dplyr::filter(blank(.data$legend_sl) != blank(.data$legend_en)) |>
+    dplyr::transmute(check = "legend_sl/legend_en must both be filled or both blank",
                      chart_id = .data$chart_id,
-                     detail = paste0("alias '", .data$alias, "'"))
+                     detail = paste0("alias '", .data$alias, "': legend_sl ",
+                                     ifelse(blank(.data$legend_sl), "blank", "filled"),
+                                     ", legend_en ",
+                                     ifelse(blank(.data$legend_en), "blank", "filled")))
 
   bad_type <- plotted |>
     dplyr::filter(!.data$type %in% valid_types) |>
@@ -359,7 +357,7 @@ validate_chart_specs <- function(charts, chart_series) {
     orphan_series, dup_position, dup_alias, bad_alias,
     bad_source_type, missing_code_for_db, missing_formula, bad_formula, unresolved_refs,
     bad_rolling, bad_growth, bad_index, growth_index_clash,
-    bad_plot, missing_legend, bad_type, too_many_plotted, too_many_area
+    bad_plot, legend_mismatch, bad_type, too_many_plotted, too_many_area
   )
 }
 
@@ -466,6 +464,8 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
   if (nrow(plotted) == 0) stop("chart ", chart$chart_id, " has no plotted series.")
 
   data <- dplyr::select(wide, "period_id", dplyr::all_of(plotted$alias))
+  keep <- apply(!is.na(dplyr::select(data, -period_id)), 1, any)
+  if (any(keep)) data <- data[min(which(keep)):max(which(keep)), ]
 
   legend <- plotted[[paste0("legend", suffix)]]
   area_idx <- which(plotted$type == "area")

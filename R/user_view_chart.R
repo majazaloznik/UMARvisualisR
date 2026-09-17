@@ -92,7 +92,7 @@ view_chart <- function(chart) {
                                   interval_type = x_axis$interval_type)
 
     # --- legend ---
-    if (length(config$series) > 1) {
+    if (n_legend_entries(config) > 0) {
       create_legend(config, legend_ps = legend_ps, language = config$language)
     }
 
