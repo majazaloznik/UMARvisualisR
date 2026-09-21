@@ -183,3 +183,143 @@ test_that("a shared zero height that misses the gridlines is still flagged", {
   expect_false(any(grepl("different height", problems)))   # heights do match
   expect_true(any(grepl("gridline", problems)))
 })
+
+
+with_device <- function(code) {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off(), add = TRUE)
+  plot.new()
+  force(code)
+}
+
+cfg <- function(label = "Desezonirana stopnja, v %", unit = "%", mio = FALSE) {
+  list(y_axis_label = label,
+       series = list(list(unit = unit, mio_eur = mio),
+                     list(unit = unit, mio_eur = mio)))
+}
+
+# === right_axis_label_width ===
+
+test_that("right_axis_label_width returns the same shape as its left twin", {
+  with_device({
+    y <- list(ylim = c(-2, 6), y_breaks = seq(-2, 6, by = 2))
+    out <- right_axis_label_width(cfg(), y)
+    expect_named(out, c("unit", "axis_labels", "axis_positions",
+                        "y_lab_lines", "y_axis_label"))
+    expect_equal(out$axis_positions, y$y_breaks)
+    expect_length(out$axis_labels, length(y$y_breaks))
+  })
+})
+
+test_that("right_axis_label_width sets only the right margin", {
+  with_device({
+    y <- list(ylim = c(-2, 6), y_breaks = seq(-2, 6, by = 2))
+    before <- par("mar")
+    out <- right_axis_label_width(cfg(), y)
+    after <- par("mar")
+    expect_equal(after[1:3], before[1:3])
+    n_lines <- length(strsplit(out$y_axis_label, "\n", fixed = TRUE)[[1]])
+    expect_equal(after[4], out$y_lab_lines + n_lines + 0.35)
+  })
+})
+
+test_that("edge_pad widens the margin without moving the labels", {
+  with_device({
+    y <- list(ylim = c(-2, 6), y_breaks = seq(-2, 6, by = 2))
+    a <- right_axis_label_width(cfg("v %"), y, edge_pad = 0)
+    m_a <- par("mar")[4]
+    b <- right_axis_label_width(cfg("v %"), y, edge_pad = 0.5)
+    m_b <- par("mar")[4]
+    expect_equal(m_b - m_a, 0.5)
+    expect_equal(a$y_lab_lines, b$y_lab_lines)
+    expect_equal(a$axis_labels, b$axis_labels)
+  })
+})
+
+test_that("right axis labels follow the language", {
+  with_device({
+    y <- list(ylim = c(0, 3000), y_breaks = seq(0, 3000, by = 1000))
+    si <- right_axis_label_width(cfg("v %"), y, language = "si")
+    en <- right_axis_label_width(cfg("v %"), y, language = "en")
+    expect_true(any(grepl(".", si$axis_labels, fixed = TRUE)))
+    expect_true(any(grepl(",", en$axis_labels, fixed = TRUE)))
+  })
+})
+
+test_that("EUR with mio_eur divides the right labels by a million", {
+  with_device({
+    y <- list(ylim = c(0, 3e6), y_breaks = seq(0, 3e6, by = 1e6))
+    out <- right_axis_label_width(
+      list(y_axis_label = NULL, series = list(list(unit = "EUR", mio_eur = TRUE))), y)
+    expect_equal(out$unit, "Mio EUR")
+    expect_equal(out$y_axis_label, "Mio EUR")        # title falls back to the unit
+    expect_true(any(trimws(out$axis_labels) == "3"))
+  })
+})
+
+
+# === dual_axis_advice ===
+
+sc <- function(l, r, problems = character(0)) {
+  mk <- function(v) list(ylim = v, y_breaks = seq(v[1], v[2], length.out = 5))
+  list(left = mk(l), right = mk(r), problems = problems)
+}
+
+test_that("a chart where one axis would have done is flagged, by its label", {
+  out <- dual_axis_advice(c(0, 10), c(2, 12), "v %", "v %",
+                          "line", "line", sc(c(0, 10), c(2, 12)))
+  expect_length(out, 1)
+  expect_match(out, "single axis")
+  expect_match(out, "v %", fixed = TRUE)
+})
+
+test_that("series at genuinely different magnitudes are left alone", {
+  out <- dual_axis_advice(c(95, 140), c(-2, 6), "Indeks", "v %",
+                          "line", "line", sc(c(90, 140), c(-2, 6)),
+                          ref = 100, ref2 = 0)
+  expect_length(out, 0)
+})
+
+test_that("bars on both axes are flagged", {
+  out <- dual_axis_advice(c(0, 100), c(0, 5), "Mio EUR", "v %",
+                          "bar", c("bar", "line"), sc(c(0, 100), c(0, 5)))
+  expect_true(any(grepl("bars on both axes", out)))
+})
+
+test_that("a reference crossed only on the right says no line is drawn", {
+  out <- dual_axis_advice(c(6, 8), c(-2, 6), "v %", "Indeks",
+                          "line", "line", sc(c(4, 9), c(-2, 6)))
+  expect_true(any(grepl("no line is drawn", out)))
+})
+
+test_that("a reference crossed only on the left says the line is arbitrary", {
+  out <- dual_axis_advice(c(-2, 6), c(96, 99), "v %", "Indeks",
+                          "line", "line", sc(c(-2, 6), c(95, 100)),
+                          ref = 0, ref2 = 100)
+  expect_true(any(grepl("arbitrary height", out)))
+})
+
+test_that("scale problems are passed through", {
+  out <- dual_axis_advice(c(0, 10), c(0, 5), "a", "b", "line", "line",
+                          sc(c(0, 10), c(0, 5),
+                             problems = "different number of breaks (5 left, 4 right)"))
+  expect_true(any(grepl("not aligned", out)))
+})
+
+test_that("min_share tunes how eagerly a single axis is suggested", {
+  args <- list(values_left = c(0, 100), values_right = c(40, 60),
+               label_left = "a", label_right = "b",
+               types_left = "line", types_right = "line",
+               scales = sc(c(0, 100), c(40, 60)))
+  expect_length(do.call(dual_axis_advice, args), 0)
+  expect_true(length(do.call(dual_axis_advice, c(args, list(min_share = 0.15)))) > 0)
+})
+
+# === pair_y_scales: nothing found ===
+
+test_that("pair_y_scales fails loudly when no scale can be found", {
+  expect_error(pair_y_scales(c(-5, 12), c(-2, 3), n_range = integer(0)),
+               "no compatible pair")
+  expect_error(pair_y_scales(NULL, c(-2, 3), ylim = c(-5, 15), n_range = integer(0)),
+               "compatible with the fixed limits")
+})
