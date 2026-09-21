@@ -4,7 +4,7 @@
 \alias{base_barplot}
 \title{Base barplot}
 \usage{
-base_barplot(datapoints, config, y_axis, forecast = NULL)
+base_barplot(datapoints, config, y_axis, forecast = NULL, pad = 0.015)
 }
 \arguments{
 \item{datapoints}{list of dataframes from \link[UMARvisualisR]{prep_data}}
@@ -14,6 +14,8 @@ base_barplot(datapoints, config, y_axis, forecast = NULL)
 \item{y_axis}{output of \link[UMARvisualisR]{find_pretty_ylim}}
 
 \item{forecast}{forecast param}
+
+\item{pad}{numeric or vector of length 2 for xlim edge padding}
 }
 \value{
 midpoints, of course also plots a barplot to open device

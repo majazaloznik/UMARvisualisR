@@ -13,7 +13,9 @@ to_internal_config(chart)
 config list in internal format
 }
 \description{
-Bridges from the user-facing structure to the format expected
-by the existing rendering functions.
+Bridges from the user-facing structure to the format expected by the
+existing rendering functions. Each series carries its axis, and its unit
+comes from that axis's label, so \link{left_axis_label_width} and
+\link{right_axis_label_width} see one unit each rather than both.
 }
 \keyword{internal}

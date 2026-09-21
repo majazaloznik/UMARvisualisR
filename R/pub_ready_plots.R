@@ -85,11 +85,15 @@ get_x_lims <- function(datapoints){
 #' @param y_axis output of \link[UMARvisualisR]{find_pretty_ylim}
 #' @param y_axis_label whatever is in config$y_axis_label - required to
 #' check if the unit is an index, so the 100 gridline can be emphasised.
-#'
+#' @param pad numeric or vector of length 2 padding x axis ednes.
 #' @return nothing, plots to open device
 #' @export
-empty_plot <- function(x_lims, y_axis, y_axis_label){
-  plot(x_lims[1], y_axis$ylim[1],type = "n",
+empty_plot <- function(x_lims, y_axis, y_axis_label, pad = c(0, 0.01)){
+  if (any(pad > 0)) {
+    p <- as.numeric(diff(range(x_lims))) * rep_len(pad, 2)
+    x_lims <- x_lims + c(-p[1], p[2])   # Date + numeric stays Date
+  }
+  plot(x_lims[1], y_axis$ylim[1], type = "n",
        xlab = "", ylab = "",
        bty = "n",
        axes = FALSE,
@@ -98,12 +102,15 @@ empty_plot <- function(x_lims, y_axis, y_axis_label){
        family = umar_font(),
        panel.first={grid(nx = NA, ny = length(y_axis$y_breaks) - 1,
                          col = umar_cols("gridlines"), lty = 1, lwd = 1.1)},
-       yaxs="i",
+       xaxs = "i",
+       yaxs = "i",
        ylim = y_axis$ylim,
        xlim = x_lims)
   # emphasised gridline
-  if(grepl("nde(ks|x)", y_axis_label)) {
+  if (axis_reference(y_axis_label) == 100) {
     abline(h = 100, col = umar_cols("emph"), lwd = 1.1)}
+  # if(grepl("nde(ks|x)", y_axis_label)) {
+  #   abline(h = 100, col = umar_cols("emph"), lwd = 1.1)}
   if(in_range_strict(0, y_axis$ylim))  {
     abline(h = 0, col = umar_cols("emph"), lwd = 1.1)}
   box(col = umar_cols("gridlines"), lwd = 1.1)
@@ -120,11 +127,12 @@ empty_plot <- function(x_lims, y_axis, y_axis_label){
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param y_axis output of \link[UMARvisualisR]{find_pretty_ylim}
 #' @param forecast forecast param
+#' @param pad numeric or vector of length 2 for xlim edge padding
 #'
 #' @return midpoints, of course also plots a barplot to open device
 #' @export
 #'
-base_barplot <- function(datapoints, config, y_axis, forecast = NULL){
+base_barplot <- function(datapoints, config, y_axis, forecast = NULL, pad = 0.015){
   series_types <- vapply(config$series, \(x) x$type, character(1))
   series_colours <- vapply(config$series, \(x) x$colour, character(1))
   bar_colours <- series_colours[series_types == "bar"]
@@ -143,12 +151,24 @@ base_barplot <- function(datapoints, config, y_axis, forecast = NULL){
   }
   if(beside) spacing <- c(0.1, 0.33) else
     spacing <- 0.33
+
+  # measure the bars without drawing, so the x limits can be padded the same
+  # fraction as empty_plot's. bar width is 1 user unit, so the outer edges are
+  # half a unit beyond the outermost midpoints.
+  mids_raw <- barplot(bar_datapoints, beside = beside, space = spacing, plot = FALSE)
+  bar_xlim <- c(min(mids_raw) - 0.5, max(mids_raw) + 0.5)
+  if (any(pad > 0)) {
+    p <- diff(bar_xlim) * rep_len(pad, 2)
+    bar_xlim <- bar_xlim + c(-p[1], p[2])
+  }
+
   # plot empty barplot
   midpoints <- barplot(bar_datapoints, beside = beside,
                        axes = FALSE, ylim = y_axis$ylim, border = NA, col = NA,
                        panel.first={grid(nx = NA, ny = length(y_axis$y_breaks) - 1,
                                          col = umar_cols("gridlines"), lty = 1, lwd = 1.1)},
-                       space = spacing, xpd = FALSE)
+                       space = spacing, xpd = FALSE,
+                       xlim = bar_xlim, xaxs = "i")
   if(is.matrix(midpoints)) midpoints <- colMeans(midpoints)
   # emphasised gridline
   if(grepl("ndeks", config$y_axis_label)) {

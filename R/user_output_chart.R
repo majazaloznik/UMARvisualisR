@@ -74,6 +74,13 @@ get_code <- function(chart) {
     lines <- c(lines, paste0("  type = c(", paste0('"', types, '"', collapse = ", "), "),"))
   }
 
+  # axis - only when a second axis is in play, otherwise it is just noise
+  axes <- vapply(chart$series,
+                 \(s) if (is.null(s$axis)) 1L else as.integer(s$axis), integer(1))
+  if (any(axes == 2L)) {
+    lines <- c(lines, paste0("  axis = c(", paste(axes, collapse = ", "), "),"))
+  }
+
   # title
   if (!is.null(chart$config$title)) {
     lines <- c(lines, paste0('  title = "', chart$config$title, '",'))
@@ -82,6 +89,10 @@ get_code <- function(chart) {
   # y_axis
   if (!is.null(chart$config$y_axis)) {
     lines <- c(lines, paste0('  y_axis = "', chart$config$y_axis, '",'))
+  }
+  # y_axis2
+  if (!is.null(chart$config$y_axis2)) {
+    lines <- c(lines, paste0('  y_axis2 = "', chart$config$y_axis2, '",'))
   }
 
   # legend
@@ -128,6 +139,11 @@ get_code <- function(chart) {
                              chart$config$ylim[2], "),"))
   }
 
+  # ylim2
+  if (!is.null(chart$config$ylim2)) {
+    lines <- c(lines, paste0("  ylim2 = c(", chart$config$ylim2[1], ", ",
+                             chart$config$ylim2[2], "),"))
+  }
   # forecast
   if (!is.null(chart$config$forecast)) {
     lines <- c(lines, paste0("  forecast = c(", chart$config$forecast[1], ", ",

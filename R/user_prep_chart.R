@@ -28,6 +28,7 @@
 #' @param emphasis numeric value(s) for emphasised horizontal gridlines.
 #'   NULL (default) auto-detects: 0 if in range, 100 if y_axis contains
 #'   "indeks"/"index". FALSE disables. Numeric vector for explicit values.
+#'   On a dual-axis chart these are read against the left axis.
 #' @param legend_columns integer, number of columns in the legend. Defaults to 2.
 #' @param rolling number of periods to calculate rolling mean over
 #' @param growth "YOY", "MOM" or "QOQ"
@@ -39,6 +40,13 @@
 #' @param forecast character or date vector of lenght 2 to determine extend of
 #' gray background shading.
 #' @param language language option "si" or "en", defaulting to the former
+#' @param axis integer vector assigning series to the left (1) or right (2)
+#'   y axis. Length 1 or one per series. Defaults to all on the left.
+#' @param y_axis2 character, right y-axis label. Only used when some series
+#'   are on axis 2.
+#' @param ylim2 numeric(2) manual limits for the right axis. NULL (default)
+#'   derives them from the data, paired with the left axis so that the
+#'   gridlines serve both.
 #'
 #' @return An object of class "umar_chart" containing the data and config.
 #' @export
@@ -61,7 +69,10 @@ prep_chart <- function(data,
                        ylim = NULL,
                        note = NULL,
                        forecast = NULL,
-                       language = "si") {
+                       language = "si",
+                       axis = NULL,
+                       y_axis2 = NULL,
+                       ylim2 = NULL) {
 
   # --- first sanity check ---
   if (!is.data.frame(data)) stop("data must be a data.frame.")
@@ -128,6 +139,18 @@ prep_chart <- function(data,
   growth  <- expand_transform(growth,  n_series, "growth")
   index   <- expand_transform(index,   n_series, "index")
 
+  # --- validate axis assignment ---
+  axis <- if (is.null(axis)) rep(1L, n_series)
+  else as.integer(expand_transform(axis, n_series, "axis"))
+  if (!all(axis %in% c(1L, 2L))) stop("axis must be 1 or 2.")
+  if (all(axis == 2L)) {
+    stop("all series are on axis 2 - use axis 1 and y_axis for a single-axis chart.")
+  }
+  if (!any(axis == 2L)) {
+    if (!is.null(y_axis2)) warning("y_axis2 ignored: no series on axis 2.")
+    if (!is.null(ylim2))   warning("ylim2 ignored: no series on axis 2.")
+  }
+
   # --- validate type ---
   type <- validate_type(type, n_series)
 
@@ -136,6 +159,9 @@ prep_chart <- function(data,
   n_area <- length(area_indices)
   if (n_area > 2) {
     stop("Maximum 2 series can be type 'area' (single area or ribbon between two).")
+  }
+  if (n_area == 2 && length(unique(axis[area_indices])) != 1) {
+    stop("both area series must be on the same axis.")
   }
 
   # --- validate series number
@@ -213,6 +239,9 @@ prep_chart <- function(data,
   if (!is.null(y_axis) && (!is.character(y_axis) || length(y_axis) != 1)) {
     stop("y_axis is the axis title and must be a single character string. For manual axis limits use ylim.")
   }
+  if (!is.null(y_axis2) && (!is.character(y_axis2) || length(y_axis2) != 1)) {
+    stop("y_axis2 is the right axis title and must be a single character string. For manual axis limits use ylim2.")
+  }
   # --- validate transformations ---
   if (!is.null(rolling)) {
     if (!is.numeric(rolling)) stop("rolling must be numeric (or NA per series).")
@@ -254,19 +283,28 @@ prep_chart <- function(data,
               "). Series will not be directly comparable.")
     }
   }
-  warn_mixed(rolling, "rolling")
-  warn_mixed(growth, "growth")
+  # per axis: differing units across the two axes is the point of the chart
+  for (a in unique(axis)) {
+    warn_mixed(rolling[axis == a], "rolling")
+    warn_mixed(growth[axis == a],  "growth")
+  }
   # --- validate ylim ---
   if (!is.null(ylim)) {
     if (!is.numeric(ylim) || length(ylim) != 2) stop("ylim must be numeric(2).")
     if (ylim[1] >= ylim[2]) stop("ylim[1] must be less than ylim[2].")
-    if (any(type == "bar") && ylim[1] > 0) {
+    if (any(type[axis == 1L] == "bar") && ylim[1] > 0) {
       warning("ylim[1] forced to 0 for bar charts.")
       ylim[1] <- 0
     }
   }
-  # --- dual y axis: not yet ---
-  # reserved for future use
+  if (!is.null(ylim2)) {
+    if (!is.numeric(ylim2) || length(ylim2) != 2) stop("ylim2 must be numeric(2).")
+    if (ylim2[1] >= ylim2[2]) stop("ylim2[1] must be less than ylim2[2].")
+    if (any(type[axis == 2L] == "bar") && ylim2[1] > 0) {
+      warning("ylim2[1] forced to 0 for bar charts.")
+      ylim2[1] <- 0
+    }
+  }
 
   # validation
   if (!language %in% c("si", "en")) stop("language must be 'si' or 'en'.")
@@ -276,7 +314,8 @@ prep_chart <- function(data,
     parsed$datapoints <- Map(function(df, g) {
       if (is.na(g)) df else transform_growth(df, type = g)
     }, parsed$datapoints, growth)
-    if (is.null(y_axis) && all(!is.na(growth))) y_axis <- "%"
+    if (is.null(y_axis) && all(!is.na(growth[axis == 1L]))) y_axis <- "%"
+    if (any(axis == 2L) && is.null(y_axis2) && all(!is.na(growth[axis == 2L]))) y_axis2 <- "%"
   }
 
   if (!is.null(index)) {
@@ -287,10 +326,17 @@ prep_chart <- function(data,
     parsed$datapoints <- lapply(results, `[[`, "df")
     bases <- vapply(results, \(x) as.character(x$base_period), character(1))
     distinct <- unique(bases[!is.na(bases)])
-    warn_mixed(bases, "index base period")
-    if (is.null(y_axis) && all(!is.na(bases)) && length(unique(bases)) == 1)
-      y_axis <- if (language == "en") paste0("Index (", bases[1], " = 100)")
-    else paste0("Indeks (", bases[1], " = 100)")
+    index_label <- function(b) {
+      if (language == "en") paste0("Index (", b, " = 100)")
+      else                  paste0("Indeks (", b, " = 100)")
+    }
+    for (a in unique(axis)) {
+      b <- bases[axis == a]
+      warn_mixed(b, "index base period")
+      if (!all(!is.na(b)) || length(unique(b)) != 1) next
+      if (a == 1L && is.null(y_axis))  y_axis  <- index_label(b[1])
+      if (a == 2L && is.null(y_axis2)) y_axis2 <- index_label(b[1])
+    }
     index <- bases
   }
 
@@ -340,6 +386,7 @@ prep_chart <- function(data,
   config <- list(
     title = title,
     y_axis = y_axis,
+    y_axis2 = y_axis2,
     xmin = xmin,
     xmax = xmax,
     stacked = stacked,
@@ -349,6 +396,7 @@ prep_chart <- function(data,
     growth = growth,
     index = index,
     ylim = ylim,
+    ylim2 = ylim2,
     note = note,
     forecast = forecast,
     language = language
@@ -363,7 +411,8 @@ prep_chart <- function(data,
       type = type[i],
       colour = colours[i],
       legend_txt = legend[i],
-      linestyle = style
+      linestyle = style,
+      axis = axis[i]
     )
   })
 

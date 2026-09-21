@@ -4,7 +4,7 @@
 \alias{empty_plot}
 \title{Plots empty plot with gridlines}
 \usage{
-empty_plot(x_lims, y_axis, y_axis_label)
+empty_plot(x_lims, y_axis, y_axis_label, pad = c(0, 0.01))
 }
 \arguments{
 \item{x_lims}{output of \link[UMARvisualisR]{get_x_lims}}
@@ -13,6 +13,8 @@ empty_plot(x_lims, y_axis, y_axis_label)
 
 \item{y_axis_label}{whatever is in config$y_axis_label - required to
 check if the unit is an index, so the 100 gridline can be emphasised.}
+
+\item{pad}{numeric or vector of length 2 padding x axis ednes.}
 }
 \value{
 nothing, plots to open device

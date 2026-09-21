@@ -170,11 +170,12 @@ validate_chart_specs <- function(charts, chart_series) {
   unpaired <- dplyr::bind_rows(
     pair_check("title_sl", "title_en", "title given in one language only"),
     pair_check("y_axis_sl", "y_axis_en", "y_axis given in one language only"),
+    pair_check("y_axis2_sl", "y_axis2_en", "y_axis2 given in one language only"),
     pair_check("note_sl", "note_en", "note given in one language only"),
     pair_check("ylim_min", "ylim_max", "ylim given on one side only"),
+    pair_check("ylim2_min", "ylim2_max", "ylim2 given on one side only"),
     pair_check("forecast_start", "forecast_end", "forecast given on one side only")
   )
-
   # dates: blank, ISO, or period form - locale forms would parse silently wrong
   date_pattern <- "^(\\d{4}-\\d{2}-\\d{2}|\\d{4}M\\d{2}|\\d{4}Q[1-4])$"
   date_check <- function(col) {
@@ -313,6 +314,55 @@ validate_chart_specs <- function(charts, chart_series) {
                      chart_id = .data$chart_id,
                      detail = paste0("alias '", .data$alias, "': they are mutually exclusive"))
 
+  # --- chart_series.csv: axis --------------------------------------------------
+  chart_series$axis <- col_or(chart_series, "axis", NA_character_)
+  ax_of <- function(df) {
+    a <- trimws(as.character(col_or(df, "axis", NA_character_)))
+    ifelse(is.na(a) | a == "", "1", a)
+  }
+
+  bad_axis <- chart_series |>
+    dplyr::filter(!blank(.data$axis),
+                  !trimws(as.character(.data$axis)) %in% c("1", "2")) |>
+    dplyr::transmute(check = "invalid axis",
+                     chart_id = .data$chart_id,
+                     detail = paste0("alias '", .data$alias, "': '", .data$axis,
+                                     "' (valid: 1, 2, or blank for the left axis)"))
+
+  plotted_ax <- dplyr::mutate(plotted, ax = ax_of(plotted))
+
+  no_left_axis <- plotted_ax |>
+    dplyr::group_by(.data$chart_id) |>
+    dplyr::filter(all(.data$ax == "2")) |>
+    dplyr::ungroup() |>
+    dplyr::distinct(.data$chart_id) |>
+    dplyr::transmute(check = "all plotted series on axis 2",
+                     chart_id = .data$chart_id,
+                     detail = "use axis 1 and y_axis for a single-axis chart")
+
+  area_split <- plotted_ax |>
+    dplyr::filter(.data$type %in% "area") |>
+    dplyr::group_by(.data$chart_id) |>
+    dplyr::filter(dplyr::n() == 2, length(unique(.data$ax)) > 1) |>
+    dplyr::ungroup() |>
+    dplyr::distinct(.data$chart_id) |>
+    dplyr::transmute(check = "area series split across axes",
+                     chart_id = .data$chart_id,
+                     detail = "both area series must be on the same axis")
+
+  stacked_ids <- charts$chart_id[
+    toupper(trimws(as.character(charts$stacked))) %in% c("TRUE", "T", "1")]
+
+  stacked_split <- plotted_ax |>
+    dplyr::filter(.data$chart_id %in% stacked_ids, .data$type %in% "bar") |>
+    dplyr::group_by(.data$chart_id) |>
+    dplyr::filter(length(unique(.data$ax)) > 1) |>
+    dplyr::ungroup() |>
+    dplyr::distinct(.data$chart_id) |>
+    dplyr::transmute(check = "stacked bars split across axes",
+                     chart_id = .data$chart_id,
+                     detail = "bars that stack must share one axis")
+
   # --- chart_series.csv: plotting ---------------------------------------------
 
   bad_plot <- chart_series |>
@@ -357,7 +407,8 @@ validate_chart_specs <- function(charts, chart_series) {
     orphan_series, dup_position, dup_alias, bad_alias,
     bad_source_type, missing_code_for_db, missing_formula, bad_formula, unresolved_refs,
     bad_rolling, bad_growth, bad_index, growth_index_clash,
-    bad_plot, legend_mismatch, bad_type, too_many_plotted, too_many_area
+    bad_plot, legend_mismatch, bad_type, too_many_plotted, too_many_area,
+    bad_axis, no_left_axis, area_split, stacked_split
   )
 }
 
@@ -451,8 +502,7 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
     col <- paste0(stem, suffix)
     if (col %in% names(df)) nz(df[[col]]) else NULL
   }
-  # a literal \n typed in the CSV becomes a line break (CSV cells can't hold
-  # one); stray leading/trailing ones are dropped so they can't add empty lines
+  chart_col <- function(nm) if (nm %in% names(chart)) nz(chart[[nm]]) else NULL
   breaks <- function(x) {
     if (is.null(x)) return(NULL)
     gsub("^\n+|\n+$", "", gsub("\\\\n", "\n", x))
@@ -467,6 +517,9 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
   keep <- apply(!is.na(dplyr::select(data, -period_id)), 1, any)
   if (any(keep)) data <- data[min(which(keep)):max(which(keep)), ]
 
+  axis <- suppressWarnings(as.integer(col_or(plotted, "axis", 1L)))
+  axis[is.na(axis)] <- 1L
+
   legend <- plotted[[paste0("legend", suffix)]]
   area_idx <- which(plotted$type == "area")
   if (length(area_idx) == 2) legend[area_idx[2]] <- NA
@@ -480,10 +533,16 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
 
   as_idx <- function(x) { i <- which(as.logical(x) %in% TRUE); if (length(i)) i else NULL }
 
+  growth_col <- col_or(plotted, "growth", NA_character_)
+  index_col  <- col_or(plotted, "index",  NA_character_)
+
   y_axis <- breaks(lang_col(chart, "y_axis"))
   if (is.null(y_axis)) {
-    y_axis <- default_y_axis(col_or(plotted, "growth", NA_character_),
-                             col_or(plotted, "index", NA_character_), language)
+    y_axis <- default_y_axis(growth_col[axis == 1L], index_col[axis == 1L], language)
+  }
+  y_axis2 <- breaks(lang_col(chart, "y_axis2"))
+  if (is.null(y_axis2) && any(axis == 2L)) {
+    y_axis2 <- default_y_axis(growth_col[axis == 2L], index_col[axis == 2L], language)
   }
 
   emphasis <- nz(chart$emphasis)
@@ -493,6 +552,9 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
 
   ylim <- if (is.null(nz(chart$ylim_min)) || is.null(nz(chart$ylim_max))) NULL
   else as.numeric(c(chart$ylim_min, chart$ylim_max))
+
+  ylim2 <- if (is.null(chart_col("ylim2_min")) || is.null(chart_col("ylim2_max"))) NULL
+  else as.numeric(c(chart$ylim2_min, chart$ylim2_max))
 
   forecast <- if (is.null(nz(chart$forecast_start)) || is.null(nz(chart$forecast_end))) NULL
   else c(parse_spec_date(chart$forecast_start, "forecast_start"),
@@ -508,6 +570,7 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
     type = plotted$type,
     title = breaks(lang_col(chart, "title")),
     y_axis = y_axis,
+    y_axis2 = y_axis2,
     legend = legend,
     colours = colours,
     dashed = as_idx(col_or(plotted, "dashed", FALSE)),
@@ -521,6 +584,8 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
     growth = NULL,
     index = NULL,
     ylim = ylim,
+    ylim2 = ylim2,
+    axis = axis,
     note = breaks(lang_col(chart, "note")),
     forecast = forecast,
     language = language
@@ -610,11 +675,12 @@ coerce_spec_types <- function(df, logical_cols = character(), numeric_cols = cha
 read_chart_specs <- function(charts_path, series_path, encoding = "UTF-8", validate = TRUE) {
   charts <- read_spec_csv(charts_path, encoding) |>
     coerce_spec_types(logical_cols = "stacked",
-                      numeric_cols = c("ylim_min", "ylim_max"),
+                      numeric_cols = c("ylim_min", "ylim_max", "ylim2_min", "ylim2_max"),
                       integer_cols = c("legend_columns", "legend_columns_sl", "legend_columns_en"))
   chart_series <- read_spec_csv(series_path, encoding) |>
     coerce_spec_types(logical_cols = c("plot", "dashed", "dotted"),
-                      numeric_cols = c("position", "rolling")) |>
+                      numeric_cols = c("position", "rolling"),
+                      integer_cols = "axis") |>
     fill_default_aliases()
   if (validate) check_chart_specs(charts, chart_series)
   list(charts = charts, chart_series = chart_series)

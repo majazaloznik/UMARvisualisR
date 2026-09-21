@@ -24,7 +24,10 @@ prep_chart(
   ylim = NULL,
   note = NULL,
   forecast = NULL,
-  language = "si"
+  language = "si",
+  axis = NULL,
+  y_axis2 = NULL,
+  ylim2 = NULL
 )
 }
 \arguments{
@@ -55,7 +58,8 @@ or unique group values (long).}
 
 \item{emphasis}{numeric value(s) for emphasised horizontal gridlines.
 NULL (default) auto-detects: 0 if in range, 100 if y_axis contains
-"indeks"/"index". FALSE disables. Numeric vector for explicit values.}
+"indeks"/"index". FALSE disables. Numeric vector for explicit values.
+On a dual-axis chart these are read against the left axis.}
 
 \item{legend_columns}{integer, number of columns in the legend. Defaults to 2.}
 
@@ -75,6 +79,16 @@ NULL (default) auto-detects. Ignored for bar charts (must include 0).}
 gray background shading.}
 
 \item{language}{language option "si" or "en", defaulting to the former}
+
+\item{axis}{integer vector assigning series to the left (1) or right (2)
+y axis. Length 1 or one per series. Defaults to all on the left.}
+
+\item{y_axis2}{character, right y-axis label. Only used when some series
+are on axis 2.}
+
+\item{ylim2}{numeric(2) manual limits for the right axis. NULL (default)
+derives them from the data, paired with the left axis so that the
+gridlines serve both.}
 }
 \value{
 An object of class "umar_chart" containing the data and config.

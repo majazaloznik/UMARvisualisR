@@ -45,3 +45,5 @@ test*.pdf
 .sandbox*
 
 inst/doc
+
+test/

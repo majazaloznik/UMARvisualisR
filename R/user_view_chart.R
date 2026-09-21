@@ -36,21 +36,62 @@ view_chart <- function(chart) {
     x_axis <- x_axis_lims_tickmarks(datapoints, config)
 
     # --- y axis ---
-    if (!is.null(chart$config$ylim)) {
-      y_axis <- list(
-        ylim = chart$config$ylim,
-        y_breaks = pretty(chart$config$ylim)
-      )
-    } else {
-      values <- get_data_values(datapoints, config)
-      if (config$stacked) {
-        bar_dp <- datapoints[shapes == "bar"]
+    # --- y axis / axes ---
+    axis_of <- vapply(config$series,
+                      \(s) if (is.null(s$axis)) 1L else as.integer(s$axis), integer(1))
+    dual <- any(axis_of == 2L)
+
+    # the values that drive one axis's limits, bars and stacking included
+    axis_values <- function(idx) {
+      cfg <- config
+      cfg$series <- config$series[idx]
+      dp <- datapoints[idx]
+      vals <- get_data_values(dp, cfg)
+      if (config$stacked && any(shapes[idx] == "bar")) {
+        bar_dp <- dp[shapes[idx] == "bar"]
         stack <- purrr::reduce(bar_dp, ~dplyr::full_join(.x, .y, by = "date")) |>
           dplyr::arrange(date)
         stack <- as.matrix(stack[, -1]); stack[is.na(stack)] <- 0
-        values <- c(values, rowSums(pmax(stack, 0)), rowSums(pmin(stack, 0)))
+        vals <- c(vals, rowSums(pmax(stack, 0)), rowSums(pmin(stack, 0)))
       }
-      y_axis <- find_pretty_ylim(values)
+      vals
+    }
+
+    if (!dual) {
+      if (!is.null(chart$config$ylim)) {
+        y_axis <- list(ylim = chart$config$ylim, y_breaks = pretty(chart$config$ylim))
+      } else {
+        y_axis <- find_pretty_ylim(axis_values(seq_along(config$series)))
+      }
+      y_axis2 <- NULL
+    } else {
+      il <- which(axis_of == 1L); ir <- which(axis_of == 2L)
+      ref  <- axis_reference(config$y_axis_label)
+      ref2 <- axis_reference(config$y2_axis_label)
+      values_left  <- axis_values(il)
+      values_right <- axis_values(ir)
+
+      scales <- pair_y_scales(values_left, values_right,
+                              ylim  = chart$config$ylim,
+                              ylim2 = chart$config$ylim2,
+                              ref = ref, ref2 = ref2)
+
+      for (a in dual_axis_advice(values_left, values_right,
+                                 config$y_axis_label, config$y2_axis_label,
+                                 shapes[il], shapes[ir], scales,
+                                 ref = ref, ref2 = ref2)) {
+        warning(a, call. = FALSE)
+      }
+
+      # right-hand series into left-hand coordinates - from here on there is
+      # only one coordinate system and the draw functions need no changes
+      rescale_to <- function(v, from, to) to[1] + (v - from[1]) * diff(to) / diff(from)
+      for (i in ir) {
+        datapoints[[i]]$value <- rescale_to(datapoints[[i]]$value,
+                                            scales$right$ylim, scales$left$ylim)
+      }
+      y_axis  <- scales$left
+      y_axis2 <- scales$right
     }
 
     # --- top margin ---
@@ -58,8 +99,14 @@ view_chart <- function(chart) {
     bottom <- get_bottom_margin_and_note(config$note)
 
     # --- left margin ---
-    left <- left_axis_label_width(config, y_axis, language = config$language)
+    left <- left_axis_label_width(config_for_axis(config, 1L), y_axis,
+                                  language = config$language)
     config$y_axis_label <- left$y_axis_label
+    if (dual) {
+      right <- right_axis_label_width(config_for_axis(config, 2L), y_axis2,
+                                      language = config$language)
+      if (!bar && y_axis2$ylim[1] > 0) right$axis_labels[1] <- "//"
+    }
 
     # format numeric labels with separators
     if (!bar && y_axis$ylim[1] > 0) {
@@ -106,6 +153,14 @@ view_chart <- function(chart) {
     left_axis_labels(config$y_axis_label, left$axis_positions,
                      left$axis_labels, left$y_lab_lines)
 
+    if (dual) {
+      axis(4, at = y_axis$y_breaks,        # left-hand heights ...
+           labels = right$axis_labels,     # ... right-hand numbers
+           col = umar_cols("gridlines"), lwd = 0, tck = 0, las = 2,
+           family = umar_font())
+      mtext(right$y_axis_label, side = 4, line = right$y_lab_lines + 0.1,
+            family = umar_font())
+    }
     # --- x axis tickmarks ---
     if (length(x_axis$tickmarks) > 0 && all(is.finite(x_axis$tickmarks))) {
       if (bar) {
@@ -143,25 +198,32 @@ view_chart <- function(chart) {
   })
 }
 
-
-
 #' Map umar_chart object to the internal config format
 #'
-#' Bridges from the user-facing structure to the format expected
-#' by the existing rendering functions.
+#' Bridges from the user-facing structure to the format expected by the
+#' existing rendering functions. Each series carries its axis, and its unit
+#' comes from that axis's label, so \link{left_axis_label_width} and
+#' \link{right_axis_label_width} see one unit each rather than both.
 #'
 #' @param chart umar_chart object
 #' @return config list in internal format
 #' @keywords internal
 to_internal_config <- function(chart) {
-  series <- lapply(chart$series, function(s) {
+  axis_of <- vapply(chart$series,
+                    \(s) if (is.null(s$axis)) 1L else as.integer(s$axis), integer(1))
+  units <- ifelse(axis_of == 2L,
+                  chart$config$y_axis2 %||% "",
+                  chart$config$y_axis  %||% "")
+  series <- lapply(seq_along(chart$series), function(i) {
+    s <- chart$series[[i]]
     list(
       type = s$type,
       colour = s$colour,
       linestyle = s$linestyle,
       legend_txt_si = s$legend_txt,
       legend_txt_en = s$legend_txt,
-      unit = chart$config$y_axis %||% "",
+      axis = axis_of[i],
+      unit = units[i],
       mio_eur = FALSE
     )
   })
@@ -169,12 +231,13 @@ to_internal_config <- function(chart) {
   list(
     title = chart$config$title,
     y_axis_label = chart$config$y_axis,
+    y2_axis_label = chart$config$y_axis2,
     xmin = chart$config$xmin,
     xmax = chart$config$xmax,
     stacked = chart$config$stacked,
     legend_columns = chart$config$legend_columns,
     x_sub_annual = FALSE,
-    dual_y = FALSE,
+    dual_y = any(axis_of == 2L),
     series = series,
     note = chart$config$note,
     language = chart$config$language
