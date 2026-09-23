@@ -660,26 +660,19 @@ get_data_values <- function(datapoints, config){
 #' @export
 #'
 last_year_complete_series <- function(datapoints_df, max_year) {
-  curr_max_year <-   datapoints_df |>
-    dplyr::mutate(year = lubridate::year(date)) |>
-    dplyr::summarise(max = max(year)) |> dplyr::pull(max)
-  if(curr_max_year < max_year){# irrelevant previous year
-    complete <- NULL} else {
-      datapoints_df |>
-        dplyr::mutate(year = lubridate::year(date)) |>
-        dplyr::group_by(year) |>
-        dplyr::filter(year == max_year) |>
-        dplyr::mutate(count = dplyr::n()) |>
-        dplyr::filter(count == max(count), date == max(date)) -> last_period
+  years <- lubridate::year(datapoints_df$date)
+  if (all(is.na(years)) || max(years, na.rm = TRUE) < max_year) return(NULL)
 
-      # check if ends in Q4 or 12th month
-      if(last_period$count == 4 & lubridate::month(last_period$date) >= 10) {
-        complete <- TRUE
-      } else if (last_period$count == 12 ) {
-        complete <- TRUE
-      } else if (identical(determine_interval(datapoints_df), "A")){
-        complete <- TRUE} else {complete <- FALSE}}
-  return(complete)
+  in_year <- which(years == max_year)
+  if (!length(in_year)) return(NULL)
+
+  count <- length(in_year)
+  last_date <- max(datapoints_df$date[in_year], na.rm = TRUE)
+
+  if (count == 4 && lubridate::month(last_date) >= 10) return(TRUE)
+  if (count == 12) return(TRUE)
+  if (identical(determine_interval(datapoints_df), "A")) return(TRUE)
+  FALSE
 }
 
 
@@ -834,6 +827,7 @@ par_mgp <- function(mgp = c(3, -0.2, 0)) {
 #'
 determine_interval <- function(df) {
   df$date <- sort(as.Date(df$date))
+  if (length(df$date) < 2) return(NA)
   date_diffs <- diff(df$date)
   # Check for annual data
   if (all(abs(as.numeric(date_diffs, units = "days") - 365) <= 1)) {
