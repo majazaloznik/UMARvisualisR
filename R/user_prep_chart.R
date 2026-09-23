@@ -471,6 +471,11 @@ find_date_column <- function(data) {
 #' @keywords internal
 parse_wide <- function(data) {
   date_col <- find_date_column(data)
+  if (is.null(date_col)) {
+    stop("no Date column found - the period values may mix frequencies ",
+         "(e.g. 2023M01 and 2023Q1), which convert_period_column() leaves unconverted.",
+         call. = FALSE)
+  }
   dates <- data[[date_col]]
   value_cols <- setdiff(names(data), date_col)
 

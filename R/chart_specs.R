@@ -198,6 +198,38 @@ validate_chart_specs <- function(charts, chart_series) {
                      chart_id = .data$chart_id,
                      detail = "no rows in chart_series for this chart_id")
 
+  # --- charts.csv: quarterly aggregation ---------------------------------------
+  agg_col <- toupper(trimws(as.character(col_or(charts, "aggregate", NA_character_))))
+  fun_col <- tolower(trimws(as.character(col_or(charts, "aggregate_fun", NA_character_))))
+  agg_ids <- charts$chart_id[agg_col %in% "Q"]
+
+  bad_aggregate <- charts |>
+    dplyr::mutate(agg = agg_col) |>
+    dplyr::filter(!blank(.data$agg), !.data$agg %in% "Q") |>
+    dplyr::transmute(check = "invalid aggregate",
+                     chart_id = .data$chart_id,
+                     detail = paste0("'", .data$agg, "' (valid: Q, or blank for none)"))
+
+  bad_aggregate_fun <- charts |>
+    dplyr::mutate(fun = fun_col) |>
+    dplyr::filter(!blank(.data$fun), !.data$fun %in% c("mean", "sum")) |>
+    dplyr::transmute(check = "invalid aggregate_fun",
+                     chart_id = .data$chart_id,
+                     detail = paste0("'", .data$fun, "' (valid: mean, sum)"))
+
+  mom_on_quarterly <- chart_series |>
+    dplyr::filter(.data$chart_id %in% agg_ids, toupper(.data$growth) %in% "MOM") |>
+    dplyr::transmute(check = "MOM growth on a chart aggregated to quarters",
+                     chart_id = .data$chart_id,
+                     detail = paste0("alias '", .data$alias, "': use QOQ or YOY"))
+
+  monthly_index_on_quarterly <- chart_series |>
+    dplyr::filter(.data$chart_id %in% agg_ids, grepl("M\\d{2}$", .data$index)) |>
+    dplyr::transmute(check = "monthly index base on a chart aggregated to quarters",
+                     chart_id = .data$chart_id,
+                     detail = paste0("alias '", .data$alias, "': base '", .data$index,
+                                     "' must be a quarter or a year"))
+
   # --- chart_series.csv: keys --------------------------------------------------
 
   orphan_series <- chart_series |>
@@ -408,7 +440,8 @@ validate_chart_specs <- function(charts, chart_series) {
     bad_source_type, missing_code_for_db, missing_formula, bad_formula, unresolved_refs,
     bad_rolling, bad_growth, bad_index, growth_index_clash,
     bad_plot, legend_mismatch, bad_type, too_many_plotted, too_many_area,
-    bad_axis, no_left_axis, area_split, stacked_split
+    bad_axis, no_left_axis, area_split, stacked_split,
+    bad_aggregate, bad_aggregate_fun, mom_on_quarterly, monthly_index_on_quarterly
   )
 }
 

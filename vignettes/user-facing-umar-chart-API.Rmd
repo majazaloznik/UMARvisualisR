@@ -447,6 +447,7 @@ Seznam idej in planov, not in any particular order:
 - ~~ugotovit rešitev za kvakico, kadar se y-os ne začne na nuli, zaenkrat to pade na Mojco~~
 - ~~popravi kvakico na //~~
 - možnost agregiranja M->Q, M->A, Q->A, z izbrano funkcijo (sum, mean)
+- v bistvu ne, možnosti agregiranja ne bo, ker samo izgubljaš podatke. bo pa možnost sočasnega prikazovanja podatkov različnih intervalov. 
 - drseče sredine centrirane, če bo želja/potreba
 - mogoče opcija, da si shraniš tudi celo kodo za graf, ki jo lahko po potrebi tweakaš, čeprav to je kar messy in vprašanje, če je res potreba
 - ~~možnost prikaza podatkov, ki niso M, Q ali A.~~
