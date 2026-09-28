@@ -4,7 +4,13 @@
 \alias{create_legend}
 \title{Create legend}
 \usage{
-create_legend(config, legend_ps, language = "si")
+create_legend(
+  config,
+  legend_ps,
+  language = "si",
+  legend_lead = 0.7,
+  legend_offset = 0.25
+)
 }
 \arguments{
 \item{config}{dictionary list from \link[UMARvisualisR]{prep_config}}
@@ -12,6 +18,10 @@ create_legend(config, legend_ps, language = "si")
 \item{legend_ps}{legend text size}
 
 \item{language}{either "si" or "en"}
+
+\item{legend_lead}{controls spacing between legend entries}
+
+\item{legend_offset}{controls spacing to plot area}
 }
 \value{
 nothing, just draws the legend

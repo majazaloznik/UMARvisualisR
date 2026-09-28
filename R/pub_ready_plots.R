@@ -202,11 +202,14 @@ base_barplot <- function(datapoints, config, y_axis, forecast = NULL, pad = 0.01
 #'
 #' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param title_ps title font size in points defaults 10
+#' @param legend_lead controls spacing between legend entries
+#' @param legend_offset controls spacing to plot area
 #'
 #' @return top margin in lines, vertical title position in lines and wrapped title
 #' @export
-get_top_margin_and_title <- function(config, title_ps){
-  gap <- 0.15
+get_top_margin_and_title <- function(config, title_ps,
+                                     legend_lead = 0.7, legend_offset = 0.25,
+                                     title_gap = 0.3, title_lead = NULL){
 
   # measure on temp device
   dev_size <- dev.size("in")
@@ -233,10 +236,16 @@ get_top_margin_and_title <- function(config, title_ps){
   dev.set(real_dev)
 
   # back on real device — set margins
-  lines <- (legend_lines + 0.5) * 0.8 - 0.3 + gap +
-    title_lines * title_ps/12
-  lines <- max(lines, 0.5)
-  title_pos <- (legend_lines + 0.5) * 0.8 - 0.3 + gap
+  if (is.null(title_lead)) title_lead <- title_ps / 12
+  legend_block <- (legend_lines + 0.5) * legend_lead - 0.3 + legend_offset
+  if (title_lines > 0) {
+    title_pos   <- legend_block + title_gap
+    title_block <- title_ps / 12 + (title_lines - 1) * title_lead
+  } else {
+    title_pos   <- legend_block
+    title_block <- 0
+  }
+  lines <- max(title_pos + title_block, 0.5)
 
   current_mar <- par("mar")
   current_mar[3] <- lines
@@ -244,7 +253,7 @@ get_top_margin_and_title <- function(config, title_ps){
   current_mar[4] <- 0.75
   par(mar = current_mar)
 
-  return(list(lines, title_pos, wrapped_title))
+  return(list(lines, title_pos, wrapped_title, title_lead))
 }
 
 #' Helper to get the bottom margin and wrapped note lines
@@ -321,11 +330,14 @@ get_bottom_margin_and_note <- function(note, note_ps = 8,
 #' @param config  dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param legend_ps legend text size
 #' @param language either "si" or "en"
+#' @param legend_lead controls spacing between legend entries
+#' @param legend_offset controls spacing to plot area
 #'
 #' @return nothing, just draws the legend
 #' @export
 #'
-create_legend <- function(config, legend_ps, language = "si") {
+create_legend <- function(config, legend_ps, language = "si",
+                          legend_lead = 0.7, legend_offset = 0.25) {
   par("ps" = legend_ps)
   par(family = umar_font())
   series_types <- vapply(config$series, \(x) x$type, character(1))
@@ -358,17 +370,15 @@ create_legend <- function(config, legend_ps, language = "si") {
   line_colours <- line_colours[keep]
   fill_colours <- fill_colours[keep]
 
-  legend_mz2(par("usr")[[1]], par("usr")[[4]] + diff(par("usr")[3:4]) * 0.01,
+  legend_mz2(par("usr")[[1]],
+             par("usr")[[4]] + diff(par("usr")[3:4]) *
+               legend_offset * par("csi") / par("pin")[2],
              legend_labels,
-             lty = lty,
-             lwd = lwd,
-             col = line_colours,
-             fill = fill_colours,
+             lty = lty, lwd = lwd, col = line_colours, fill = fill_colours,
              ncol = config$legend_columns,
-             xjust = 0,
-             yjust = 0,
+             xjust = 0, yjust = 0,
              x.intersp = 0.2,
-             y.intersp = 0.8)
+             y.intersp = legend_lead)
 }
 
 #' Number of legend entries that will actually be drawn

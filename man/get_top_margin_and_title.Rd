@@ -4,12 +4,23 @@
 \alias{get_top_margin_and_title}
 \title{Helper funciton to get the number of lines for the top margin and title position}
 \usage{
-get_top_margin_and_title(config, title_ps)
+get_top_margin_and_title(
+  config,
+  title_ps,
+  legend_lead = 0.7,
+  legend_offset = 0.25,
+  title_gap = 0.3,
+  title_lead = NULL
+)
 }
 \arguments{
 \item{config}{dictionary list from \link[UMARvisualisR]{prep_config}}
 
 \item{title_ps}{title font size in points defaults 10}
+
+\item{legend_lead}{controls spacing between legend entries}
+
+\item{legend_offset}{controls spacing to plot area}
 }
 \value{
 top margin in lines, vertical title position in lines and wrapped title

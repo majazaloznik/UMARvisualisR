@@ -23,9 +23,14 @@ view_chart <- function(chart) {
     datapoints <- chart$datapoints
 
     # --- set params ---
-    title_ps <- 10.5
+    title_ps <- 10
     legend_ps <- 8.5
     note_ps <- 7.5
+    legend_lead <- 0.7
+    legend_offset <- 0.25
+    title_gap <- 0.3
+    title_lead <- 0.75
+
     shapes <- vapply(config$series, \(x) x$type, character(1))
     bar <- any(shapes == "bar")
     line <- any(shapes == "line")
@@ -96,7 +101,11 @@ view_chart <- function(chart) {
     }
 
     # --- top margin ---
-    top <- get_top_margin_and_title(config, title_ps = title_ps)
+    top <- get_top_margin_and_title(config, title_ps = title_ps,
+                                    legend_lead = legend_lead,
+                                    legend_offset = legend_offset,
+                                    title_gap = title_gap,
+                                    title_lead = title_lead)
     bottom <- get_bottom_margin_and_note(config$note, note_ps)
 
     # --- left margin ---
@@ -141,13 +150,22 @@ view_chart <- function(chart) {
 
     # --- legend ---
     if (n_legend_entries(config) > 0) {
-      create_legend(config, legend_ps = legend_ps, language = config$language)
+      create_legend(config, legend_ps = legend_ps, language = config$language,
+                    legend_lead = legend_lead,
+                    legend_offset = legend_offset)
     }
 
     # --- title ---
-    # par("ps" = title_ps)
-    mtext(top[[3]], side = 3, line = top[[2]], adj = 0, padj = 0,
-          family = umar_font(), font = 2, cex = title_ps/par("ps"))
+    # --- title ---
+    if (!is.null(top[[3]])) {
+      tl  <- strsplit(top[[3]], "\n", fixed = TRUE)[[1]]
+      n_t <- length(tl)
+      for (i in seq_len(n_t)) {
+        mtext(tl[i], side = 3, line = top[[2]] + (n_t - i) * top[[4]],
+              adj = 0, padj = 0, family = umar_font(), font = 2,
+              cex = title_ps/par("ps"))
+      }
+    }
 
     # --- y axis labels ---
     par("ps" = legend_ps)

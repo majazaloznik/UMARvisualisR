@@ -38,8 +38,8 @@ test_that("top margins are calculated correctly", {
     title = "Very very long title that just keeps going on and on and hopefully takes up at least two lines for me to be able to test this shit properly."
   )
   top <- get_top_margin_and_title(config, 10)
-  expect_true(top[[1]] > 3.5 & top[[1]] < 3.6)
-  expect_equal(top[[2]], 1.85)
+  expect_true(top[[1]] > 2.8 & top[[1]] < 2.9)
+  expect_equal(top[[2]], 2)
 })
 
 test_that("empty plot is drawn correctly", {
