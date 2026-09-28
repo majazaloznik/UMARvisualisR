@@ -27,7 +27,9 @@ prep_chart(
   language = "si",
   axis = NULL,
   y_axis2 = NULL,
-  ylim2 = NULL
+  ylim2 = NULL,
+  y_ref = NULL,
+  y_ref2 = NULL
 )
 }
 \arguments{
@@ -89,6 +91,10 @@ are on axis 2.}
 \item{ylim2}{numeric(2) manual limits for the right axis. NULL (default)
 derives them from the data, paired with the left axis so that the
 gridlines serve both.}
+
+\item{y_ref}{reference for pairing y-axis}
+
+\item{y_ref2}{reference for pairing y-axis}
 }
 \value{
 An object of class "umar_chart" containing the data and config.

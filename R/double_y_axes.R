@@ -355,12 +355,13 @@ right_axis_label_width <- function(config, y_axis, language = "si",
   widths <- strwidth(axis_labels, units = "inches")
   y_axis_label <- if (is.null(config$y_axis_label)) unit else config$y_axis_label
   y_axis_label <- wrap_to_height(y_axis_label, par("pin")[2] * 0.95)
+  line_ratio <- (par("ps") / 72 * 1.2) / par("csi")
   par(ps = old_ps)
 
   n_title_lines <- length(strsplit(y_axis_label, "\n", fixed = TRUE)[[1]])
-  y_lab_lines <- max(widths) / par("csi") + 0.5
+  y_lab_lines <- max(widths) / par("csi") + axis_label_gap()
   current_mar <- par("mar")
-  current_mar[4] <- y_lab_lines + n_title_lines + edge_pad
+  current_mar[4] <- y_lab_lines + 1 + (n_title_lines - 1) * line_ratio + edge_pad
   par(mar = current_mar)
   mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines", "y_axis_label"))
 }

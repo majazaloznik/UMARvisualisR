@@ -25,6 +25,7 @@ view_chart <- function(chart) {
     # --- set params ---
     title_ps <- 10.5
     legend_ps <- 8.5
+    note_ps <- 7.5
     shapes <- vapply(config$series, \(x) x$type, character(1))
     bar <- any(shapes == "bar")
     line <- any(shapes == "line")
@@ -66,8 +67,8 @@ view_chart <- function(chart) {
       y_axis2 <- NULL
     } else {
       il <- which(axis_of == 1L); ir <- which(axis_of == 2L)
-      ref  <- axis_reference(config$y_axis_label)
-      ref2 <- axis_reference(config$y2_axis_label)
+      ref  <- chart$config$y_ref  %||% axis_reference(config$y_axis_label)
+      ref2 <- chart$config$y_ref2 %||% axis_reference(config$y2_axis_label)
       values_left  <- axis_values(il)
       values_right <- axis_values(ir)
 
@@ -96,7 +97,7 @@ view_chart <- function(chart) {
 
     # --- top margin ---
     top <- get_top_margin_and_title(config, title_ps = title_ps)
-    bottom <- get_bottom_margin_and_note(config$note)
+    bottom <- get_bottom_margin_and_note(config$note, note_ps)
 
     # --- left margin ---
     left <- left_axis_label_width(config_for_axis(config, 1L), y_axis,
@@ -181,10 +182,10 @@ view_chart <- function(chart) {
     }
     # --- note ---
     if (length(bottom$wrapped) > 0) {
-      par(ps = legend_ps)
+      par(ps = note_ps)
       for (i in seq_along(bottom$wrapped)) {
         mtext(bottom$wrapped[i], side = 1,
-              line = 0.8 + (i - 1) * 0.8,
+              line = bottom$offset + (i - 1) * bottom$lead,
               adj = 0, at = par("usr")[1],
               family = umar_font())
       }

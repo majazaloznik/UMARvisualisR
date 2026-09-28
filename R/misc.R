@@ -557,6 +557,16 @@ legend_mz2 <- function(x = par("usr")[[1]],
 
 }
 
+#' Gap between an axis and its numeric labels, in csi lines
+#'
+#' The \code{mgp[2]} offset the numeric axis labels are drawn at, and the same
+#' allowance the margin calculations make for them. One value, three uses:
+#' \link{left_axis_labels} draws with it, \link{left_axis_label_width} and
+#' \link{right_axis_label_width} reserve space with it.
+#'
+#' @return numeric scalar
+#' @keywords internal
+axis_label_gap <- function() 0.3
 
 #' Prepare left axis labels and get width
 #'
@@ -589,12 +599,14 @@ left_axis_label_width <- function(config, y_axis, language = "si") {
   widths <- strwidth(axis_labels, units = "inches")
   y_axis_label <- if (is.null(config$y_axis_label)) unit else config$y_axis_label
   y_axis_label <- wrap_to_height(y_axis_label, par("pin")[2] * 0.95)
+  line_ratio <- (par("ps") / 72 * 1.2) / par("csi")
   par(ps = old_ps)
 
   n_title_lines <- length(strsplit(y_axis_label, "\n", fixed = TRUE)[[1]])
-  y_lab_lines <- max(widths) / par("csi") + 0.5
+  y_lab_lines <- max(widths) / par("csi") + axis_label_gap()
   current_mar <- par("mar")
-  current_mar[2] <- y_lab_lines + n_title_lines
+  current_mar[2] <- y_lab_lines + 1 + (n_title_lines - 1) * line_ratio
+  par(mar = current_mar)
   par(mar = current_mar)
   mget(c("unit", "axis_labels", "axis_positions", "y_lab_lines", "y_axis_label"))
 }
@@ -609,7 +621,7 @@ left_axis_label_width <- function(config, y_axis, language = "si") {
 #' @return nothing, draws axis title and labels
 #' @export
 left_axis_labels <- function(unit, axis_positions, axis_labels, y_lab_lines){
-  par(mgp=c(3,0.5,0), xpd = FALSE)
+  par(mgp = c(3, axis_label_gap(), 0), xpd = FALSE)
   axis(2, at = axis_positions,
        labels = axis_labels,
        col = umar_cols("gridlines"), lwd = 0,  tck = 0.0,
@@ -1034,7 +1046,7 @@ print.umar_palette <- function(x, ...) {
 #' @return nothing, closes the png device
 #' @keywords internal
 linestyle_to_lty <- function(style) {
-  switch(style, solid = 1, dashed = 2, dotted = 3, 1)
+  switch(style, solid = 1, dashed = "42", dotted = 3, 1)
 }
 
 

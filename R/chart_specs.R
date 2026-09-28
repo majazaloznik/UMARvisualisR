@@ -589,6 +589,9 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
   ylim2 <- if (is.null(chart_col("ylim2_min")) || is.null(chart_col("ylim2_max"))) NULL
   else as.numeric(c(chart$ylim2_min, chart$ylim2_max))
 
+  y_ref  <- if (is.null(chart_col("y_ref")))  NULL else as.numeric(chart$y_ref)
+  y_ref2 <- if (is.null(chart_col("y_ref2"))) NULL else as.numeric(chart$y_ref2)
+
   forecast <- if (is.null(nz(chart$forecast_start)) || is.null(nz(chart$forecast_end))) NULL
   else c(parse_spec_date(chart$forecast_start, "forecast_start"),
          parse_spec_date(chart$forecast_end, "forecast_end"))
@@ -618,6 +621,8 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
     index = NULL,
     ylim = ylim,
     ylim2 = ylim2,
+    y_ref = y_ref,
+    y_ref2 = y_ref2,
     axis = axis,
     note = breaks(lang_col(chart, "note")),
     forecast = forecast,
@@ -708,7 +713,7 @@ coerce_spec_types <- function(df, logical_cols = character(), numeric_cols = cha
 read_chart_specs <- function(charts_path, series_path, encoding = "UTF-8", validate = TRUE) {
   charts <- read_spec_csv(charts_path, encoding) |>
     coerce_spec_types(logical_cols = "stacked",
-                      numeric_cols = c("ylim_min", "ylim_max", "ylim2_min", "ylim2_max"),
+                      numeric_cols = c("ylim_min", "ylim_max", "ylim2_min", "ylim2_max", "y_ref", "y_ref2"),
                       integer_cols = c("legend_columns", "legend_columns_sl", "legend_columns_en"))
   chart_series <- read_spec_csv(series_path, encoding) |>
     coerce_spec_types(logical_cols = c("plot", "dashed", "dotted"),

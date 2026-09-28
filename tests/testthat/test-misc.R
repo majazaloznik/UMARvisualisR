@@ -372,15 +372,10 @@ test_that("get data values works for stacked bar", {
 
 test_that("linestyle_to_lty maps correctly", {
   expect_equal(UMARvisualisR:::linestyle_to_lty("solid"), 1)
-  expect_equal(UMARvisualisR:::linestyle_to_lty("dashed"), 2)
+  expect_equal(UMARvisualisR:::linestyle_to_lty("dashed"), "42")
   expect_equal(UMARvisualisR:::linestyle_to_lty("dotted"), 3)
 })
 
-test_that("linestyle_to_lty maps correctly", {
-  expect_equal(UMARvisualisR:::linestyle_to_lty("solid"), 1)
-  expect_equal(UMARvisualisR:::linestyle_to_lty("dashed"), 2)
-  expect_equal(UMARvisualisR:::linestyle_to_lty("dotted"), 3)
-})
 
 test_that("format numbber works alrigh", {
   expect_equal(UMARvisualisR:::format_number(1.3, "si"), "1,3")

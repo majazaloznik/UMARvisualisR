@@ -47,6 +47,8 @@
 #' @param ylim2 numeric(2) manual limits for the right axis. NULL (default)
 #'   derives them from the data, paired with the left axis so that the
 #'   gridlines serve both.
+#' @param y_ref reference for pairing y-axis
+#' @param y_ref2 reference for pairing y-axis
 #'
 #' @return An object of class "umar_chart" containing the data and config.
 #' @export
@@ -72,7 +74,9 @@ prep_chart <- function(data,
                        language = "si",
                        axis = NULL,
                        y_axis2 = NULL,
-                       ylim2 = NULL) {
+                       ylim2 = NULL,
+                       y_ref = NULL,
+                       y_ref2 = NULL) {
 
   # --- first sanity check ---
   if (!is.data.frame(data)) stop("data must be a data.frame.")
@@ -149,6 +153,7 @@ prep_chart <- function(data,
   if (!any(axis == 2L)) {
     if (!is.null(y_axis2)) warning("y_axis2 ignored: no series on axis 2.")
     if (!is.null(ylim2))   warning("ylim2 ignored: no series on axis 2.")
+    if (!is.null(y_ref2))   warning("y_ref2 ignored: no series on axis 2.")
   }
 
   # --- validate type ---
@@ -305,6 +310,13 @@ prep_chart <- function(data,
       ylim2[1] <- 0
     }
   }
+  # --- validate y_ref ---
+  if (!is.null(y_ref)) {
+    if (!is.numeric(y_ref) || length(y_ref) != 1) stop("y_ref must be numeric(2).")
+  }
+  if (!is.null(y_ref2)) {
+    if (!is.numeric(y_ref2) || length(y_ref2) != 1) stop("y_ref2 must be numeric(2).")
+  }
 
   # validation
   if (!language %in% c("si", "en")) stop("language must be 'si' or 'en'.")
@@ -397,6 +409,8 @@ prep_chart <- function(data,
     index = index,
     ylim = ylim,
     ylim2 = ylim2,
+    y_ref = y_ref,
+    y_ref2 = y_ref2,
     note = note,
     forecast = forecast,
     language = language

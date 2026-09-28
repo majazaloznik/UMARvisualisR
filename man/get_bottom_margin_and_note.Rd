@@ -4,12 +4,16 @@
 \alias{get_bottom_margin_and_note}
 \title{Helper to get the bottom margin and wrapped note lines}
 \usage{
-get_bottom_margin_and_note(note, note_ps = 9)
+get_bottom_margin_and_note(note, note_ps = 8, note_offset = 1, note_lead = 0.6)
 }
 \arguments{
 \item{note}{character string, possibly with \\n breaks}
 
-\item{note_ps}{font size for note, defaults 9}
+\item{note_ps}{font size for note, defaults 8}
+
+\item{note_offset}{offset for note}
+
+\item{note_lead}{lead for note}
 }
 \value{
 list with bottom margin in lines and wrapped note lines

@@ -218,7 +218,7 @@ get_top_margin_and_title <- function(config, title_ps){
   plot.new()
   mar <- par("mar")
   mar[1] <- 1.2
-  mar[4] <- 0.7
+  mar[4] <- 0.75
   par(mar = mar)
   plot.window(c(0,10), c(0,10))
 
@@ -241,7 +241,7 @@ get_top_margin_and_title <- function(config, title_ps){
   current_mar <- par("mar")
   current_mar[3] <- lines
   current_mar[1] <- 1.2
-  current_mar[4] <- 0.7
+  current_mar[4] <- 0.75
   par(mar = current_mar)
 
   return(list(lines, title_pos, wrapped_title))
@@ -253,16 +253,20 @@ get_top_margin_and_title <- function(config, title_ps){
 #' the bottom margin in lines and the wrapped lines for rendering.
 #'
 #' @param note character string, possibly with \\n breaks
-#' @param note_ps font size for note, defaults 9
+#' @param note_ps font size for note, defaults 8
+#' @param note_offset offset for note
+#' @param note_lead lead for note
 #'
 #' @return list with bottom margin in lines and wrapped note lines
 #' @keywords internal
-get_bottom_margin_and_note <- function(note, note_ps = 9) {
+get_bottom_margin_and_note <- function(note, note_ps = 8,
+                                       note_offset = 1, note_lead = 0.6) {
   if (is.null(note) || note == "") {
     current_mar <- par("mar")
     current_mar[1] <- 1.2
     par(mar = current_mar)
-    return(list(lines = 1.2, wrapped = character(0)))
+    return(list(lines = 1.2, wrapped = character(0),
+                offset = note_offset, lead = note_lead))
   }
 
   dev_size <- dev.size("in")
@@ -299,15 +303,15 @@ get_bottom_margin_and_note <- function(note, note_ps = 9) {
   unlink(tmp)
   dev.set(real_dev)
 
-  gap <- 0
-  note_height_lines <- length(wrapped) * 0.8
-  total_lines <- 0.8 + gap + note_height_lines + 0.3
+  note_height_lines <- length(wrapped) * note_lead
+  total_lines <- note_offset + note_height_lines + 0.3
 
   current_mar <- par("mar")
   current_mar[1] <- total_lines
   par(mar = current_mar)
 
-  list(lines = total_lines, wrapped = wrapped)
+  list(lines = total_lines, wrapped = wrapped,
+       offset = note_offset, lead = note_lead)
 }
 
 #' Create legend
