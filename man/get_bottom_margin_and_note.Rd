@@ -6,7 +6,7 @@
 \usage{
 get_bottom_margin_and_note(
   note,
-  note_ps = NULL,
+  note_ps = ps_note(),
   note_offset = 1,
   note_lead = 0.6
 )

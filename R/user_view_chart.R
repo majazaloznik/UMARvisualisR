@@ -23,9 +23,9 @@ view_chart <- function(chart) {
     datapoints <- chart$datapoints
 
     # --- set params ---
-    title_ps <- 10
-    legend_ps <- 9.5
-    note_ps <- 8.5
+    title_ps <- ps_title()
+    legend_ps <- ps_legend()
+    note_ps <- ps_note()
     legend_lead <- 0.7
     legend_offset <- 0.25
     title_gap <- 0.3

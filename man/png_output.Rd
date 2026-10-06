@@ -15,6 +15,6 @@ png_output(filename, size = "normal")
 nothing, produces png file
 }
 \description{
-Opens device to output to png with filename and size. Afterwards you
-need to call dev.off().
+Thin wrapper on \link{chart_device}. Opens device to output to png with
+filename and size. Afterwards you need to call dev.off().
 }

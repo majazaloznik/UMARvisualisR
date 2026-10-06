@@ -21,6 +21,10 @@ get_top_margin_and_title(
 \item{legend_lead}{controls spacing between legend entries}
 
 \item{legend_offset}{controls spacing to plot area}
+
+\item{title_gap}{controls spacing from title to plot area}
+
+\item{title_lead}{controls spacing between title lines}
 }
 \value{
 top margin in lines, vertical title position in lines and wrapped title

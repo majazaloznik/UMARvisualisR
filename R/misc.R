@@ -1,3 +1,9 @@
+#' House text sizes, in points
+#' @keywords internal
+ps_title  <- function() 10
+ps_legend <- function() 9.5
+ps_note   <- function() 8.5
+
 #' Helper functions for testing if a value is in a range
 #'
 #' in_range checks if the value is within the range, including the limits,

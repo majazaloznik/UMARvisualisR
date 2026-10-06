@@ -28,6 +28,11 @@ test_that("x-axis limits are calculated correctly", {
 
 
 test_that("top margins are calculated correctly", {
+  f <- tempfile(fileext = ".pdf")
+  wh <- chart_size("normal")
+  grDevices::cairo_pdf(f, width = wh[1], height = wh[2],
+                       pointsize = device_pointsize())
+  on.exit({ grDevices::dev.off(); unlink(f) }, add = TRUE)
   config <- list(
     series = list(
       list(legend_txt_si = "a"),
@@ -38,8 +43,12 @@ test_that("top margins are calculated correctly", {
     title = "Very very long title that just keeps going on and on and hopefully takes up at least two lines for me to be able to test this shit properly."
   )
   top <- get_top_margin_and_title(config, 10)
-  expect_true(top[[1]] > 2.8 & top[[1]] < 2.9)
+  n <- length(strsplit(top[[3]], "\n", fixed = TRUE)[[1]])
   expect_equal(top[[2]], 2)
+  expect_equal(top[[1]], top[[2]] + 10/12 + (n - 1) * top[[4]])
+  top2 <- get_top_margin_and_title(config, 10, title_lead = 0.75)
+  n2 <- length(strsplit(top2[[3]], "\n", fixed = TRUE)[[1]])
+  expect_equal(top2[[1]], top2[[2]] + 10/12 + (n2 - 1) * 0.75)
 })
 
 test_that("empty plot is drawn correctly", {

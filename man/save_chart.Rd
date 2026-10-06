@@ -2,7 +2,7 @@
 % Please edit documentation in R/user_output_chart.R
 \name{save_chart}
 \alias{save_chart}
-\title{Save a chart to PDF or PNG}
+\title{Save a chart to file}
 \usage{
 save_chart(chart, filename, format = "pdf", size = 2)
 }
@@ -12,8 +12,8 @@ save_chart(chart, filename, format = "pdf", size = 2)
 \item{filename}{character path to output file. If no extension is provided,
 one is added based on \code{format}.}
 
-\item{format}{character, "pdf" or "png". Defaults to "pdf". Ignored if
-\code{filename} already has a valid extension.}
+\item{format}{character, one of \link{chart_formats}. Defaults to "pdf".
+Ignored if \code{filename} already has a valid extension.}
 
 \item{size}{integer, chart size: 1 (small), 2 (normal), 3 (large). Defaults to 2.}
 }
@@ -21,6 +21,17 @@ one is added based on \code{format}.}
 invisible chart object
 }
 \description{
-Renders the chart and saves to file. Format is determined by the \code{format}
-parameter or the file extension if one is provided.
+Renders the chart and saves it. Format is determined by the \code{format}
+argument, or by the file extension if one is provided.
+}
+\details{
+\code{pdf} and \code{png} need nothing extra. \code{svg} needs the
+\pkg{svglite} package, \code{emf} needs \pkg{devEMF}; both are in Suggests.
+
+For insertion into Word: \code{emf} is Word's native vector format on
+Windows and is drawn with text converted to paths, so it does not depend on
+the reader having the house font installed. \code{svg} is also vector and
+Word renders it natively, but it carries text as text and will substitute a
+different font - and therefore re-flow every label - on a machine without
+the house font. \code{png} is immune to both but does not scale.
 }

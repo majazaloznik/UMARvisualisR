@@ -20,6 +20,8 @@ right_axis_label_width(
 \item{language}{language, options en and si, default si}
 
 \item{edge_pad}{for padding right margin}
+
+\item{label_ps}{controls label font size}
 }
 \value{
 list of axis title, axis labels, positions and number of lines

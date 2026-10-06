@@ -204,6 +204,8 @@ base_barplot <- function(datapoints, config, y_axis, forecast = NULL, pad = 0.01
 #' @param title_ps title font size in points defaults 10
 #' @param legend_lead controls spacing between legend entries
 #' @param legend_offset controls spacing to plot area
+#' @param title_gap controls spacing from title to plot area
+#' @param title_lead controls spacing between title lines
 #'
 #' @return top margin in lines, vertical title position in lines and wrapped title
 #' @export
@@ -268,7 +270,7 @@ get_top_margin_and_title <- function(config, title_ps,
 #'
 #' @return list with bottom margin in lines and wrapped note lines
 #' @keywords internal
-get_bottom_margin_and_note <- function(note, note_ps = NULL,
+get_bottom_margin_and_note <- function(note, note_ps = ps_note(),
                                        note_offset = 1, note_lead = 0.6) {
   if (is.null(note) || note == "") {
     current_mar <- par("mar")

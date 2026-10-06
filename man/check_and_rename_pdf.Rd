@@ -13,7 +13,5 @@ check_and_rename_pdf(filename)
 (updated) filename
 }
 \description{
-if the pdf you are trying to write to is open, it is also locked for
-writing. so in this case we rename the filename by adding the timestamp
-to the end of the filename. kludgy but works.
+Deprecated, use \link{check_and_rename_file}, which handles any extension.
 }

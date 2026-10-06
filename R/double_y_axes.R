@@ -335,6 +335,7 @@ config_for_axis <- function(config, which = 1L) {
 #' @param y_axis the right-hand scale from \link{pair_y_scales}
 #' @param language language, options en and si, default si
 #' @param edge_pad for padding right margin
+#' @param label_ps controls label font size
 #'
 #' @return list of axis title, axis labels, positions and number of lines
 #' @export

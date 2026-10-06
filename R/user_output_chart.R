@@ -1,13 +1,23 @@
-#' Save a chart to PDF or PNG
+#' Save a chart to file
 #'
-#' Renders the chart and saves to file. Format is determined by the \code{format}
-#' parameter or the file extension if one is provided.
+#' Renders the chart and saves it. Format is determined by the \code{format}
+#' argument, or by the file extension if one is provided.
+#'
+#' \code{pdf} and \code{png} need nothing extra. \code{svg} needs the
+#' \pkg{svglite} package, \code{emf} needs \pkg{devEMF}; both are in Suggests.
+#'
+#' For insertion into Word: \code{emf} is Word's native vector format on
+#' Windows and is drawn with text converted to paths, so it does not depend on
+#' the reader having the house font installed. \code{svg} is also vector and
+#' Word renders it natively, but it carries text as text and will substitute a
+#' different font - and therefore re-flow every label - on a machine without
+#' the house font. \code{png} is immune to both but does not scale.
 #'
 #' @param chart an object of class "umar_chart" from \link[UMARvisualisR]{prep_chart}
 #' @param filename character path to output file. If no extension is provided,
 #'   one is added based on \code{format}.
-#' @param format character, "pdf" or "png". Defaults to "pdf". Ignored if
-#'   \code{filename} already has a valid extension.
+#' @param format character, one of \link{chart_formats}. Defaults to "pdf".
+#'   Ignored if \code{filename} already has a valid extension.
 #' @param size integer, chart size: 1 (small), 2 (normal), 3 (large). Defaults to 2.
 #'
 #' @return invisible chart object
@@ -16,38 +26,39 @@ save_chart <- function(chart, filename, format = "pdf", size = 2) {
   if (!inherits(chart, "umar_chart")) stop("chart must be a 'umar_chart' object from prep_chart().")
   if (missing(filename)) stop("filename is required. E.g. save_chart(chart, 'my_chart')")
   if (!size %in% c(1, 2, 3)) stop("size must be 1 (small), 2 (normal), or 3 (large).")
-  if (!format %in% c("pdf", "png")) stop("format must be 'pdf' or 'png'.")
+
+  formats <- chart_formats()
+  format <- tolower(format)
+  if (!format %in% formats) {
+    stop("format must be one of: ", paste(formats, collapse = ", "), call. = FALSE)
+  }
 
   ext <- tolower(tools::file_ext(filename))
 
-  if (ext %in% c("pdf", "png")) {
-    # extension present — use it
+  if (ext %in% formats) {
+    # extension present - use it
     if (ext != format) {
       warning("Using extension '.", ext, "' from filename (ignoring format = '", format, "').")
     }
     format <- ext
   } else if (ext == "") {
-    # no extension — append format
+    # no extension - append format
     filename <- paste0(filename, ".", format)
   } else {
-    stop("Unsupported file extension '.", ext, "'. Use .pdf or .png.")
+    stop("Unsupported file extension '.", ext, "'. Use one of: ",
+         paste(formats, collapse = ", "), call. = FALSE)
   }
 
   size_name <- c("small", "normal", "large")[size]
 
-  if (format == "pdf") {
-    pdf_output(filename, size_name)
-  } else {
-    png_output(filename, size_name)
-  }
+  filename <- chart_device(filename, format, size_name)
+  on.exit(grDevices::dev.off(), add = TRUE)
 
   view_chart(chart)
-  grDevices::dev.off()
 
   message("Chart saved to ", filename)
   invisible(chart)
 }
-
 
 #' Generate reproducible code for a chart
 #'
