@@ -29,7 +29,8 @@ prep_chart(
   y_axis2 = NULL,
   ylim2 = NULL,
   y_ref = NULL,
-  y_ref2 = NULL
+  y_ref2 = NULL,
+  vline = NULL
 )
 }
 \arguments{
@@ -95,6 +96,8 @@ gridlines serve both.}
 \item{y_ref}{reference for pairing y-axis}
 
 \item{y_ref2}{reference for pairing y-axis}
+
+\item{vline}{location of vertical line(s)}
 }
 \value{
 An object of class "umar_chart" containing the data and config.

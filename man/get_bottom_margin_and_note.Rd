@@ -4,7 +4,12 @@
 \alias{get_bottom_margin_and_note}
 \title{Helper to get the bottom margin and wrapped note lines}
 \usage{
-get_bottom_margin_and_note(note, note_ps = 8, note_offset = 1, note_lead = 0.6)
+get_bottom_margin_and_note(
+  note,
+  note_ps = NULL,
+  note_offset = 1,
+  note_lead = 0.6
+)
 }
 \arguments{
 \item{note}{character string, possibly with \\n breaks}

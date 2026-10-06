@@ -4,7 +4,7 @@
 \alias{left_axis_label_width}
 \title{Prepare left axis labels and get width}
 \usage{
-left_axis_label_width(config, y_axis, language = "si")
+left_axis_label_width(config, y_axis, language = "si", label_ps = NULL)
 }
 \arguments{
 \item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
@@ -12,6 +12,8 @@ left_axis_label_width(config, y_axis, language = "si")
 \item{y_axis}{output of \link[UMARvisualisR]{find_pretty_ylim}}
 
 \item{language}{language, options en and si, defaulg si}
+
+\item{label_ps}{size of label font}
 }
 \value{
 list of axis title, axis labels, and

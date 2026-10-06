@@ -577,12 +577,13 @@ axis_label_gap <- function() 0.3
 #' @param config config dictionary list from \link[UMARvisualisR]{prep_config}
 #' @param y_axis output of \link[UMARvisualisR]{find_pretty_ylim}
 #' @param language language, options en and si, defaulg si
+#' @param label_ps size of label font
 #'
 #' @return list of axis title, axis labels, and
 #' number of lines
 #' @export
 #'
-left_axis_label_width <- function(config, y_axis, language = "si") {
+left_axis_label_width <- function(config, y_axis, language = "si", label_ps = NULL) {
   axis_labels_num <- y_axis$y_breaks
   axis_positions <- y_axis$y_breaks
   unit <- unique(unlist(purrr::map(config$series, ~ .x$unit)))
@@ -595,7 +596,7 @@ left_axis_label_width <- function(config, y_axis, language = "si") {
 
   # measure at the same ps as actual rendering
   old_ps <- par("ps")
-  par(ps = 8.5)
+  par(ps = label_ps)
   widths <- strwidth(axis_labels, units = "inches")
   y_axis_label <- if (is.null(config$y_axis_label)) unit else config$y_axis_label
   y_axis_label <- wrap_to_height(y_axis_label, par("pin")[2] * 0.95)

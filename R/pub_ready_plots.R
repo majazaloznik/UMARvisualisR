@@ -268,7 +268,7 @@ get_top_margin_and_title <- function(config, title_ps,
 #'
 #' @return list with bottom margin in lines and wrapped note lines
 #' @keywords internal
-get_bottom_margin_and_note <- function(note, note_ps = 8,
+get_bottom_margin_and_note <- function(note, note_ps = NULL,
                                        note_offset = 1, note_lead = 0.6) {
   if (is.null(note) || note == "") {
     current_mar <- par("mar")
@@ -287,7 +287,7 @@ get_bottom_margin_and_note <- function(note, note_ps = 8,
   grDevices::cairo_pdf(tmp, width = dev_size[1], height = dev_size[2])
   tmp_dev <- dev.cur()
   plot.new()
-  par(ps = note_ps)
+  par(ps = note_ps, family = umar_font())
 
   raw_lines <- strsplit(note, "\n", fixed = TRUE)[[1]]
   wrapped <- unlist(lapply(raw_lines, function(line) {
@@ -400,6 +400,9 @@ n_legend_entries <- function(config) {
   sum(!is.na(labels))
 }
 
+#' Minimum gap between adjacent axis labels, in units of the width of "m"
+#' @keywords internal
+axis_min_gap <- function() 0.25
 
 #' Get x_axis lims and tickmarks
 #'
@@ -535,7 +538,7 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_va
     }
 
     min_gap <- calculate_smallest_gap(x_positions, x_labels)
-    if (min_gap < 0.1) {
+    if (min_gap < axis_min_gap()) {
       # keep every other, always keep first and last
       keep <- rep(c(TRUE, FALSE), length.out = length(x_labels))
       keep[1] <- TRUE
@@ -566,7 +569,7 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_va
 
     # squish if too tight
     min_gap <- calculate_smallest_gap(x_positions, x_labels)
-    if (min_gap < 0.1) {
+    if (min_gap < axis_min_gap()) {
       keep <- rep(TRUE, length(x_labels))
       keep[seq(2, length(keep), by = 2)] <- FALSE
       keep[1] <- TRUE
@@ -577,7 +580,7 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_va
       x_positions <- filtered$x_positions
       x_labels <- filtered$x_labels
       min_gap <- calculate_smallest_gap(x_positions, x_labels)
-      if (min_gap < 0.1) {
+      if (min_gap < axis_min_gap()) {
         # keep every 3rd month, Januaries, and first/last
         keep2 <- rep(FALSE, length(x_labels))
         keep2[seq(1, length(x_labels), by = 3)] <- TRUE
@@ -633,22 +636,22 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_va
       min_gap <- calculate_smallest_gap(x_positions, x_labels)
 
       if (only_annual_log | last_year_complete_log) {
-        if (min_gap < 0.1) {
+        if (min_gap < axis_min_gap()) {
           x_labels <- year_squisher(x_labels)
           min_gap <- calculate_smallest_gap(x_positions, x_labels)
-          if (min_gap < 0.10) {
+          if (min_gap < axis_min_gap()) {
             x_labels[(length(x_labels) - 1)] <- NA
             filtered <- filter_na_labels(x_positions, x_labels)
             x_positions <- filtered$x_positions
             x_labels <- filtered$x_labels
             min_gap <- calculate_smallest_gap(x_positions, x_labels)
-            if (min_gap < 0.10) {
+            if (min_gap < axis_min_gap()) {
               x_labels <- year_squisher(x_labels, extra = TRUE)
               filtered <- filter_na_labels(x_positions, x_labels)
               x_positions <- filtered$x_positions
               x_labels <- filtered$x_labels
               min_gap <- calculate_smallest_gap(x_positions, x_labels)
-              if (min_gap < 0.10) {
+              if (min_gap < axis_min_gap()) {
                 x_labels[(length(x_labels) - 1)] <- NA
                 filtered <- filter_na_labels(x_positions, x_labels)
                 x_positions <- filtered$x_positions
@@ -658,23 +661,23 @@ x_axis_label_params <- function(datapoints, config, tickmarks, x_lims, bar, x_va
           }
         }
       } else {
-        if (min_gap < 0.1) {
+        if (min_gap < axis_min_gap()) {
           x_labels <- c(year_squisher(x_labels[-length(x_labels)]),
                         x_labels[length(x_labels)])
           min_gap <- calculate_smallest_gap(x_positions, x_labels)
-          if (min_gap < 0.1) {
+          if (min_gap < axis_min_gap()) {
             x_labels[(length(x_labels) - 1)] <- NA
             filtered <- filter_na_labels(x_positions, x_labels)
             x_positions <- filtered$x_positions
             x_labels <- filtered$x_labels
             min_gap <- calculate_smallest_gap(x_positions, x_labels)
-            if (min_gap < 0.1) {
+            if (min_gap < axis_min_gap()) {
               x_labels <- year_squisher(x_labels, extra = TRUE)
               filtered <- filter_na_labels(x_positions, x_labels)
               x_positions <- filtered$x_positions
               x_labels <- filtered$x_labels
               min_gap <- calculate_smallest_gap(x_positions, x_labels)
-              if (min_gap < 0.1) {
+              if (min_gap < axis_min_gap()) {
                 x_labels[(length(x_labels) - 1)] <- NA
                 filtered <- filter_na_labels(x_positions, x_labels)
                 x_positions <- filtered$x_positions
@@ -878,4 +881,25 @@ draw_forecast <- function(forecast, bar, x_values = NULL) {
   graphics::rect(xleft, usr[3], xright, usr[4],
                  col = grDevices::adjustcolor(umar_cols("gridlines"), alpha.f = 0.5),
                  border = NA)
+}
+
+#' Draw vertical marker lines
+#'
+#' Black dashed verticals at the given dates, drawn under the series like
+#' \link{draw_forecast}. On bar charts the x axis is bar indices rather than
+#' dates, so positions come from \link{interpolate_x} against the bar midpoints.
+#'
+#' @param vline Date vector, or NULL
+#' @param x_values for bar charts, the list returned by \link{base_barplot};
+#'   NULL for line and area charts
+#' @return nothing, draws on the current device
+#' @keywords internal
+draw_vlines <- function(vline, x_values = NULL) {
+  if (is.null(vline) || !length(vline)) return(invisible())
+  at <- if (is.null(x_values)) as.numeric(vline)
+  else interpolate_x(x_values$dates, x_values$midpoints, vline)
+  usr <- graphics::par("usr")
+  at <- at[at > usr[1] & at < usr[2]]
+  if (!length(at)) return(invisible())
+  graphics::abline(v = at, lty = 2, col = "black", lwd = 1)
 }

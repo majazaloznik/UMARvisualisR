@@ -49,6 +49,7 @@
 #'   gridlines serve both.
 #' @param y_ref reference for pairing y-axis
 #' @param y_ref2 reference for pairing y-axis
+#' @param vline location of vertical line(s)
 #'
 #' @return An object of class "umar_chart" containing the data and config.
 #' @export
@@ -76,7 +77,8 @@ prep_chart <- function(data,
                        y_axis2 = NULL,
                        ylim2 = NULL,
                        y_ref = NULL,
-                       y_ref2 = NULL) {
+                       y_ref2 = NULL,
+                       vline = NULL) {
 
   # --- first sanity check ---
   if (!is.data.frame(data)) stop("data must be a data.frame.")
@@ -230,7 +232,7 @@ prep_chart <- function(data,
     if (!is.numeric(emphasis)) stop("emphasis must be NULL, FALSE, or a numeric vector.")
   }
 
-  # in prep_chart() validation
+  # -- validate forecast ---
   if (!is.null(forecast)) {
     if (!is.character(forecast) && !inherits(forecast, "Date") || length(forecast) != 2) {
       stop("forecast must be a character or Date vector of length 2.")
@@ -239,7 +241,14 @@ prep_chart <- function(data,
     if (is.na(forecast[1]) || is.na(forecast[2])) stop("forecast dates couldn't be parsed.")
     if (forecast[1] >= forecast[2]) stop("forecast[1] must be earlier than forecast[2].")
   }
-
+  # --- validate vline ---
+  if (!is.null(vline)) {
+    if (!is.character(vline) && !inherits(vline, "Date")) {
+      stop("vline must be a character or Date vector.")
+    }
+    vline <- as.Date(vline)
+    if (any(is.na(vline))) stop("vline dates couldn't be parsed.")
+  }
   # --- validate y_axis ---
   if (!is.null(y_axis) && (!is.character(y_axis) || length(y_axis) != 1)) {
     stop("y_axis is the axis title and must be a single character string. For manual axis limits use ylim.")
@@ -413,7 +422,8 @@ prep_chart <- function(data,
     y_ref2 = y_ref2,
     note = note,
     forecast = forecast,
-    language = language
+    language = language,
+    vline = vline
   )
 
   series <- lapply(seq_len(n_series), function(i) {

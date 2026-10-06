@@ -4,7 +4,13 @@
 \alias{right_axis_label_width}
 \title{Prepare right axis labels and get width}
 \usage{
-right_axis_label_width(config, y_axis, language = "si", edge_pad = 0.35)
+right_axis_label_width(
+  config,
+  y_axis,
+  language = "si",
+  edge_pad = 0.35,
+  label_ps = NULL
+)
 }
 \arguments{
 \item{config}{config for the right axis, from \link{config_for_axis}}

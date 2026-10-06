@@ -596,6 +596,10 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
   else c(parse_spec_date(chart$forecast_start, "forecast_start"),
          parse_spec_date(chart$forecast_end, "forecast_end"))
 
+  vline <- if (is.null(chart_col("vline"))) NULL else
+    do.call(c, lapply(strsplit(as.character(chart$vline), "|", fixed = TRUE)[[1]],
+                      parse_spec_date, what = "vline"))
+
   # legend_columns_<lang>, else legend_columns, else prep_chart's default
   legend_columns <- lang_col(chart, "legend_columns")
   if (is.null(legend_columns) && "legend_columns" %in% names(chart)) legend_columns <- nz(chart$legend_columns)
@@ -626,7 +630,8 @@ chart_args_from_spec <- function(chart, series_rows, wide, language = "si") {
     axis = axis,
     note = breaks(lang_col(chart, "note")),
     forecast = forecast,
-    language = language
+    language = language,
+    vline = vline
   )
 }
 

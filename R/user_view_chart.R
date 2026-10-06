@@ -24,12 +24,13 @@ view_chart <- function(chart) {
 
     # --- set params ---
     title_ps <- 10
-    legend_ps <- 8.5
-    note_ps <- 7.5
+    legend_ps <- 9.5
+    note_ps <- 8.5
     legend_lead <- 0.7
     legend_offset <- 0.25
     title_gap <- 0.3
     title_lead <- 0.75
+    par(family = umar_font())
 
     shapes <- vapply(config$series, \(x) x$type, character(1))
     bar <- any(shapes == "bar")
@@ -106,17 +107,22 @@ view_chart <- function(chart) {
                                     legend_offset = legend_offset,
                                     title_gap = title_gap,
                                     title_lead = title_lead)
-    bottom <- get_bottom_margin_and_note(config$note, note_ps)
+    bottom <- get_bottom_margin_and_note(config$note, note_ps)   # pass 1: mar[1] only
 
     # --- left margin ---
     left <- left_axis_label_width(config_for_axis(config, 1L), y_axis,
-                                  language = config$language)
+                                  language = config$language,
+                                  label_ps = legend_ps)
     config$y_axis_label <- left$y_axis_label
     if (dual) {
       right <- right_axis_label_width(config_for_axis(config, 2L), y_axis2,
-                                      language = config$language)
+                                      language = config$language,
+                                      label_ps = legend_ps)
       if (!bar && y_axis2$ylim[1] > 0) right$axis_labels[1] <- "//"
     }
+
+    # --- note: re-wrap, now that mar[2] is final ---
+    bottom <- get_bottom_margin_and_note(config$note, note_ps)   # pass 2: the real width
 
     # format numeric labels with separators
     if (!bar && y_axis$ylim[1] > 0) {
@@ -127,14 +133,15 @@ view_chart <- function(chart) {
       empty_plot(x_axis$x_lims, y_axis, config$y_axis_label)
       draw_emphasis(chart$config$emphasis, config$y_axis_label, y_axis$ylim)
       draw_forecast(chart$config$forecast, bar = FALSE, x_values = NULL)
+      draw_vlines(chart$config$vline)                      # <- add
       draw_areas(datapoints, config, config$y_axis_label)
       draw_lines(datapoints, config)
     }
     if (bar) {
       x_values <- base_barplot(datapoints, config, y_axis, forecast = chart$config$forecast)
       draw_emphasis(chart$config$emphasis, config$y_axis_label, y_axis$ylim)
+      draw_vlines(chart$config$vline, x_values)            # <- add
       if(area)  stop("Oh no, you cannot combine a bar chart with an area chart.")
-
     }
     if (bar & line) {
       draw_lines(datapoints, config, x_values = x_values)
@@ -196,7 +203,7 @@ view_chart <- function(chart) {
       par_mgp(mgp = c(3, -0.2, 0))
       axis(1, x_axis$x_labels, at = x_axis$x_positions,
            col = umar_cols("gridlines"), lwd = 0, tck = 0,
-           family = umar_font(), padj = 0.5, gap.axis = 0.25)
+           family = umar_font(), padj = 0.5, gap.axis = -1)
     }
     # --- note ---
     if (length(bottom$wrapped) > 0) {
