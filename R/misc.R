@@ -589,7 +589,7 @@ axis_label_gap <- function() 0.3
 #' number of lines
 #' @export
 #'
-left_axis_label_width <- function(config, y_axis, language = "si", label_ps = NULL) {
+left_axis_label_width <- function(config, y_axis, language = "si", label_ps = ps_label()) {
   axis_labels_num <- y_axis$y_breaks
   axis_positions <- y_axis$y_breaks
   unit <- unique(unlist(purrr::map(config$series, ~ .x$unit)))

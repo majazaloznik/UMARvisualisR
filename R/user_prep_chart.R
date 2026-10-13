@@ -133,6 +133,16 @@ prep_chart <- function(data,
 
   n_series <- length(parsed$series_names)
 
+  # --- validate series number
+  if (n_series > 8) {
+    warning("Maximum 8 series supported. Keeping the first 8.")
+    parsed$datapoints   <- parsed$datapoints[1:8]
+    parsed$series_names <- parsed$series_names[1:8]
+    trim <- function(x) if (!is.null(x) && length(x) > 8) x[1:8] else x
+    type <- trim(type); rolling <- trim(rolling); growth <- trim(growth)
+    index <- trim(index); colours <- trim(colours); axis <- trim(axis)
+    n_series <- 8
+  }
   # expand transformations, so scalars work
   expand_transform <- function(x, n_series, name) {
     if (is.null(x)) return(NULL)
@@ -171,13 +181,7 @@ prep_chart <- function(data,
     stop("both area series must be on the same axis.")
   }
 
-  # --- validate series number
-  if (n_series > 8) {
-    warning("Maximum 8 series supported. Keeping the first 8.")
-    parsed$datapoints <- parsed$datapoints[1:8]
-    parsed$series_names <- parsed$series_names[1:8]
-    n_series <- 8
-  }
+
   # --- validate colours ---
   area_indices <- which(type == "area")
   # warn if user explicitly passed non-NA colours for area positions

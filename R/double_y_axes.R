@@ -340,7 +340,7 @@ config_for_axis <- function(config, which = 1L) {
 #' @return list of axis title, axis labels, positions and number of lines
 #' @export
 right_axis_label_width <- function(config, y_axis, language = "si",
-                                   edge_pad = 0.35, label_ps = NULL) {
+                                   edge_pad = 0.35, label_ps = ps_label()) {
   axis_labels_num <- y_axis$y_breaks
   axis_positions <- y_axis$y_breaks
   unit <- unique(unlist(purrr::map(config$series, ~ .x$unit)))

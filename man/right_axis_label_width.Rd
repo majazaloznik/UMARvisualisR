@@ -9,7 +9,7 @@ right_axis_label_width(
   y_axis,
   language = "si",
   edge_pad = 0.35,
-  label_ps = NULL
+  label_ps = ps_label()
 )
 }
 \arguments{
