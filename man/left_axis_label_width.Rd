@@ -4,7 +4,7 @@
 \alias{left_axis_label_width}
 \title{Prepare left axis labels and get width}
 \usage{
-left_axis_label_width(config, y_axis, language = "si", label_ps = ps_label())
+left_axis_label_width(config, y_axis, language = "si", label_ps = ps_legend())
 }
 \arguments{
 \item{config}{config dictionary list from \link[UMARvisualisR]{prep_config}}
