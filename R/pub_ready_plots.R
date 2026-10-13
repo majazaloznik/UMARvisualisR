@@ -88,7 +88,7 @@ get_x_lims <- function(datapoints){
 #' @param pad numeric or vector of length 2 padding x axis ednes.
 #' @return nothing, plots to open device
 #' @export
-empty_plot <- function(x_lims, y_axis, y_axis_label, pad = c(0, 0.01)){
+empty_plot <- function(x_lims, y_axis, y_axis_label, pad = x_pad("line")){
   if (any(pad > 0)) {
     p <- as.numeric(diff(range(x_lims))) * rep_len(pad, 2)
     x_lims <- x_lims + c(-p[1], p[2])   # Date + numeric stays Date
@@ -132,7 +132,7 @@ empty_plot <- function(x_lims, y_axis, y_axis_label, pad = c(0, 0.01)){
 #' @return midpoints, of course also plots a barplot to open device
 #' @export
 #'
-base_barplot <- function(datapoints, config, y_axis, forecast = NULL, pad = 0.015){
+base_barplot <- function(datapoints, config, y_axis, forecast = NULL, pad = x_pad("bar")){
   series_types <- vapply(config$series, \(x) x$type, character(1))
   series_colours <- vapply(config$series, \(x) x$colour, character(1))
   bar_colours <- series_colours[series_types == "bar"]
@@ -238,6 +238,9 @@ get_top_margin_and_title <- function(config, title_ps,
   dev.set(real_dev)
 
   # back on real device — set margins
+  # mtext()'s own multi-line pitch is ps/72 * 1.2 inches, which is title_ps/12
+  # csi lines at csi = 0.2. Defaulting to it means the margin is unchanged when
+  # no caller asks for different leading.
   if (is.null(title_lead)) title_lead <- title_ps / 12
   legend_block <- (legend_lines + 0.5) * legend_lead - 0.3 + legend_offset
   if (title_lines > 0) {

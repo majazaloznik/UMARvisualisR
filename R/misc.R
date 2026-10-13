@@ -4,6 +4,16 @@ ps_title  <- function() 10
 ps_legend <- function() 9.5
 ps_note   <- function() 8.5
 
+#' Horizontal padding, as a fraction of the x range
+#'
+#' Lines start flush against the left axis; bars need clearance on both sides.
+#' the line one has extra padding on the right because the left one is already the
+#' half month or quarter.
+#' @keywords internal
+x_pad <- function(type = c("line", "bar")) {
+  switch(match.arg(type), line = c(0, 0.01), bar = c(0.015, 0.015))
+}
+
 #' Helper functions for testing if a value is in a range
 #'
 #' in_range checks if the value is within the range, including the limits,

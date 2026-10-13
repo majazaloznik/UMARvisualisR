@@ -4,7 +4,7 @@
 \alias{empty_plot}
 \title{Plots empty plot with gridlines}
 \usage{
-empty_plot(x_lims, y_axis, y_axis_label, pad = c(0, 0.01))
+empty_plot(x_lims, y_axis, y_axis_label, pad = x_pad("line"))
 }
 \arguments{
 \item{x_lims}{output of \link[UMARvisualisR]{get_x_lims}}

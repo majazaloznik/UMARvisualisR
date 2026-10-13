@@ -217,6 +217,14 @@ validate_chart_specs <- function(charts, chart_series) {
                      chart_id = .data$chart_id,
                      detail = paste0("'", .data$fun, "' (valid: mean, sum)"))
 
+  orphan_aggregate_fun <- charts |>
+    dplyr::mutate(agg = agg_col, fun = fun_col) |>
+    dplyr::filter(!blank(.data$fun), blank(.data$agg)) |>
+    dplyr::transmute(check = "aggregate_fun set without aggregate",
+                     chart_id = .data$chart_id,
+                     detail = paste0("aggregate_fun = '", .data$fun,
+                                     "' has no effect unless aggregate is set"))
+
   mom_on_quarterly <- chart_series |>
     dplyr::filter(.data$chart_id %in% agg_ids, toupper(.data$growth) %in% "MOM") |>
     dplyr::transmute(check = "MOM growth on a chart aggregated to quarters",
@@ -434,6 +442,26 @@ validate_chart_specs <- function(charts, chart_series) {
                      chart_id = .data$chart_id,
                      detail = paste0(.data$n, " area series; prep_chart supports at most 2"))
 
+  code_interval <- function(x) {
+    out <- rep(NA_character_, length(x))
+    hit <- grepl("--[MQA]$", x)
+    out[hit] <- sub(".*--", "", x[hit])
+    out
+  }
+
+  mixed_interval <- chart_series |>
+    dplyr::filter(.data$source_type == "db", !.data$chart_id %in% agg_ids) |>
+    dplyr::mutate(int = code_interval(.data$series_code)) |>
+    dplyr::filter(!is.na(.data$int)) |>
+    dplyr::group_by(.data$chart_id) |>
+    dplyr::filter(dplyr::n_distinct(.data$int) > 1) |>
+    dplyr::summarise(ints = paste(sort(unique(.data$int)), collapse = ", "),
+                     .groups = "drop") |>
+    dplyr::transmute(check = "series of different frequencies on one chart",
+                     chart_id = .data$chart_id,
+                     detail = paste0("intervals: ", .data$ints,
+                                     " - set aggregate = 'Q', or use one frequency"))
+
   dplyr::bind_rows(
     dup_chart_id, unpaired, bad_dates, headers_without_series,
     orphan_series, dup_position, dup_alias, bad_alias,
@@ -441,7 +469,8 @@ validate_chart_specs <- function(charts, chart_series) {
     bad_rolling, bad_growth, bad_index, growth_index_clash,
     bad_plot, legend_mismatch, bad_type, too_many_plotted, too_many_area,
     bad_axis, no_left_axis, area_split, stacked_split,
-    bad_aggregate, bad_aggregate_fun, mom_on_quarterly, monthly_index_on_quarterly
+    bad_aggregate, bad_aggregate_fun, orphan_aggregate_fun,
+    mom_on_quarterly, monthly_index_on_quarterly, mixed_interval
   )
 }
 

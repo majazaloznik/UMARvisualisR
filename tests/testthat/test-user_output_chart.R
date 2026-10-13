@@ -51,3 +51,27 @@ test_that("get_code round-trips per-series transforms", {
   expect_true(grepl("rolling = c(4, NA)", code, fixed = TRUE))
   expect_true(grepl('growth = c(NA, "YOY")', code, fixed = TRUE))
 })
+
+test_that("every output device opens at the requested geometry", {
+  skip_if_not_installed("svglite")
+  skip_if_not_installed("devEMF")
+
+  wh  <- chart_size("normal")
+  csi <- device_pointsize() / 72 * 1.2
+
+  geom <- function(fmt) {
+    f <- tempfile(fileext = paste0(".", fmt))
+    chart_device(f, fmt, "normal")
+    on.exit({ grDevices::dev.off(); unlink(f) }, add = TRUE)
+    c(par("din"), par("csi"))
+  }
+
+  # Devices quantise the requested size to their own grid: cairo_pdf to whole
+  # points, png to whole pixels, emf to its coordinate DPI. That is ~0.3% on the
+  # dimensions and ~1.7% on emf's csi. The failure this test exists to catch - a
+  # device opened at the wrong pointsize - moves csi by ~17%, so 2% separates
+  # them comfortably. Do not tighten this to 1e-6; it will fail on rounding.
+  for (fmt in c("pdf", "png", "svg", "emf")) {
+    expect_equal(geom(fmt), c(wh, csi), tolerance = 0.02, info = fmt)
+  }
+})

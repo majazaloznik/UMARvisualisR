@@ -4,7 +4,7 @@
 \alias{base_barplot}
 \title{Base barplot}
 \usage{
-base_barplot(datapoints, config, y_axis, forecast = NULL, pad = 0.015)
+base_barplot(datapoints, config, y_axis, forecast = NULL, pad = x_pad("bar"))
 }
 \arguments{
 \item{datapoints}{list of dataframes from \link[UMARvisualisR]{prep_data}}

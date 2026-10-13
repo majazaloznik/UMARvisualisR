@@ -163,7 +163,6 @@ view_chart <- function(chart) {
     }
 
     # --- title ---
-    # --- title ---
     if (!is.null(top[[3]])) {
       tl  <- strsplit(top[[3]], "\n", fixed = TRUE)[[1]]
       n_t <- length(tl)
