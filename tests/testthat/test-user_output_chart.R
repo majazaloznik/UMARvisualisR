@@ -72,6 +72,9 @@ test_that("every output device opens at the requested geometry", {
   # device opened at the wrong pointsize - moves csi by ~17%, so 2% separates
   # them comfortably. Do not tighten this to 1e-6; it will fail on rounding.
   for (fmt in c("pdf", "png", "svg", "emf")) {
-    expect_equal(geom(fmt), c(wh, csi), tolerance = 0.02, info = fmt)
+    g <- unname(geom(fmt))
+    expect_equal(g[1], unname(wh[1]), tolerance = 0.02, info = paste(fmt, "width"))
+    expect_equal(g[2], unname(wh[2]), tolerance = 0.02, info = paste(fmt, "height"))
+    expect_equal(g[3], csi,           tolerance = 0.02, info = paste(fmt, "csi"))
   }
 })
