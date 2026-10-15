@@ -16,13 +16,13 @@
 #' @param chart an object of class "umar_chart" from \link[UMARvisualisR]{prep_chart}
 #' @param filename character path to output file. If no extension is provided,
 #'   one is added based on \code{format}.
-#' @param format character, one of \link{chart_formats}. Defaults to "pdf".
+#' @param format character, one of \link{chart_formats}. Defaults to "svg".
 #'   Ignored if \code{filename} already has a valid extension.
 #' @param size integer, chart size: 1 (small), 2 (normal), 3 (large). Defaults to 2.
 #'
 #' @return invisible chart object
 #' @export
-save_chart <- function(chart, filename, format = "pdf", size = 2) {
+save_chart <- function(chart, filename, format = "svg", size = 2) {
   if (!inherits(chart, "umar_chart")) stop("chart must be a 'umar_chart' object from prep_chart().")
   if (missing(filename)) stop("filename is required. E.g. save_chart(chart, 'my_chart')")
   if (!size %in% c(1, 2, 3)) stop("size must be 1 (small), 2 (normal), or 3 (large).")
