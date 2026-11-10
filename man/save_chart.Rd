@@ -4,7 +4,7 @@
 \alias{save_chart}
 \title{Save a chart to file}
 \usage{
-save_chart(chart, filename, format = "pdf", size = 2)
+save_chart(chart, filename, format = "svg", size = 2)
 }
 \arguments{
 \item{chart}{an object of class "umar_chart" from \link[UMARvisualisR]{prep_chart}}
@@ -12,7 +12,7 @@ save_chart(chart, filename, format = "pdf", size = 2)
 \item{filename}{character path to output file. If no extension is provided,
 one is added based on \code{format}.}
 
-\item{format}{character, one of \link{chart_formats}. Defaults to "pdf".
+\item{format}{character, one of \link{chart_formats}. Defaults to "svg".
 Ignored if \code{filename} already has a valid extension.}
 
 \item{size}{integer, chart size: 1 (small), 2 (normal), 3 (large). Defaults to 2.}
