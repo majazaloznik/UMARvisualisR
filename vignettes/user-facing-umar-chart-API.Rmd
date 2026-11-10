@@ -1,8 +1,8 @@
 ---
-title: "User facing Umar chart API with UMARvisualisR"
+title: "Uporaba UMARvisualisR API-ja"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{user-facing-umar-chart-API}
+  %\VignetteIndexEntry{Uporaba UMARvisualisR API-ja}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -469,6 +469,8 @@ Seznam idej in planov, not in any particular order:
 - ~~dodana možnost za črtkane in pikčaste linije~~
 - ~~dodan "area" type za eno ali dve seriji~~
 - dodaj alpha za opacity barv.
+- dodaj y_incl, za recimo 0 ali 100, da je vedno not. 
+- dodaj long term average indeks
 
 
 

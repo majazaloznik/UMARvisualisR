@@ -43,3 +43,4 @@ Remotes:
   majazaloznik/UMARaccessR
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.1.0
+URL: https://majazaloznik.github.io/UMARvisualisR/
